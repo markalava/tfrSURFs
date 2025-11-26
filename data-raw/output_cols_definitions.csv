@@ -1,0 +1,52 @@
+group,name,type,description
+ID,country_code,numeric,M49 numeric country or territory code
+ID,name,character,M49 country or territory name
+ID,year,numeric,Year (row-specific)
+SURF indicators,transition_condition_met,logical,"TRUE = transition condition is met for this year, otherwise FALSE"
+SURF indicators,surf_prob,numeric,SURF probability for this year; NA in years at the edges of the analysis period where probabilities cannot be calcuated (depends on the smoothing bandwidth)
+SURF indicators,surf_year,logical,"TRUE = this year is a SURF year, otherwise FALSE"
+SURF indicators,rate_prob_surf_year,logical,"TRUE = transition, rate, and probability conditions are met for the this year, otherwise FALSE"
+SURF indicators,min_inter_surf_length_surf_year_pre_continuation,logical,"TRUE = this year was made a SURF under the minimum inter-SURF length condition, before the application of the continuation condition, otherwise FALSE"
+SURF indicators,min_surf_length_surf_removed_pre_continuation,logical,"TRUE = this year was a SURF but it was removed under the minimum SURF length condition, before the application of the continuation condition, otherwise FALSE"
+SURF indicators,continuation_surf_year,logical,"TRUE = this year was made a SURF under the continuation condition, otherwise FALSE"
+SURF indicators,exceedance_condition_surf_removed,logical,TRUE = this year was a SURF but it was removed under the exceedance condition
+SURF indicators,min_inter_surf_length_surf_year,logical,"TRUE = this year was made a SURF under the minimum inter-SURF length condition, after the application of the continuation condition, otherwise FALSE"
+SURF indicators,min_surf_length_surf_removed,logical,"TRUE = this year was a SURF but it was removed under the minimum SURF length condition, after the application of the continuation condition, otherwise FALSE"
+SURF periods / groups,surf_year_start,logical,TRUE = this year is the first year of a SURF period
+SURF periods / groups,surf_year_start_pre_continuation,logical,TRUE = this year was the first year of a SURF before the application of the continuation condition
+SURF periods / groups,surf_year_group,numeric,"If this year is a SURF year this is the unique ID for this SURF period where periods are numbered sequentially in chronological order and the first SURF has ID ""1""; otherwise NA"
+SURF periods / groups,surf_year_len,numeric,If this year is a SURF year this is the length (in years) of the SURF period; otherwise NA
+SURF periods / groups,surf_in_proj,logical,"If this is a SURF year, TRUE = this year is in the projection period, FALSE = it is not; otherwise NA"
+Schoumaker stalls,Schoumaker_stall_type,character,"If this year is a Schoumaker stall, the type of stall [takes values in c(""Moderate evidence"", ""No stall"", ""Strong+ evidence"", ""Strong+ evidence"", ""Strong+ evidence"", ""Weak or conflicting evidence"", ""Pretransitional"")]; otherwise NA"
+Schoumaker stalls,Schoumaker_stall_strong,logical,"TRUE = Schoumaker stall with ""strong+"" evidence, otherwise FALSE"
+Schoumaker stalls,Schoumaker_stall_moderate,logical,"TRUE = Schoumaker stall with ""moderate"" evidence, otherwise FALSE"
+Schoumaker stalls,Schoumaker_stall_weak,logical,"TRUE = Schoumaker stall with ""weak or conflicting"" evidence, otherwise FALSE"
+Schoumaker stalls,Schoumaker_stall_pretransitional,logical,"TRUE = Pretransitional Schoumaker stall, otherwise FALSE"
+Schoumaker stalls,Schoumaker_stall_none,logical,"TRUE = this is a year Schoumaker analyzed and found no evidence for a stall of any kind, otherwise FALSE; not the inverse of 'Schoumaker_stall_any' because some years were not analyzed"
+Schoumaker stalls,Schoumaker_stall_any,logical,"TRUE = a year with a Schoumaker stall of any kind, otherwise FALSE"
+Schoumaker stalls,Schoumaker_included,logical,TRUE = this country or territory included in Schoumaker's analysis
+Indicator info,indicator,character,"The indicator used to find tfrSURFs, currently always ""TFR"""
+Indicator info,TFR.2.5pc,numeric,Posterior 2.5th percentile of TFR
+Indicator info,TFR.10pc,numeric,Posterior 10th percentile of TFR
+Indicator info,TFR_median,numeric,Posterior median of TFR
+Indicator info,TFR.90pc,numeric,Posterior 90th percentile of TFR
+Indicator info,TFR.97.5pc,numeric,Posterior 97.5th percentile of TFR
+Regions,reg_name,character,"Name of the subregion this country or territory belongs to (e.g., Eastern Asia, Middle Africa, etc.)"
+Regions,area_name,character,"Name of the region this country or territory belongs to (e.g., Europe, Oceania, etc.)"
+Regions,sub_saharan_africa,logical,"TRUE = this country or territory is in sub-Saharan Africa, otherwise FALSE"
+Condition settings,pop_lt_90k_2024,logical,TRUE = this country or territory had a population of less than 90 000 in mid-2024
+Condition settings,smoothing_method,character,"The smoothing method used [one of c(""local_linear"", ""annual_difference"")]"
+Condition settings,transition_condition_type,character,"The transition condition used [one of c(""Phase II & >= 2.1 persistently"", ""Phase II & never < 2.1"", ""Phase II only"")]"
+Condition settings,bandwidth,numeric,The size of the smoothing bandwidth in years
+Condition settings,rate_threshold,numeric,The threshold used for the rate condition
+Condition settings,rate_prob_threshold,numeric,The threshold used for the probability condition
+Condition settings,continuation_condition,character,"The continuation condition used [one of c(""Regain TFR, median, 2yr"", ""Regain TFR, probabilistic"", ""NONE"")]"
+Condition settings,continuation_condition_prob_threshold,numeric,The threshold used for the continuation condition
+Condition settings,exceedance_condition,character,"The exceedance condition used [one of cc(""Max TFR > 2.1, median"", ""Max TFR > 2.1, probabilistic"", ""NONE"")]"
+Condition settings,exceedance_condition_prob_threshold,numeric,The threshold used for the exceedance condition
+Condition settings,min_inter_surf_length,numeric,The minimum inter-SURF length used
+Condition settings,min_surf_length,numeric,The minimum SURF length used
+Other,bayesTFR_present_year,numeric,"The ""present year"" for this run of bayesTFR"
+Other,bayesTFR_wpp_year,numeric,"The ""WPP year"" for this run of bayesTFR"
+Other,year_lim_start,numeric,The lower limit of the analysis period
+Other,year_lim_end,numeric,The upper limit of the analysis period

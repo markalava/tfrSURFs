@@ -1,0 +1,121 @@
+
+<!-- FONTS -->
+<!-- From 'https://stackoverflow.com/questions/3942254/how-to-specify-font-attributes-for-all-elements-on-an-html-web-page' -->
+<style>
+html, body, form, fieldset, table, tr, td, img {
+    font: verdana,helvetica,arial,sans-serif;
+}
+
+input, button, select, textarea, optgroup, option {
+    font-family: inherit;
+    font-size: inherit;
+    font-style: inherit;
+    font-weight: inherit;
+}
+</style>
+
+
+<!-- BODY -->
+
+<style>
+body {
+    line-height: 1.5;
+}
+</style>
+
+
+<!-- CAPTIONS -->
+
+<style>
+p.caption {
+    font-size: 90%;
+    /* font-style: italic; */
+    color: black;e
+    font-weight: 400;
+    margin-right: 10%;
+    margin-left: 10%;  
+    margin-bottom: 2%;
+    text-align: justify;
+}
+
+caption {
+    font-size: 90%; 
+    /* font-style: italic; */
+    color: black;
+    font-weight: 400;
+    margin-right: 10%;
+    margin-left: 10%;
+    margin-top: 5%;
+    margin-bottom: 2%;
+    text-align: justify;
+}
+</style>
+
+
+<!-- TABLES -->
+
+<style>
+ th, td {
+    font-size: 90%;
+  }
+</style>
+
+
+<!-- FIGURES -->
+
+<style>
+.figure {
+    margin: 5%;
+}
+</style>
+
+
+<!-- HEADINGS -->
+
+<style>
+
+h1.title {
+    text-align: center;
+    font-size: 175%;
+    border-bottom: 0px;
+}
+
+h1 {
+    font-size: 155%;
+    margin-top: 30px;
+    padding-top: 10px;
+    border-bottom: 6px solid #f5f5f5;
+}
+
+h2 {
+    font-size: 130%;
+    font-style: italic;
+}
+
+h3 {
+    font-size: 115%;
+}
+
+h4 {
+    font-size: 105%;
+}
+
+h5 {
+    font-size: 100%;
+}
+
+h6 {
+    font-size: 100%;
+}
+
+h4.author {
+    font-size: 130%;
+    text-align: center;
+}
+
+h4.date {
+    font-size: 130%;
+    text-align: center;
+}
+
+</style>

@@ -1,0 +1,50 @@
+Package: tfrSURFs
+Title: Probabilistic estimates of stalls, upswings, and reversals in total fertility rates (tfrSURFs) 
+Version: 1.0.0
+Authors@R: c(
+    person("Mark", "Wheldon", , "wheldon@un.org", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-6897-9644")),
+    person("Vladimíra", "Kantorová", role = "ctb",
+           comment = c(ORCID = "0000-0002-2960-5930")),
+    person("Joseph", "Molitoris", role = "ctb",
+           comment = c(ORCID = "0000-0001-6038-8332")),
+    person("Thomas", "Spoorenberg", role = "ctb",
+           comment = c(ORCID = "0000-0001-8608-1398")),
+    person("Yumiko", "Kamiya", role = "ctb"),
+    person("Patrick", "Gerland", role = "ctb",
+           comment = c(ORCID = "0000-0002-2082-3122"))
+  )
+Description: Given a sample from the posterior distribution of annual
+    total fertility rates (e.g., as produced by package "bayesTFR"), this
+    package will produce estimates of the probability that a SURF
+    occurred in each year.
+License: `use_mit_license()`
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Imports: 
+    bayesTFR,
+    dplyr,
+    FPPlateaus,
+    ggplot2,
+    ggpubr,
+    parallel,
+    parallelly,
+    pbapply,
+    plyr,
+    rlang,
+    tidyr
+Suggests: 
+    ggpattern,
+    gtools,
+    here,
+    knitr,
+    openxlsx,
+    rmarkdown,
+    testthat (>= 3.0.0),
+    withr
+VignetteBuilder: knitr
+Depends: 
+    R (>= 4.1.0)
+LazyData: true
+Config/testthat/edition: 3

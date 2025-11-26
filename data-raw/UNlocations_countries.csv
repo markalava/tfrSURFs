@@ -1,0 +1,238 @@
+"name","country_code","reg_name","area_name","sub_saharan_africa","pop_lt_90k_2024"
+"Burundi",108,"Eastern Africa","Africa",TRUE,FALSE
+"Comoros",174,"Eastern Africa","Africa",TRUE,FALSE
+"Djibouti",262,"Eastern Africa","Africa",TRUE,FALSE
+"Eritrea",232,"Eastern Africa","Africa",TRUE,FALSE
+"Ethiopia",231,"Eastern Africa","Africa",TRUE,FALSE
+"Kenya",404,"Eastern Africa","Africa",TRUE,FALSE
+"Madagascar",450,"Eastern Africa","Africa",TRUE,FALSE
+"Malawi",454,"Eastern Africa","Africa",TRUE,FALSE
+"Mauritius",480,"Eastern Africa","Africa",TRUE,FALSE
+"Mayotte",175,"Eastern Africa","Africa",TRUE,FALSE
+"Mozambique",508,"Eastern Africa","Africa",TRUE,FALSE
+"Reunion",638,"Eastern Africa","Africa",TRUE,FALSE
+"Rwanda",646,"Eastern Africa","Africa",TRUE,FALSE
+"Seychelles",690,"Eastern Africa","Africa",TRUE,FALSE
+"Somalia",706,"Eastern Africa","Africa",TRUE,FALSE
+"South Sudan",728,"Eastern Africa","Africa",TRUE,FALSE
+"Uganda",800,"Eastern Africa","Africa",TRUE,FALSE
+"United Republic of Tanzania",834,"Eastern Africa","Africa",TRUE,FALSE
+"Zambia",894,"Eastern Africa","Africa",TRUE,FALSE
+"Zimbabwe",716,"Eastern Africa","Africa",TRUE,FALSE
+"Angola",24,"Middle Africa","Africa",TRUE,FALSE
+"Cameroon",120,"Middle Africa","Africa",TRUE,FALSE
+"Central African Republic",140,"Middle Africa","Africa",TRUE,FALSE
+"Chad",148,"Middle Africa","Africa",TRUE,FALSE
+"Congo",178,"Middle Africa","Africa",TRUE,FALSE
+"Democratic Republic of the Congo",180,"Middle Africa","Africa",TRUE,FALSE
+"Equatorial Guinea",226,"Middle Africa","Africa",TRUE,FALSE
+"Gabon",266,"Middle Africa","Africa",TRUE,FALSE
+"Sao Tome and Principe",678,"Middle Africa","Africa",TRUE,FALSE
+"Algeria",12,"Northern Africa","Africa",FALSE,FALSE
+"Egypt",818,"Northern Africa","Africa",FALSE,FALSE
+"Libya",434,"Northern Africa","Africa",FALSE,FALSE
+"Morocco",504,"Northern Africa","Africa",FALSE,FALSE
+"Sudan",729,"Northern Africa","Africa",FALSE,FALSE
+"Tunisia",788,"Northern Africa","Africa",FALSE,FALSE
+"Western Sahara",732,"Northern Africa","Africa",FALSE,FALSE
+"Botswana",72,"Southern Africa","Africa",TRUE,FALSE
+"Eswatini",748,"Southern Africa","Africa",TRUE,FALSE
+"Lesotho",426,"Southern Africa","Africa",TRUE,FALSE
+"Namibia",516,"Southern Africa","Africa",TRUE,FALSE
+"South Africa",710,"Southern Africa","Africa",TRUE,FALSE
+"Benin",204,"Western Africa","Africa",TRUE,FALSE
+"Burkina Faso",854,"Western Africa","Africa",TRUE,FALSE
+"Cabo Verde",132,"Western Africa","Africa",TRUE,FALSE
+"Cote d'Ivoire",384,"Western Africa","Africa",TRUE,FALSE
+"Gambia",270,"Western Africa","Africa",TRUE,FALSE
+"Ghana",288,"Western Africa","Africa",TRUE,FALSE
+"Guinea",324,"Western Africa","Africa",TRUE,FALSE
+"Guinea-Bissau",624,"Western Africa","Africa",TRUE,FALSE
+"Liberia",430,"Western Africa","Africa",TRUE,FALSE
+"Mali",466,"Western Africa","Africa",TRUE,FALSE
+"Mauritania",478,"Western Africa","Africa",TRUE,FALSE
+"Niger",562,"Western Africa","Africa",TRUE,FALSE
+"Nigeria",566,"Western Africa","Africa",TRUE,FALSE
+"Saint Helena",654,"Western Africa","Africa",TRUE,TRUE
+"Senegal",686,"Western Africa","Africa",TRUE,FALSE
+"Sierra Leone",694,"Western Africa","Africa",TRUE,FALSE
+"Togo",768,"Western Africa","Africa",TRUE,FALSE
+"Kazakhstan",398,"Central Asia","Asia",FALSE,FALSE
+"Kyrgyzstan",417,"Central Asia","Asia",FALSE,FALSE
+"Tajikistan",762,"Central Asia","Asia",FALSE,FALSE
+"Turkmenistan",795,"Central Asia","Asia",FALSE,FALSE
+"Uzbekistan",860,"Central Asia","Asia",FALSE,FALSE
+"China",156,"Eastern Asia","Asia",FALSE,FALSE
+"China, Hong Kong SAR",344,"Eastern Asia","Asia",FALSE,FALSE
+"China, Macao SAR",446,"Eastern Asia","Asia",FALSE,FALSE
+"China, Taiwan Province of China",158,"Eastern Asia","Asia",FALSE,FALSE
+"Dem. People's Republic of Korea",408,"Eastern Asia","Asia",FALSE,FALSE
+"Japan",392,"Eastern Asia","Asia",FALSE,FALSE
+"Mongolia",496,"Eastern Asia","Asia",FALSE,FALSE
+"Republic of Korea",410,"Eastern Asia","Asia",FALSE,FALSE
+"Afghanistan",4,"Southern Asia","Asia",FALSE,FALSE
+"Bangladesh",50,"Southern Asia","Asia",FALSE,FALSE
+"Bhutan",64,"Southern Asia","Asia",FALSE,FALSE
+"India",356,"Southern Asia","Asia",FALSE,FALSE
+"Iran (Islamic Republic of)",364,"Southern Asia","Asia",FALSE,FALSE
+"Maldives",462,"Southern Asia","Asia",FALSE,FALSE
+"Nepal",524,"Southern Asia","Asia",FALSE,FALSE
+"Pakistan",586,"Southern Asia","Asia",FALSE,FALSE
+"Sri Lanka",144,"Southern Asia","Asia",FALSE,FALSE
+"Brunei Darussalam",96,"South-Eastern Asia","Asia",FALSE,FALSE
+"Cambodia",116,"South-Eastern Asia","Asia",FALSE,FALSE
+"Indonesia",360,"South-Eastern Asia","Asia",FALSE,FALSE
+"Lao People's Democratic Republic",418,"South-Eastern Asia","Asia",FALSE,FALSE
+"Malaysia",458,"South-Eastern Asia","Asia",FALSE,FALSE
+"Myanmar",104,"South-Eastern Asia","Asia",FALSE,FALSE
+"Philippines",608,"South-Eastern Asia","Asia",FALSE,FALSE
+"Singapore",702,"South-Eastern Asia","Asia",FALSE,FALSE
+"Thailand",764,"South-Eastern Asia","Asia",FALSE,FALSE
+"Timor-Leste",626,"South-Eastern Asia","Asia",FALSE,FALSE
+"Viet Nam",704,"South-Eastern Asia","Asia",FALSE,FALSE
+"Armenia",51,"Western Asia","Asia",FALSE,FALSE
+"Azerbaijan",31,"Western Asia","Asia",FALSE,FALSE
+"Bahrain",48,"Western Asia","Asia",FALSE,FALSE
+"Cyprus",196,"Western Asia","Asia",FALSE,FALSE
+"Georgia",268,"Western Asia","Asia",FALSE,FALSE
+"Iraq",368,"Western Asia","Asia",FALSE,FALSE
+"Israel",376,"Western Asia","Asia",FALSE,FALSE
+"Jordan",400,"Western Asia","Asia",FALSE,FALSE
+"Kuwait",414,"Western Asia","Asia",FALSE,FALSE
+"Lebanon",422,"Western Asia","Asia",FALSE,FALSE
+"Oman",512,"Western Asia","Asia",FALSE,FALSE
+"Qatar",634,"Western Asia","Asia",FALSE,FALSE
+"Saudi Arabia",682,"Western Asia","Asia",FALSE,FALSE
+"State of Palestine",275,"Western Asia","Asia",FALSE,FALSE
+"Syrian Arab Republic",760,"Western Asia","Asia",FALSE,FALSE
+"Turkiye",792,"Western Asia","Asia",FALSE,FALSE
+"United Arab Emirates",784,"Western Asia","Asia",FALSE,FALSE
+"Yemen",887,"Western Asia","Asia",FALSE,FALSE
+"Belarus",112,"Eastern Europe","Europe",FALSE,FALSE
+"Bulgaria",100,"Eastern Europe","Europe",FALSE,FALSE
+"Czechia",203,"Eastern Europe","Europe",FALSE,FALSE
+"Hungary",348,"Eastern Europe","Europe",FALSE,FALSE
+"Poland",616,"Eastern Europe","Europe",FALSE,FALSE
+"Republic of Moldova",498,"Eastern Europe","Europe",FALSE,FALSE
+"Romania",642,"Eastern Europe","Europe",FALSE,FALSE
+"Russian Federation",643,"Eastern Europe","Europe",FALSE,FALSE
+"Slovakia",703,"Eastern Europe","Europe",FALSE,FALSE
+"Ukraine",804,"Eastern Europe","Europe",FALSE,FALSE
+"Denmark",208,"Northern Europe","Europe",FALSE,FALSE
+"Estonia",233,"Northern Europe","Europe",FALSE,FALSE
+"Faroe Islands",234,"Northern Europe","Europe",FALSE,TRUE
+"Finland",246,"Northern Europe","Europe",FALSE,FALSE
+"Guernsey",831,"Northern Europe","Europe",FALSE,TRUE
+"Iceland",352,"Northern Europe","Europe",FALSE,FALSE
+"Ireland",372,"Northern Europe","Europe",FALSE,FALSE
+"Isle of Man",833,"Northern Europe","Europe",FALSE,TRUE
+"Jersey",832,"Northern Europe","Europe",FALSE,FALSE
+"Latvia",428,"Northern Europe","Europe",FALSE,FALSE
+"Lithuania",440,"Northern Europe","Europe",FALSE,FALSE
+"Norway",578,"Northern Europe","Europe",FALSE,FALSE
+"Sweden",752,"Northern Europe","Europe",FALSE,FALSE
+"United Kingdom",826,"Northern Europe","Europe",FALSE,FALSE
+"Albania",8,"Southern Europe","Europe",FALSE,FALSE
+"Andorra",20,"Southern Europe","Europe",FALSE,TRUE
+"Bosnia and Herzegovina",70,"Southern Europe","Europe",FALSE,FALSE
+"Croatia",191,"Southern Europe","Europe",FALSE,FALSE
+"Gibraltar",292,"Southern Europe","Europe",FALSE,TRUE
+"Greece",300,"Southern Europe","Europe",FALSE,FALSE
+"Holy See",336,"Southern Europe","Europe",FALSE,TRUE
+"Italy",380,"Southern Europe","Europe",FALSE,FALSE
+"Kosovo (under UNSC res. 1244)",412,"Southern Europe","Europe",FALSE,FALSE
+"Malta",470,"Southern Europe","Europe",FALSE,FALSE
+"Montenegro",499,"Southern Europe","Europe",FALSE,FALSE
+"North Macedonia",807,"Southern Europe","Europe",FALSE,FALSE
+"Portugal",620,"Southern Europe","Europe",FALSE,FALSE
+"San Marino",674,"Southern Europe","Europe",FALSE,TRUE
+"Serbia",688,"Southern Europe","Europe",FALSE,FALSE
+"Slovenia",705,"Southern Europe","Europe",FALSE,FALSE
+"Spain",724,"Southern Europe","Europe",FALSE,FALSE
+"Austria",40,"Western Europe","Europe",FALSE,FALSE
+"Belgium",56,"Western Europe","Europe",FALSE,FALSE
+"France",250,"Western Europe","Europe",FALSE,FALSE
+"Germany",276,"Western Europe","Europe",FALSE,FALSE
+"Liechtenstein",438,"Western Europe","Europe",FALSE,TRUE
+"Luxembourg",442,"Western Europe","Europe",FALSE,FALSE
+"Monaco",492,"Western Europe","Europe",FALSE,TRUE
+"Netherlands",528,"Western Europe","Europe",FALSE,FALSE
+"Switzerland",756,"Western Europe","Europe",FALSE,FALSE
+"Anguilla",660,"Caribbean","Latin America and the Caribbean",FALSE,TRUE
+"Antigua and Barbuda",28,"Caribbean","Latin America and the Caribbean",FALSE,FALSE
+"Aruba",533,"Caribbean","Latin America and the Caribbean",FALSE,FALSE
+"Bahamas",44,"Caribbean","Latin America and the Caribbean",FALSE,FALSE
+"Barbados",52,"Caribbean","Latin America and the Caribbean",FALSE,FALSE
+"Bonaire, Sint Eustatius and Saba",535,"Caribbean","Latin America and the Caribbean",FALSE,TRUE
+"British Virgin Islands",92,"Caribbean","Latin America and the Caribbean",FALSE,TRUE
+"Cayman Islands",136,"Caribbean","Latin America and the Caribbean",FALSE,TRUE
+"Cuba",192,"Caribbean","Latin America and the Caribbean",FALSE,FALSE
+"Curacao",531,"Caribbean","Latin America and the Caribbean",FALSE,FALSE
+"Dominica",212,"Caribbean","Latin America and the Caribbean",FALSE,TRUE
+"Dominican Republic",214,"Caribbean","Latin America and the Caribbean",FALSE,FALSE
+"Grenada",308,"Caribbean","Latin America and the Caribbean",FALSE,FALSE
+"Guadeloupe",312,"Caribbean","Latin America and the Caribbean",FALSE,FALSE
+"Haiti",332,"Caribbean","Latin America and the Caribbean",FALSE,FALSE
+"Jamaica",388,"Caribbean","Latin America and the Caribbean",FALSE,FALSE
+"Martinique",474,"Caribbean","Latin America and the Caribbean",FALSE,FALSE
+"Montserrat",500,"Caribbean","Latin America and the Caribbean",FALSE,TRUE
+"Puerto Rico",630,"Caribbean","Latin America and the Caribbean",FALSE,FALSE
+"Saint-Barthelemy",652,"Caribbean","Latin America and the Caribbean",FALSE,TRUE
+"Saint Kitts and Nevis",659,"Caribbean","Latin America and the Caribbean",FALSE,TRUE
+"Saint Lucia",662,"Caribbean","Latin America and the Caribbean",FALSE,FALSE
+"Saint Martin (French part)",663,"Caribbean","Latin America and the Caribbean",FALSE,TRUE
+"Saint Vincent and the Grenadines",670,"Caribbean","Latin America and the Caribbean",FALSE,FALSE
+"Sint Maarten (Dutch part)",534,"Caribbean","Latin America and the Caribbean",FALSE,TRUE
+"Trinidad and Tobago",780,"Caribbean","Latin America and the Caribbean",FALSE,FALSE
+"Turks and Caicos Islands",796,"Caribbean","Latin America and the Caribbean",FALSE,TRUE
+"United States Virgin Islands",850,"Caribbean","Latin America and the Caribbean",FALSE,TRUE
+"Belize",84,"Central America","Latin America and the Caribbean",FALSE,FALSE
+"Costa Rica",188,"Central America","Latin America and the Caribbean",FALSE,FALSE
+"El Salvador",222,"Central America","Latin America and the Caribbean",FALSE,FALSE
+"Guatemala",320,"Central America","Latin America and the Caribbean",FALSE,FALSE
+"Honduras",340,"Central America","Latin America and the Caribbean",FALSE,FALSE
+"Mexico",484,"Central America","Latin America and the Caribbean",FALSE,FALSE
+"Nicaragua",558,"Central America","Latin America and the Caribbean",FALSE,FALSE
+"Panama",591,"Central America","Latin America and the Caribbean",FALSE,FALSE
+"Argentina",32,"South America","Latin America and the Caribbean",FALSE,FALSE
+"Bolivia (Plurinational State of)",68,"South America","Latin America and the Caribbean",FALSE,FALSE
+"Brazil",76,"South America","Latin America and the Caribbean",FALSE,FALSE
+"Chile",152,"South America","Latin America and the Caribbean",FALSE,FALSE
+"Colombia",170,"South America","Latin America and the Caribbean",FALSE,FALSE
+"Ecuador",218,"South America","Latin America and the Caribbean",FALSE,FALSE
+"Falkland Islands (Malvinas)",238,"South America","Latin America and the Caribbean",FALSE,TRUE
+"French Guiana",254,"South America","Latin America and the Caribbean",FALSE,FALSE
+"Guyana",328,"South America","Latin America and the Caribbean",FALSE,FALSE
+"Paraguay",600,"South America","Latin America and the Caribbean",FALSE,FALSE
+"Peru",604,"South America","Latin America and the Caribbean",FALSE,FALSE
+"Suriname",740,"South America","Latin America and the Caribbean",FALSE,FALSE
+"Uruguay",858,"South America","Latin America and the Caribbean",FALSE,FALSE
+"Venezuela (Bolivarian Republic of)",862,"South America","Latin America and the Caribbean",FALSE,FALSE
+"Bermuda",60,"","Northern America",FALSE,TRUE
+"Canada",124,"","Northern America",FALSE,FALSE
+"Greenland",304,"","Northern America",FALSE,TRUE
+"Saint Pierre and Miquelon",666,"","Northern America",FALSE,TRUE
+"United States of America",840,"","Northern America",FALSE,FALSE
+"Australia",36,"Australia/New Zealand","Oceania",FALSE,FALSE
+"New Zealand",554,"Australia/New Zealand","Oceania",FALSE,FALSE
+"Fiji",242,"Melanesia","Oceania",FALSE,FALSE
+"New Caledonia",540,"Melanesia","Oceania",FALSE,FALSE
+"Papua New Guinea",598,"Melanesia","Oceania",FALSE,FALSE
+"Solomon Islands",90,"Melanesia","Oceania",FALSE,FALSE
+"Vanuatu",548,"Melanesia","Oceania",FALSE,FALSE
+"Guam",316,"Micronesia","Oceania",FALSE,FALSE
+"Kiribati",296,"Micronesia","Oceania",FALSE,FALSE
+"Marshall Islands",584,"Micronesia","Oceania",FALSE,TRUE
+"Micronesia (Fed. States of)",583,"Micronesia","Oceania",FALSE,FALSE
+"Nauru",520,"Micronesia","Oceania",FALSE,TRUE
+"Northern Mariana Islands",580,"Micronesia","Oceania",FALSE,TRUE
+"Palau",585,"Micronesia","Oceania",FALSE,TRUE
+"American Samoa",16,"Polynesia","Oceania",FALSE,TRUE
+"Cook Islands",184,"Polynesia","Oceania",FALSE,TRUE
+"French Polynesia",258,"Polynesia","Oceania",FALSE,FALSE
+"Niue",570,"Polynesia","Oceania",FALSE,TRUE
+"Samoa",882,"Polynesia","Oceania",FALSE,FALSE
+"Tokelau",772,"Polynesia","Oceania",FALSE,TRUE
+"Tonga",776,"Polynesia","Oceania",FALSE,FALSE
+"Tuvalu",798,"Polynesia","Oceania",FALSE,TRUE
+"Wallis and Futuna Islands",876,"Polynesia","Oceania",FALSE,TRUE
