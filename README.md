@@ -1,6 +1,6 @@
 # tfrSURFs
 
-This package produces estimates and projections of *S*talls, *U*pswings, and *R*eversals in *F*ertility trends (SURFs) from probabilistic estimates and projections of total fertility rates (TFRs). It accompanies the manuscript "Caught in Transit: Identifying Stalls, Upswings and Reversals in Fertility Transitions For All Countries using a Probabilistic Approach", available [HERE]. 
+This package produces estimates and projections of *S*talls, *U*pswings, and *R*eversals in *F*ertility trends (SURFs) from probabilistic estimates and projections of total fertility rates (TFRs). It accompanies the manuscript "Caught in Transit: Identifying Stalls, Upswings and Reversals in Fertility Transitions For All Countries using a Probabilistic Approach", available [here](https://doi.org/10.31235/osf.io/u6r7n_v1 "Link to preprint of 'Caught in Transit: Identifying ...'"). 
 
 *tfrSURFs* is a package for the *R Environment for Statistical Computing* (R Core Team 2025). If you do not have *R* on your system you will need to download and install it before attempting to use *tfrSURFs*. Information about *R*, including links to download it, can be found [here](https://www.r-project.org/ "Official homepage of the R Project"). *tfrSURFs* was developed using *R* v. 4.5.1. 
 
