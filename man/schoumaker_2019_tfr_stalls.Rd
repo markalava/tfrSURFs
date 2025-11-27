@@ -34,7 +34,6 @@ Supporting Information.
 
 
 \subsection{Year ranges}{
-
 This data dataset is in \dQuote{long}, or \dQuote{database} format: each row
 corresponds to a separate country-year combination in the original. In the
 original, some countries had overlapping year ranges (for example, Benin had
@@ -56,8 +55,8 @@ The year ranges for following entries for Ghana
 where modified to \dQuote{1993-1998} and \dQuote{1998-2003} to reflect the
 fact that the DHS in Ghana was conducted in 1998, not 1999. The modification
 matches the information in Table 1 of the original journal article.
-}}
-
+}
+}
 
 \references{
 United Nations, Department of Economic and Social Affairs, Statistics Division (2018), "Standard Country or Area Codes for Statistical Use (M49)," Available at \url{https://unstats.un.org/unsd/methodology/m49/}.

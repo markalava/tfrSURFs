@@ -4,7 +4,7 @@
 ###
 ### AUTHOR: Mark Wheldon
 ###
-### PROJECT: Probabilistic TFR Stalls
+### PROJECT: Probabilistic tfrSURFs
 ###
 ### DESCRIPTION: Create main results for manuscript.
 ###

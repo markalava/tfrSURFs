@@ -19,7 +19,7 @@
 
 library(here)
 library(pbapply)
-library(TFRStalls)
+library(tfrSURFs)
 library(testthat)
 library(withr)
 
@@ -127,12 +127,12 @@ setup_bayesTFR_test_data_temp_dir <- function(file, overwrite = FALSE, checks = 
 
 ## 'source()' will source into global environment by default
 
-## installed_test_src <- system.file("tests", "testthat", "setup.R", package = "TFRStalls")
+## installed_test_src <- system.file("tests", "testthat", "setup.R", package = "tfrSURFs")
 ## if (file.exists(installed_test_src)) {
 ##     source(installed_test_src)
 ## } else source(here::here("tests", "testthat", "setup.R"))
 
-for (x in dir(system.file("tests", "testthat", package = "TFRStalls"),
+for (x in dir(system.file("tests", "testthat", package = "tfrSURFs"),
               pattern = "^helper.*[.][RrSsQq]$", full.names = TRUE)) {
     source(x)
 }

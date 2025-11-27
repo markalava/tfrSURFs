@@ -110,7 +110,7 @@ is_small_country <- function(code) {
 ##' Division. \url{https://unstats.un.org/unsd/methodology/m49/} (accessed
 ##' 2025-06-18).
 ##'
-##' @example
+##' @examples
 ##'
 ##' ## Country names are in English, using only ASCII characters.
 ##' get_country_names(c(384, 638))

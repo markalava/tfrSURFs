@@ -54,3 +54,8 @@ system.file("manuscript/main_results.R", package = "tfrSURFs")
 ## References
 
 R Core Team. 2025. *R: A Language and Environment for Statistical Computing*. Vienna, Austria: R Foundation for Statistical Computing.
+
+
+## Disclaimer
+
+The views expressed herein are those of the authors and do not necessarily reflect the views of the United Nations. 

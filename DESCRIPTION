@@ -17,7 +17,7 @@ Authors@R: c(
 Description: Given a sample from the posterior distribution of annual
     total fertility rates (e.g., as produced by package "bayesTFR"), this
     package will produce estimates of the probability that a SURF
-    occurred in each year.
+    occurred in each year. Plotting and tabulation functions are also provided. 
 License: `use_mit_license()`
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -48,3 +48,5 @@ Depends:
     R (>= 4.1.0)
 LazyData: true
 Config/testthat/edition: 3
+URL: https://github.com/markalava/tfrSURFs
+BugReports: https://github.com/markalava/tfrSURFs/issues

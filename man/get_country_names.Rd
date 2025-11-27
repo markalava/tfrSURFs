@@ -24,6 +24,16 @@ functions provide for conversion between these codes and the country names
 in English (see \dQuote{Note}). All names are the English names using only
 ASCII characters. See the examples for two relevant cases.
 }
+\examples{
+
+## Country names are in English, using only ASCII characters.
+get_country_names(c(384, 638))
+
+## Get all country names and codes
+get_country_names()
+get_country_codes()
+
+}
 \references{
 United Nations (2018) "Standard Country or Area Codes for Statistical Use (M49)", New York, N.Y.:
 United Nations, Department of Economic and Social Affairs, Statistics

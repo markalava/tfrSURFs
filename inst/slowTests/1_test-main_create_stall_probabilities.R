@@ -4,7 +4,7 @@
 ###
 ### AUTHOR: Mark Wheldon
 ###
-### PROJECT: TFRStalls
+### PROJECT: tfrSURFs
 ###
 ### DESCRIPTION: Test the main surfs identification functions. These are in
 ### 'inst/slowTests' because they need to use bayesTFR output. This is too big
@@ -19,9 +19,9 @@
 ###-----------------------------------------------------------------------------
 ### * Set Up
 
-library(TFRStalls)
+library(tfrSURFs)
 
-source(system.file("slowTests", "0_setup.R", package = "TFRStalls"))
+source(system.file("slowTests", "0_setup.R", package = "tfrSURFs"))
 
 ###-----------------------------------------------------------------------------
 ### * bayesTFR Test Run

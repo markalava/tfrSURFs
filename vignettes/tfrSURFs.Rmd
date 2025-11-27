@@ -29,16 +29,16 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-
----
+***
+**DISCLAIMER:** The views expressed herein are those of the authors and do not necessarily reflect the views of the United Nations.
 
 **Access this vignette from *R* with the following command:**
-
 ```
 vignette("tfrSURFs", package = "tfrSURFs")
 ```
 
----
+***
+
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
