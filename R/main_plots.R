@@ -73,18 +73,14 @@ add_plot_datestamp <- function(gp) {
 ##'     \code{"year"}.
 ##' @param add_Schoumaker_stalls Logical; add shading to show where stalls were
 ##'     identified by \cite{Schoumaker (2019)}.
-##' @param all_Schoumaker_stall_types_legend Logical; show all Schoumaker stall
-##'     types in the legend, even if only a subset actually occur? Only
-##'     effective if at least one Schoumaker stall occurs.
+##' @param maximal_legend Logical; show all SURF and Schoumaker stall
+##'     types in the legend, even if only a subset actually occur?
 ##' @param add_prob_TFR_surfs Logical; add shading to show where probabilistic
 ##'     surfs were identified
 ##' @param add_prob_TFR_surf_projections Logical; \emph{if}
 ##'     \code{add_prob_TFR_surfs} is \code{TRUE}, should the shading extend into
 ##'     the projection period?
 ##' @param xlim_plot,ylim_plot Limits for x- and y-axes.
-##' @param use_ggpattern Logical; should the \pkg{ggpattern} package be used to
-##'     add patterning to ranges added by \code{add_range_regions}? Note: this
-##'     requires the \pkg{ggpattern} package to be installed and is quite slow.
 ##' @param plot_ann Character; text string to add to plot in top-right corner.
 ##' @param datestamp Logical; add datetime and package version in small text in
 ##'     bottom left corner?
@@ -142,13 +138,12 @@ plot_tfr_surfs.data.frame <- function(x,
                                        add_range_ref_lines = identical(yvar, "surf_prob"),
                                        add_range_regions = TRUE,
                                        add_est_proj_ref_line = TRUE,
-                                      add_Schoumaker_stalls = isTRUE(any(x[["Schoumaker_included"]])),
-                                      all_Schoumaker_stall_types_legend = FALSE,
+                                      add_Schoumaker_stalls = isTRUE(any(x[["Schoumaker_stall_any"]])),
+                                      maximal_legend = FALSE,
                                       add_prob_TFR_surfs = isTRUE(any(x[["surf_year"]])),
                                       add_prob_TFR_surf_projections = FALSE,
                                        xlim_plot = if (identical(xvar, "year")) { c(1950, 2050) } else c(0, 10),
                                        ylim_plot = NULL,
-                                       use_ggpattern = FALSE,
                                        plot_ann = NULL,
                                        datestamp = FALSE) {
 
@@ -190,12 +185,8 @@ plot_tfr_surfs.data.frame <- function(x,
     stopifnot(is.logical(add_Schoumaker_stalls))
     stopifnot(is.logical(add_prob_TFR_surfs))
     stopifnot(is.logical(add_prob_TFR_surf_projections))
+    stopifnot(is.logical(maximal_legend))
 
-    stopifnot(is.logical(use_ggpattern))
-    if (use_ggpattern && !requireNamespace("ggpattern", quietly = TRUE)) {
-        warning("'use_ggpattern' is 'TRUE' but package 'ggpattern' is not installed; patterns will not be used in plotting.")
-        use_ggpattern <- FALSE
-    }
     stopifnot(is.logical(datestamp))
 
     ## -------* Constants
@@ -205,25 +196,30 @@ plot_tfr_surfs.data.frame <- function(x,
 
     add_source_data <- FALSE
     est_proj_ref_line_year <- x[1, "bayesTFR_present_year"]
-    indicator_abbrev <- "Probabilistic"
-    indicator_abbrev_proj <- indicator_abbrev #paste0(indicator_abbrev, " (projected)")
-    indicator_not_in_range_abbrev <- "TFR"
-    legend_title <- "Legend"
-    if (isTRUE(add_Schoumaker_stalls)) {
-        legend_title <- paste0(legend_title, " — ", "SURF / Stall Type")
-    } else if (isTRUE(add_prob_TFR_surfs)) {
-        legend_title <- paste0(legend_title, " — ", "SURF Type")
-    }
-    line_colour <- "black"
-    probability_scale <- "percent"
     rate_prob_threshold <- x[1, "rate_prob_threshold"]
-    ribbon_fill <- line_colour
+
+    ## SURFs and Stalls only plotted if they are present
+    add_Schoumaker_stalls <- add_Schoumaker_stalls && isTRUE(any(x[["Schoumaker_stall_any"]]))
+    add_prob_TFR_surfs <- add_prob_TFR_surfs && isTRUE(any(x[["surf_year"]]))
 
     ## -------* Create Dataframe(s) and Plot Annotations
 
     ## -------** Set up
 
     ## -------** Annotations
+
+    indicator_abbrev <- "Probabilistic"
+    indicator_abbrev_proj <- indicator_abbrev #paste0(indicator_abbrev, " (projected)")
+    indicator_not_in_range_abbrev <- "TFR"
+    legend_title <- "Legend"
+    if (add_Schoumaker_stalls || maximal_legend) {
+        legend_title <- paste0(legend_title, " — ", "SURF / Stall Type")
+    } else if (add_prob_TFR_surfs) {
+        legend_title <- paste0(legend_title, " — ", "SURF Type")
+    }
+    line_colour <- "black"
+    probability_scale <- "percent"
+    ribbon_fill <- line_colour
 
     cname <- x[1, "name"]
     rname <- x[1, "reg_name"]
@@ -351,83 +347,70 @@ plot_tfr_surfs.data.frame <- function(x,
         }
     }
 
-    ## -------** Fill and Pattern scales
+    ## -------** Fill scales
 
     fill_alpha <- 0.3
     gp <- gp +
         ggplot2::theme_bw() +
         ggplot2::scale_y_continuous(limits = ylim_plot, breaks = yscale_breaks) +
-        ggplot2::scale_fill_manual(values = setNames(c("grey75",
+        ggplot2::scale_fill_manual(breaks = c("Outside fertility\ntransition period", # to get the ordering as listed
+                                              x_alt_label,
+                                              indicator_abbrev,
+                                              indicator_abbrev_proj,
+                                              "Schoumaker:\nStrong+\nevidence",
+                                              "Schoumaker:\nModerate\nevidence",
+                                              "Schoumaker:\nWeak\nevidence",
+                                              "Schoumaker:\nPre-\ntransitional"),
+                                   values = setNames(c("grey75",
+                                                       NA,#"grey30",
                                                        "orange4",
                                                        "orange4",
-                                                       "grey30",
                                                        RColorBrewer::brewer.pal(n = 11, "Spectral")[11],
                                                        RColorBrewer::brewer.pal(n = 11, "Spectral")[10],
                                                        RColorBrewer::brewer.pal(n = 11, "Spectral")[8],
                                                        NA
                                                        ),
                                                      c("Outside fertility\ntransition period",
+                                                       x_alt_label,
                                                        indicator_abbrev,
                                                        indicator_abbrev_proj,
-                                                       x_alt_label,
                                                        "Schoumaker:\nStrong+\nevidence",
                                                        "Schoumaker:\nModerate\nevidence",
                                                        "Schoumaker:\nWeak\nevidence",
                                                        "Schoumaker:\nPre-\ntransitional")),
-                                   breaks = c("Outside fertility\ntransition period", # to get the ordering as listed
-                                              indicator_abbrev,
-                                              indicator_abbrev_proj,
-                                              x_alt_label,
-                                              "Schoumaker:\nStrong+\nevidence",
-                                              "Schoumaker:\nModerate\nevidence",
-                                              "Schoumaker:\nWeak\nevidence",
-                                              "Schoumaker:\nPre-\ntransitional"),
                                    na.value = NA,
                                    name = legend_title) +
-        ggplot2::scale_colour_manual(values = setNames(c(NA,
-                                                         NA,
-                                                         NA,
+        ggplot2::scale_colour_manual(breaks = c("Outside fertility\ntransition period", # to get the ordering as listed
+                                                x_alt_label,
+                                                indicator_abbrev,
+                                                indicator_abbrev_proj,
+                                                "Schoumaker:\nStrong+\nevidence",
+                                                "Schoumaker:\nModerate\nevidence",
+                                                "Schoumaker:\nWeak\nevidence",
+                                                "Schoumaker:\nPre-\ntransitional"),
+                                     values = setNames(c(NA,
                                                          "grey30",
+                                                         NA,
+                                                         NA,
                                                          NA,
                                                          NA,
                                                          NA,
                                                          "pink2"## RColorBrewer::brewer.pal(n = 11, "RdBu")[8]
                                                          ),
                                                        c("Outside fertility\ntransition period",
+                                                         x_alt_label,
                                                          indicator_abbrev,
                                                          indicator_abbrev_proj,
-                                                         x_alt_label,
                                                          "Schoumaker:\nStrong+\nevidence",
                                                          "Schoumaker:\nModerate\nevidence",
                                                          "Schoumaker:\nWeak\nevidence",
                                                          "Schoumaker:\nPre-\ntransitional")),
-                                     breaks = c("Outside fertility\ntransition period", # to get the ordering as listed
-                                                indicator_abbrev,
-                                                indicator_abbrev_proj,
-                                                x_alt_label,
-                                                "Schoumaker:\nStrong+\nevidence",
-                                                "Schoumaker:\nModerate\nevidence",
-                                                "Schoumaker:\nWeak\nevidence",
-                                                "Schoumaker:\nPre-\ntransitional"),
                                      na.value = NA,
                                      name = legend_title)  +
         ggplot2::labs(title = paste0(cname, " (", rname, ")"),
                       x = xvar, y = y_axis_label) +
         ggplot2::theme(legend.position = "bottom", legend.title.align = 0.5) +
         ggplot2::guides(fill = ggplot2::guide_legend(title.position = "top", nrow = 1))
-
-    if (use_ggpattern) {
-        gp <- gp +
-            ggpattern::scale_pattern_manual(values = setNames(c("pch",
-                                                                "none", "none", "none", "none", "none",
-                                                                "none"),
-                                                              c("Outside fertility\ntransition period",
-                                                                indicator_abbrev,
-                                                                indicator_abbrev_proj,
-                                                                "Schoumaker:\nStrong+\nevidence", "Schoumaker:\nModerate\nevidence",
-                                                                "Schoumaker:\nWeak\nevidence", "Schoumaker:\nPre-\ntransitional")),
-                                            name = legend_title)
-    }
 
     if (is.numeric(xlim_plot)) {
         if (identical(xvar, "year")) {
@@ -442,134 +425,79 @@ plot_tfr_surfs.data.frame <- function(x,
 
     ## -------** Transition condition
 
-    if (add_range_regions) {
+    if (add_range_regions || maximal_legend) {
 
         if (nrow(indicator_not_in_range_df)) {
-            if (use_ggpattern) {
-                gp <- gp + ggpattern::geom_polygon_pattern(data = indicator_not_in_range_df,
-                                                           ggplot2::aes(x = x, y = y, group = id,
-                                                                        fill = "Outside fertility\ntransition period",
-                                                                        pattern = "Outside fertility\ntransition period"),
-                                                           colour = NA,
-                                                           pattern_shape = 20,
-                                                           pattern_density = 0.1,
-                                                           pattern_angle = 0,
-                                                           pattern_fill = "darkgray",
-                                                           pattern_colour = "darkgray",
-                                                           pattern_alpha = fill_alpha,
-                                                           alpha = fill_alpha)
-            } else {
                 gp <- gp + ggplot2::geom_polygon(data = indicator_not_in_range_df,
                                                  ggplot2::aes(x = x, y = y, group = id,
                                                               fill = "Outside fertility\ntransition period",
                                                               colour = "Outside fertility\ntransition period"),
                                                  alpha = fill_alpha
                                                  )
-            }
         }
     }
 
     ## -------** Schoumaker Stalls
 
-    if (add_Schoumaker_stalls) {
+    if (add_Schoumaker_stalls || maximal_legend) {
 
         ## TFR moderate stalls
-        if (!nrow(stall_tfr_moderate_df) && all_Schoumaker_stall_types_legend) {
+        if (!nrow(stall_tfr_moderate_df) && maximal_legend) {
             stall_tfr_moderate_df <- surf_dummy_df
         }
         if (nrow(stall_tfr_df)) {
-            if (use_ggpattern) {
-                gp <- gp + ggpattern::geom_polygon_pattern(data = stall_tfr_moderate_df,
-                                                           ggplot2::aes(x = x, y = y, group = id,
-                                                                        fill = "Schoumaker:\nModerate\nevidence",
-                                                                        pattern = "Schoumaker:\nModerate\nevidence",
-                                                                        colour = "Schoumaker:\nModerate\nevidence"),
-                                                           alpha = fill_alpha
-                                                           )
-            } else {
-                gp <- gp + ggplot2::geom_polygon(data = stall_tfr_moderate_df,
+            gp <- gp + ggplot2::geom_polygon(data = stall_tfr_moderate_df,
                                                  ggplot2::aes(x = x, y = y, group = id,
                                                               fill = "Schoumaker:\nModerate\nevidence",
                                                               colour = "Schoumaker:\nModerate\nevidence"),
                                                  alpha = fill_alpha
                                                  )
-            }
         }
 
         ## TFR stalls
-        if (!nrow(stall_tfr_df) && all_Schoumaker_stall_types_legend) {
+        if (!nrow(stall_tfr_df) && maximal_legend) {
             stall_tfr_df <- surf_dummy_df
         }
         if (nrow(stall_tfr_df)) {
-            if (use_ggpattern) {
-                gp <- gp + ggpattern::geom_polygon_pattern(data = stall_tfr_df,
-                                                           ggplot2::aes(x = x, y = y, group = id,
-                                                                        fill = "Schoumaker:\nStrong+\nevidence",
-                                                                        colour = "Schoumaker:\nStrong+\nevidence",
-                                                                        pattern = "Schoumaker:\nStrong+\nevidence"),
-                                                           alpha = fill_alpha
-                                                           )
-            } else {
-                gp <- gp + ggplot2::geom_polygon(data = stall_tfr_df,
+            gp <- gp + ggplot2::geom_polygon(data = stall_tfr_df,
                                                  ggplot2::aes(x = x, y = y, group = id,
                                                               fill = "Schoumaker:\nStrong+\nevidence",
                                                               colour = "Schoumaker:\nStrong+\nevidence"),
                                                  alpha = fill_alpha
                                                  )
-            }
         }
 
         ## TFR weak stalls
-        if (!nrow(stall_tfr_weak_df) && all_Schoumaker_stall_types_legend) {
+        if (!nrow(stall_tfr_weak_df) && maximal_legend) {
             stall_tfr_weak_df <- surf_dummy_df
         }
         if (nrow(stall_tfr_weak_df)) {
-        if (use_ggpattern) {
-            gp <- gp + ggpattern::geom_polygon_pattern(data = stall_tfr_weak_df,
-                                                       ggplot2::aes(x = x, y = y, group = id,
-                                                                    fill = "Schoumaker:\nWeak\nevidence",
-                                                                    colour = "Schoumaker:\nWeak\nevidence",
-                                                                    pattern = "Schoumaker:\nWeak\nevidence"),
-                                                       alpha = fill_alpha
-                                                       )
-        } else {
-            gp <- gp + ggplot2::geom_polygon(data = stall_tfr_weak_df,
+        gp <- gp + ggplot2::geom_polygon(data = stall_tfr_weak_df,
                                              ggplot2::aes(x = x, y = y, group = id,
                                                           fill = "Schoumaker:\nWeak\nevidence",
                                                           colour = "Schoumaker:\nWeak\nevidence"),
                                              alpha = fill_alpha
                                              )
         }
-        }
 
         ## TFR pretransitional stalls
         ## These are open boxes, not shaded regions.
-        if (!nrow(stall_tfr_pretransitional_df) && all_Schoumaker_stall_types_legend) {
+        if (!nrow(stall_tfr_pretransitional_df) && maximal_legend) {
             stall_tfr_pretransitional_df <- surf_dummy_df
         }
         if (nrow(stall_tfr_pretransitional_df)) {
-        if (use_ggpattern) {
-            gp <- gp + ggpattern::geom_polygon_pattern(data = stall_tfr_pretransitional_df,
-                                                       ggplot2::aes(x = x, y = y, group = id,
-                                                                    fill = "Schoumaker:\nPre-\ntransitional",
-                                                                    colour = "Schoumaker:\nPre-\ntransitional",
-                                                                    pattern = "Schoumaker:\nPre-\ntransitional"),
-                                                       alpha = fill_alpha,
-                                                       linewidth = 0.75)
-        } else {
-            gp <- gp + ggplot2::geom_polygon(data = stall_tfr_pretransitional_df,
+        gp <- gp + ggplot2::geom_polygon(data = stall_tfr_pretransitional_df,
                                              ggplot2::aes(x = x, y = y, group = id,
                                                           fill = "Schoumaker:\nPre-\ntransitional",
                                                           colour = "Schoumaker:\nPre-\ntransitional"),
                                              alpha = fill_alpha,
                                              linewidth = 0.75)
         }
-        }
     }
 
     ## -------** Probabilistic Stalls
 
-    if (add_prob_TFR_surfs) {
+    if (add_prob_TFR_surfs || maximal_legend) {
 
         surf_est_df <- surf_df[surf_df[["year"]] <= est_proj_ref_line_year, ]
         surf_proj_df <- surf_df[surf_df[["year"]] > est_proj_ref_line_year, ]
@@ -579,7 +507,7 @@ plot_tfr_surfs.data.frame <- function(x,
                 z <- z[z$x %in% c(min(z[["x"]]), max(z[["x"]])), ]
                 return(z)
             })
-        } else if (all_Schoumaker_stall_types_legend) {
+        } else if (maximal_legend) {
             surf_est_df <- surf_dummy_df
         }
         if (nrow(surf_proj_df)) {
@@ -587,34 +515,10 @@ plot_tfr_surfs.data.frame <- function(x,
                 z <- z[z$x %in% c(min(z[["x"]]), max(z[["x"]])), ]
                 return(z)
             })
-        } else  if (all_Schoumaker_stall_types_legend) {
+        } else  if (maximal_legend) {
             surf_proj_df <- surf_dummy_df
         }
-        if (use_ggpattern) {
-            if (nrow(surf_est_df)) {
-                gp <- gp + ggpattern::geom_polygon_pattern(data =  surf_est_df,
-                                                           ggplot2::aes(x = x, y = y2, group = id,
-                                                                        fill = indicator_abbrev,
-                                                                        colour = indicator_abbrev,
-                                                                        pattern = indicator_abbrev),
-                                                           alpha = fill_alpha,
-                                                           linewidth = 1.05
-                                                           )
-            }
-            if (add_prob_TFR_surf_projections) {
-                if (nrow(surf_proj_df)) {
-                    gp <- gp + ggpattern::geom_polygon_pattern(data =  surf_proj_df,
-                                                               ggplot2::aes(x = x, y = y2, group = id,
-                                                                            fill = indicator_abbrev_proj,
-                                                                            colour = indicator_abbrev_proj,
-                                                                            pattern = indicator_abbrev_proj),
-                                                               alpha = fill_alpha,
-                                                               linewidth = 1.05
-                                                               )
-                }
-            }
-        } else {
-            if (nrow(surf_est_df)) {
+        if (nrow(surf_est_df)) {
                 gp <- gp + ggplot2::geom_polygon(data =  surf_est_df,
                                                  ggplot2::aes(x = x, y = y2, group = id,
                                                               colour = indicator_abbrev,
@@ -634,68 +538,52 @@ plot_tfr_surfs.data.frame <- function(x,
                                                      )
                 }
             }
-        }
     }
 
     ## -------** Alternative Stalls to Plot
 
-    if (!is.null(x_alt)) {
+    if (!is.null(x_alt) || maximal_legend) {
 
-        ## -------*** Make Dataframe
+        if (isTRUE(any(x_alt[["surf_year"]])) || isTRUE(maximal_legend)) {
 
-        surf_df_ALT <-
-            x_alt[!is.na(x_alt[,"surf_year"]) & x_alt[,"surf_year"],]
-        surf_df_ALT <- surf_df_ALT |>
-            plyr::ddply(.variables = c("indicator", xvar, "surf_year_group"),
-                        .fun = function(z) {
-                            data.frame(id = as.character(paste0(z[,xvar], z[,"indicator"], " (", x_alt_label, ")")),
-                                       label = x_alt_label,
-                                       value = 1,
-                                       x = z[,xvar],
-                                       ## x = c(z[,xvar] - rep(jitt_1, 2), z[,xvar] + rep(jitt_2, 2)),
-                                       y2 = c(-0.5, grid::unit(0.03, "npc"), grid::unit(0.03, "npc"), -0.5)
-                                       )
-                        })
+            ## -------*** Make Dataframe
 
-        surf_dummy_df_ALT <- data.frame(indicator = unique(x_alt[["indicator"]]),
-                                         x = -median(x_alt[, xvar], na.rm = TRUE),
-                                         y = -mean(x_alt[, yvar], na.rm = TRUE),
-                                         y2 = -mean(x_alt[, yvar], na.rm = TRUE),
-                                         id = 1)
+            surf_df_ALT <-
+                x_alt[!is.na(x_alt[,"surf_year"]) & x_alt[,"surf_year"],]
+            surf_df_ALT <- surf_df_ALT |>
+                plyr::ddply(.variables = c("indicator", xvar, "surf_year_group"),
+                            .fun = function(z) {
+                                data.frame(id = as.character(paste0(z[,xvar], z[,"indicator"], " (", x_alt_label, ")")),
+                                           label = x_alt_label,
+                                           value = 1,
+                                           x = z[,xvar],
+                                           ## x = c(z[,xvar] - rep(jitt_1, 2), z[,xvar] + rep(jitt_2, 2)),
+                                           y2 = c(-0.5, grid::unit(0.03, "npc"), grid::unit(0.03, "npc"), -0.5)
+                                           )
+                            })
+
+            surf_dummy_df_ALT <- data.frame(indicator = unique(x_alt[["indicator"]]),
+                                            x = -median(x_alt[, xvar], na.rm = TRUE),
+                                            y = -mean(x_alt[, yvar], na.rm = TRUE),
+                                            y2 = -mean(x_alt[, yvar], na.rm = TRUE),
+                                            id = 1)
                                 # ^^ Set the x, y, y2 to negative values to try
                                 # and stop them from being shown.
 
-        if (nrow(surf_df_ALT)) {
-            x_alt_fp_surf_ALT <- surf_df_ALT[surf_df_ALT[["year"]] <= est_proj_ref_line_year, ]
-            x_alt_fp_surf_proj_ALT <- surf_df_ALT[surf_df_ALT[["year"]] > est_proj_ref_line_year, ]
-        } else {
-            x_alt_fp_surf_ALT <- x_alt_fp_surf_proj_ALT <- surf_dummy_df_ALT
-        }
+            if (nrow(surf_df_ALT)) {
+                x_alt_fp_surf_ALT <- surf_df_ALT[surf_df_ALT[["year"]] <= est_proj_ref_line_year, ]
+                x_alt_fp_surf_proj_ALT <- surf_df_ALT[surf_df_ALT[["year"]] > est_proj_ref_line_year, ]
+            } else {
+                x_alt_fp_surf_ALT <- x_alt_fp_surf_proj_ALT <- surf_dummy_df_ALT
+            }
 
-        ## -------*** Add Layer to Plot
+            ## -------*** Add Layer to Plot
 
-        ## Rug
-        if (!getOption("tfrSURFs.message_about_unknown_aes")) {
-            gp <- suppressWarnings({
-                gp +
-                    ggplot2::geom_rug(data = x_alt_fp_surf_ALT,
-                                      ggplot2::aes(x = x, y = NULL, group = id,
-                                                   colour = x_alt_label,
-                                                   fill = x_alt_label
-                                # ^^ that has to
-                                # be there to get
-                                # the legend to
-                                # merge
-                                # properly, but
-                                # it will cause
-                                # a warning.
-                                                   ),
-                                      linewidth = 1.1)
-            })
-            if (add_prob_TFR_surf_projections) {
+            ## Rug
+            if (!getOption("tfrSURFs.message_about_unknown_aes")) {
                 gp <- suppressWarnings({
                     gp +
-                        ggplot2::geom_rug(data = x_alt_fp_surf_proj_ALT,
+                        ggplot2::geom_rug(data = x_alt_fp_surf_ALT,
                                           ggplot2::aes(x = x, y = NULL, group = id,
                                                        colour = x_alt_label,
                                                        fill = x_alt_label
@@ -709,15 +597,13 @@ plot_tfr_surfs.data.frame <- function(x,
                                                        ),
                                           linewidth = 1.1)
                 })
-            }
-        } else {
-            on.exit(message("NOTE: You can ignore the warning from ggplot2 about \"unknown aesthetics: fill\"."),
-                    add = TRUE, after = FALSE)
-            gp <- gp +
-                ggplot2::geom_rug(data = x_alt_fp_surf_ALT,
-                                  ggplot2::aes(x = x, y = NULL, group = id,
-                                               colour = x_alt_label,
-                                               fill = x_alt_label
+                if (add_prob_TFR_surf_projections) {
+                    gp <- suppressWarnings({
+                        gp +
+                            ggplot2::geom_rug(data = x_alt_fp_surf_proj_ALT,
+                                              ggplot2::aes(x = x, y = NULL, group = id,
+                                                           colour = x_alt_label,
+                                                           fill = x_alt_label
                                 # ^^ that has to
                                 # be there to get
                                 # the legend to
@@ -725,11 +611,15 @@ plot_tfr_surfs.data.frame <- function(x,
                                 # properly, but
                                 # it will cause
                                 # a warning.
-                                               ),
-                                  linewidth = 1.1)
-            if (add_prob_TFR_surf_projections) {
+                                                           ),
+                                              linewidth = 1.1)
+                    })
+                }
+            } else {
+                on.exit(message("NOTE: You can ignore the warning from ggplot2 about \"unknown aesthetics: fill\"."),
+                        add = TRUE, after = FALSE)
                 gp <- gp +
-                    ggplot2::geom_rug(data = x_alt_fp_surf_proj_ALT,
+                    ggplot2::geom_rug(data = x_alt_fp_surf_ALT,
                                       ggplot2::aes(x = x, y = NULL, group = id,
                                                    colour = x_alt_label,
                                                    fill = x_alt_label
@@ -742,9 +632,24 @@ plot_tfr_surfs.data.frame <- function(x,
                                 # a warning.
                                                    ),
                                       linewidth = 1.1)
+                if (add_prob_TFR_surf_projections) {
+                    gp <- gp +
+                        ggplot2::geom_rug(data = x_alt_fp_surf_proj_ALT,
+                                          ggplot2::aes(x = x, y = NULL, group = id,
+                                                       colour = x_alt_label,
+                                                       fill = x_alt_label
+                                # ^^ that has to
+                                # be there to get
+                                # the legend to
+                                # merge
+                                # properly, but
+                                # it will cause
+                                # a warning.
+                                                       ),
+                                          linewidth = 1.1)
                 }
+            }
         }
-
     }
 
     ## -------** Source data
