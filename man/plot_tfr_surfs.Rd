@@ -25,9 +25,11 @@ plot_tfr_surfs(x, ...)
   x_alt_label = "Non-\\nprobabilistic",
   add_range_ref_lines = identical(yvar, "surf_prob"),
   add_range_regions = TRUE,
-  add_est_proj_ref_line = FALSE,
+  add_est_proj_ref_line = TRUE,
   add_Schoumaker_stalls = isTRUE(any(x[["Schoumaker_included"]])),
-  add_prob_TFR_surfs = TRUE,
+  all_Schoumaker_stall_types_legend = FALSE,
+  add_prob_TFR_surfs = isTRUE(any(x[["surf_year"]])),
+  add_prob_TFR_surf_projections = FALSE,
   xlim_plot = if (identical(xvar, "year")) {
      c(1950, 2050)
  } else c(0, 10),
@@ -63,8 +65,16 @@ the first projection year? Ignored if \code{xvar} \code{!=}
 \item{add_Schoumaker_stalls}{Logical; add shading to show where stalls were
 identified by \cite{Schoumaker (2019)}.}
 
+\item{all_Schoumaker_stall_types_legend}{Logical; show all Schoumaker stall
+types in the legend, even if only a subset actually occur? Only
+effective if at least one Schoumaker stall occurs.}
+
 \item{add_prob_TFR_surfs}{Logical; add shading to show where probabilistic
 surfs were identified}
+
+\item{add_prob_TFR_surf_projections}{Logical; \emph{if}
+\code{add_prob_TFR_surfs} is \code{TRUE}, should the shading extend into
+the projection period?}
 
 \item{xlim_plot, ylim_plot}{Limits for x- and y-axes.}
 

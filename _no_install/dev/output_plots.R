@@ -126,7 +126,9 @@ surfs_df <- make_tfr_surfs(sim.dir = bayesTFR_output_dir,
                              country_code = get_country_codes("Zimbabwe"))
 
 plot_surfs_probs(surfs_df,
-                  plot_ann = "TEST annotation", datestamp = TRUE)
+                 plot_ann = "TEST annotation", datestamp = TRUE,
+                 add_Schoumaker_stalls = FALSE,
+                 all_Schoumaker_stall_types_legend = FALSE)
 
 ###-----------------------------------------------------------------------------
 ### ** Gambia

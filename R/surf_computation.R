@@ -400,7 +400,7 @@ apply_probability_condition <- function(x, traj, smoothing_method, bandwidth, ra
     ## Keep sorted by year
     x[order(x[["year"]]), ]
 
-    ## Stall probabilities.
+    ## SURF probabilities.
     x[["surf_year"]] <- FALSE
     rate_prob_surf_idx <- which(!is.na(x[["surf_prob"]]) & (x[["surf_prob"]] >= rate_prob_threshold))
     x[rate_prob_surf_idx, "surf_year"] <- TRUE
