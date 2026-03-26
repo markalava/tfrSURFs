@@ -34,7 +34,7 @@ options(tfrSURFs.verbose = TRUE)
 ### ** Path to bayesTFR trajectories
 
 bayesTFR_output_dir <-
-    ## message("Specify directory to bayesTFR trajectories. These can be generated using the bayesTFR package (https://github.com/PPgp/bayesTFR; see below for code) or downloaded from https://bayespop.csss.washington.edu/data/bayesTFR/TFR1simWPP2024.tgz)")
+    stop("Specify directory to bayesTFR trajectories. These can be generated using the bayesTFR package (https://github.com/PPgp/bayesTFR; see below for code) or downloaded from hmessagettps://bayespop.csss.washington.edu/data/bayesTFR/TFR1simWPP2024.tgz)")
 
 ###-----------------------------------------------------------------------------
 ### ** Outputs of this script

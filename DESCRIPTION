@@ -1,6 +1,6 @@
 Package: tfrSURFs
 Title: Probabilistic estimates of stalls, upswings, and reversals in total fertility rates (tfrSURFs) 
-Version: 1.0.0
+Version: 1.0.0.9000
 Authors@R: c(
     person("Mark", "Wheldon", , "wheldon@un.org", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-6897-9644")),

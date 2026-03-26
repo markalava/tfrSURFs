@@ -64,8 +64,8 @@ hence are based on projected fertility rates. Using \code{proj_split}, these
 can be separately tabulated as follows:
 \describe{
 \item{\code{"none"}}{No distinction is made based on projection or estimation years.}
-\item{\code{"by_surf"}}{A SURF is considered wholly within the projection period if more than half of it occurs after \code{last_est_year}.}
-\item{\code{"by_year"}}{The average lengths are computed based on the actual number of years in each period (estimation or projection).}
+\item{\code{"by_surf"}}{A SURF is considered wholly within the projection period if more than half of it occurs after \code{last_est_year}. Counts and lengths are based on whole SURFs.}
+\item{\code{"by_year"}}{The average lengths are computed based on the actual number of years in each period (estimation or projection). The counts are based on the SURF start year. SURFs that start after \code{last_est_year} are counted in the projection period.}
 }
 }
 \seealso{

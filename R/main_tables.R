@@ -110,8 +110,8 @@ tabulate_loc_by_surf.data.frame <- function(x, ...,
 ##' can be separately tabulated as follows:
 ##' \describe{
 ##' \item{\code{"none"}}{No distinction is made based on projection or estimation years.}
-##' \item{\code{"by_surf"}}{A SURF is considered wholly within the projection period if more than half of it occurs after \code{last_est_year}.}
-##' \item{\code{"by_year"}}{The average lengths are computed based on the actual number of years in each period (estimation or projection).}
+##' \item{\code{"by_surf"}}{A SURF is considered wholly within the projection period if more than half of it occurs after \code{last_est_year}. Counts and lengths are based on whole SURFs.}
+##' \item{\code{"by_year"}}{The average lengths are computed based on the actual number of years in each period (estimation or projection). The counts are based on the SURF start year. SURFs that start after \code{last_est_year} are counted in the projection period.}
 ##' }
 ##'
 ##' @param x Output of \code{\link{make_tfr_surfs}}.
@@ -169,10 +169,6 @@ tabulate_surf_stats.data.frame <- function(x, stat = c("count", "avg_len"),
     geographies <- match.arg(geographies, several.ok = TRUE)
     stopifnot(is.logical(filter_zero_rows))
 
-    if (identical(proj_split, "by_year")) {
-        if (identical(stat, "count")) stop("Cannot use 'proj_split = \"by_year\"' with 'stat = \"count\"'.")
-    }
-
     ## -------* Functions
 
     if (identical(stat, "count")) {
@@ -180,6 +176,7 @@ tabulate_surf_stats.data.frame <- function(x, stat = c("count", "avg_len"),
             z <- table(z[z[["surf_year_start"]], geographies, drop = FALSE])
             z <- as.data.frame(z, responseName = "count", stringsAsFactors = FALSE)
             z <- z[z$count > 0, , drop = FALSE]
+            return(z)
         }
 
     } else if (identical(stat, "avg_len")) {
@@ -274,10 +271,15 @@ tabulate_surf_stats.data.frame <- function(x, stat = c("count", "avg_len"),
 
         has_proj_idx <- which(x[["surf_in_proj"]])
         if (length(has_proj_idx)) {
-            out <- base::merge(out,
-                               tbl_fn(x[has_proj_idx, , drop = FALSE], geographies),
-                               all = TRUE, by = geographies,
-                               suffixes = c("", "_projections"))
+            out_proj <- tbl_fn(x[has_proj_idx, , drop = FALSE], geographies)
+            if (nrow(out_proj)) {
+                out <- base::merge(out,
+                                   out_proj,
+                                   all = TRUE, by = geographies,
+                                   suffixes = c("", "_projections"))
+            } else {
+                out[, paste0(stat, "_projections")] <- NA
+            }
         }
     }
 
