@@ -38,8 +38,7 @@ test_that("'plot_tfr_surfs.data.frame()' works.", {
                                 yvar = pars[["yvar"]],
                                 add_range_regions = pars[["add_range_regions"]],
                                 add_Schoumaker_stalls = pars[["add_Schoumaker_stalls"]],
-                                add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]],
-                                use_ggpattern = pars[["use_ggpattern"]]
+                                add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]]
                                 ))),
              plot_med_gg = try(suppressWarnings(
                 plot_tfr_surfs(test_data_tfrSURFs_list[[k]],
@@ -49,8 +48,7 @@ test_that("'plot_tfr_surfs.data.frame()' works.", {
                                 x_alt_label = "Median only",
                                 add_range_regions = pars[["add_range_regions"]],
                                 add_Schoumaker_stalls = pars[["add_Schoumaker_stalls"]],
-                                add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]],
-                                use_ggpattern = pars[["use_ggpattern"]]
+                                add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]]
                                 )))
              )
     }, param_df = param_df)
@@ -89,8 +87,7 @@ test_that("'plot_surfs_probs.data.frame()' works.", {
             expect_s3_class(suppressWarnings(plot_surfs_probs(test_data_tfrSURFs_list[[k]],
                                                                add_range_regions = pars[["add_range_regions"]],
                                                                add_Schoumaker_stalls = pars[["add_Schoumaker_stalls"]],
-                                                               add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]],
-                                                               use_ggpattern = pars[["use_ggpattern"]]
+                                                               add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]]
                                                                )),
                             "ggplot")
 
@@ -101,8 +98,7 @@ test_that("'plot_surfs_probs.data.frame()' works.", {
                                                                x_alt_label = "Median only",
                                                                add_range_regions = pars[["add_range_regions"]],
                                                                add_Schoumaker_stalls = pars[["add_Schoumaker_stalls"]],
-                                                               add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]],
-                                                               use_ggpattern = pars[["use_ggpattern"]]
+                                                               add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]]
                                                                )),
                             "ggplot")
         }
@@ -133,8 +129,7 @@ test_that("'plot_tfr_surfs.list()' works.", {
                                                 yvar = pars[["yvar"]],
                                                 add_range_regions = pars[["add_range_regions"]],
                                                 add_Schoumaker_stalls = pars[["add_Schoumaker_stalls"]],
-                                                add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]],
-                                                use_ggpattern = pars[["use_ggpattern"]],
+                                                add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]]
                                                 incl_small_countries = pars[["incl_small_countries"]]
                                                 ))
         for (k in names(out)) {
@@ -151,7 +146,6 @@ test_that("'plot_tfr_surfs.list()' works.", {
                                                 add_range_regions = pars[["add_range_regions"]],
                                                 add_Schoumaker_stalls = pars[["add_Schoumaker_stalls"]],
                                                 add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]],
-                                                use_ggpattern = pars[["use_ggpattern"]],
                                                 incl_small_countries = pars[["incl_small_countries"]]
                                                 ))
         for (k in names(out)) {
@@ -181,7 +175,6 @@ test_that("'plot_surfs_probs.list()' with no 'alt' surfs to plot works.", {
                                                   add_range_regions = pars[["add_range_regions"]],
                                                   add_Schoumaker_stalls = pars[["add_Schoumaker_stalls"]],
                                                   add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]],
-                                                  use_ggpattern = pars[["use_ggpattern"]],
                                                   incl_small_countries = pars[["incl_small_countries"]]
                                                   ))
         for (k in names(out)) {
@@ -197,7 +190,6 @@ test_that("'plot_surfs_probs.list()' with no 'alt' surfs to plot works.", {
                                                   add_range_regions = pars[["add_range_regions"]],
                                                   add_Schoumaker_stalls = pars[["add_Schoumaker_stalls"]],
                                                   add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]],
-                                                  use_ggpattern = pars[["use_ggpattern"]],
                                                   incl_small_countries = pars[["incl_small_countries"]]
                                                   ))
         for (k in names(out)) {

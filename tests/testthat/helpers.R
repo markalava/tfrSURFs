@@ -18,7 +18,6 @@ make_plot_tfr_surfs_param_df <- function() {
                     add_Schoumaker_stalls = c(TRUE, FALSE),
                     add_prob_TFR_surfs = c(TRUE, FALSE),
                     add_median_TFR_surfs = c(TRUE, FALSE),
-                    use_ggpattern = c(TRUE, FALSE),
                     incl_small_countries = c(TRUE, FALSE),
                     stringsAsFactors = FALSE)
     return(outdf)

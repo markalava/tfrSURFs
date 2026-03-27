@@ -35,7 +35,6 @@ Imports:
     rlang,
     tidyr
 Suggests: 
-    ggpattern,
     gtools,
     here,
     knitr,
