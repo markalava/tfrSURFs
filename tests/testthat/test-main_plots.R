@@ -16,42 +16,47 @@ test_that("'plot_tfr_surfs.data.frame()' works.", {
         ncores <- parallel::detectCores() - 2
     }
     cl <- parallel::makeCluster(ncores)
-    #parallel::clusterExport(cl, varlist = c("param_df"))
+                                #parallel::clusterExport(cl, varlist = c("param_df"))
 
     res <- parallel::parLapply(cl = cl,
                                setNames(nm = seq_len(nrow(param_df))),
                                fun = function(param_i, param_df) {
-        library(testthat)
-        library(tfrSURFs)
-        withr::local_options(list(tfrSURFs.message_about_unknown_aes = FALSE))
-        data(test_data_tfrSURFs_list)
+                                   library(testthat)
+                                   library(tfrSURFs)
+                                   withr::local_options(list(tfrSURFs.message_about_unknown_aes = FALSE))
+                                   data(test_data_tfrSURFs_list)
 
-        pars <- param_df[param_i, , drop = FALSE]
-        k <- "716"
+                                   pars <- param_df[param_i, , drop = FALSE]
+                                   k <- "716"
 
-        list(args = paste("[", param_i, " of ", nrow(param_df), "]: ",
-                          paste(colnames(param_df), paste0(pars, "; "), sep = " = ")),
-             country_code = paste0("Country code = '", k, "'"),
-             plot_prob_gg = try(suppressWarnings(
-                plot_tfr_surfs(test_data_tfrSURFs_list[[k]],
-                                xvar = pars[["xvar"]],
-                                yvar = pars[["yvar"]],
-                                add_range_regions = pars[["add_range_regions"]],
-                                add_Schoumaker_stalls = pars[["add_Schoumaker_stalls"]],
-                                add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]]
-                                ))),
-             plot_med_gg = try(suppressWarnings(
-                plot_tfr_surfs(test_data_tfrSURFs_list[[k]],
-                                xvar = pars[["xvar"]],
-                                yvar = pars[["yvar"]],
-                                x_alt = test_data_tfrSURFs_median_list[[k]],
-                                x_alt_label = "Median only",
-                                add_range_regions = pars[["add_range_regions"]],
-                                add_Schoumaker_stalls = pars[["add_Schoumaker_stalls"]],
-                                add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]]
-                                )))
-             )
-    }, param_df = param_df)
+                                   list(args = paste("[", param_i, " of ", nrow(param_df), "]: ",
+                                                     paste(colnames(param_df), paste0(pars, "; "), sep = " = ")),
+                                        country_code = paste0("Country code = '", k, "'"),
+                                        plot_prob_gg = try(suppressWarnings(
+                                            plot_tfr_surfs(test_data_tfrSURFs_list[[k]],
+                                                           xvar = pars[["xvar"]],
+                                                           yvar = pars[["yvar"]],
+                                                           add_range_ref_lines = pars[["add_range_ref_lines"]],
+                                                           add_range_regions = pars[["add_range_regions"]],
+                                                           add_Schoumaker_stalls = pars[["add_Schoumaker_stalls"]],
+                                                           maximal_legend = pars[["maximal_legend"]],
+                                                           add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]],
+                                                           add_prob_TFR_surf_projections = pars[["add_prob_TFR_surf_projections"]]
+                                                           ))),
+                                        plot_med_gg = try(suppressWarnings(
+                                            plot_tfr_surfs(test_data_tfrSURFs_list[[k]],
+                                                           xvar = pars[["xvar"]],
+                                                           yvar = pars[["yvar"]],
+                                                           x_alt = test_data_tfrSURFs_median_list[[k]],
+                                                           x_alt_label = "Median only",
+                                                           add_range_regions = pars[["add_range_regions"]],
+                                                           add_Schoumaker_stalls = pars[["add_Schoumaker_stalls"]],
+                                                           maximal_legend = pars[["maximal_legend"]],
+                                                           add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]],
+                                                           add_prob_TFR_surf_projections = pars[["add_prob_TFR_surf_projections"]]
+                                                           )))
+                                        )
+                               }, param_df = param_df)
     parallel::stopCluster(cl)
 
     for (ll in res) {
@@ -85,21 +90,24 @@ test_that("'plot_surfs_probs.data.frame()' works.", {
             if (msg) message("Country code = '", k, "'")
             if (msg) message("No 'x_alt'")
             expect_s3_class(suppressWarnings(plot_surfs_probs(test_data_tfrSURFs_list[[k]],
-                                                               add_range_regions = pars[["add_range_regions"]],
-                                                               add_Schoumaker_stalls = pars[["add_Schoumaker_stalls"]],
-                                                               add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]]
-                                                               )),
+                                                              add_range_ref_lines = pars[["add_range_ref_lines"]],
+                                                              add_range_regions = pars[["add_range_regions"]],
+                                                              add_Schoumaker_stalls = pars[["add_Schoumaker_stalls"]],
+                                                              maximal_legend = pars[["maximal_legend"]],
+                                                              add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]],
+                                                              add_prob_TFR_surf_projections = pars[["add_prob_TFR_surf_projections"]]
+                                                              )),
                             "ggplot")
 
 
             if (msg) message("'x_alt' = medians")
             expect_s3_class(suppressWarnings(plot_surfs_probs(test_data_tfrSURFs_list[[k]],
-                                                               x_alt = test_data_tfrSURFs_median_list[[k]],
-                                                               x_alt_label = "Median only",
-                                                               add_range_regions = pars[["add_range_regions"]],
-                                                               add_Schoumaker_stalls = pars[["add_Schoumaker_stalls"]],
-                                                               add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]]
-                                                               )),
+                                                              x_alt = test_data_tfrSURFs_median_list[[k]],
+                                                              x_alt_label = "Median only",
+                                                              add_range_regions = pars[["add_range_regions"]],
+                                                              add_Schoumaker_stalls = pars[["add_Schoumaker_stalls"]],
+                                                              add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]]
+                                                              )),
                             "ggplot")
         }
     }
@@ -125,13 +133,16 @@ test_that("'plot_tfr_surfs.list()' works.", {
                          paste(colnames(param_df), paste0(pars, "; "), sep = " = "))
         if (msg) message("No 'x_alt'")
         out <- suppressWarnings(plot_tfr_surfs(test_data_tfrSURFs_list,
-                                                xvar = pars[["xvar"]],
-                                                yvar = pars[["yvar"]],
-                                                add_range_regions = pars[["add_range_regions"]],
-                                                add_Schoumaker_stalls = pars[["add_Schoumaker_stalls"]],
-                                                add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]]
-                                                incl_small_countries = pars[["incl_small_countries"]]
-                                                ))
+                                               xvar = pars[["xvar"]],
+                                               yvar = pars[["yvar"]],
+                                               add_range_ref_lines = pars[["add_range_ref_lines"]],
+                                               add_range_regions = pars[["add_range_regions"]],
+                                               add_Schoumaker_stalls = pars[["add_Schoumaker_stalls"]],
+                                               maximal_legend = pars[["maximal_legend"]],
+                                               add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]],
+                                               add_prob_TFR_surf_projections = pars[["add_prob_TFR_surf_projections"]],
+                                               incl_small_countries = pars[["incl_small_countries"]]
+                                               ))
         for (k in names(out)) {
             if (msg) message("Country code = '", k, "'")
             expect_s3_class(out[[k]], "ggplot")
@@ -139,15 +150,18 @@ test_that("'plot_tfr_surfs.list()' works.", {
 
         if (msg) message("'x_alt' = medians")
         out <- suppressWarnings(plot_tfr_surfs(test_data_tfrSURFs_list,
-                                                x_alt = test_data_tfrSURFs_median_list,
-                                                x_alt_label = "Median only",
-                                                xvar = pars[["xvar"]],
-                                                yvar = pars[["yvar"]],
-                                                add_range_regions = pars[["add_range_regions"]],
-                                                add_Schoumaker_stalls = pars[["add_Schoumaker_stalls"]],
-                                                add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]],
-                                                incl_small_countries = pars[["incl_small_countries"]]
-                                                ))
+                                               x_alt = test_data_tfrSURFs_median_list,
+                                               x_alt_label = "Median only",
+                                               xvar = pars[["xvar"]],
+                                               yvar = pars[["yvar"]],
+                                               add_range_ref_lines = pars[["add_range_ref_lines"]],
+                                               add_range_regions = pars[["add_range_regions"]],
+                                               add_Schoumaker_stalls = pars[["add_Schoumaker_stalls"]],
+                                               maximal_legend = pars[["maximal_legend"]],
+                                               add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]],
+                                               add_prob_TFR_surf_projections = pars[["add_prob_TFR_surf_projections"]],
+                                               incl_small_countries = pars[["incl_small_countries"]]
+                                               ))
         for (k in names(out)) {
             if (msg) message("Country code = '", k, "'")
             expect_s3_class(out[[k]], "ggplot")
@@ -172,11 +186,14 @@ test_that("'plot_surfs_probs.list()' with no 'alt' surfs to plot works.", {
                          paste(colnames(param_df), paste0(pars, "; "), sep = " = "))
         if (msg) message("No 'x_alt'")
         out <- suppressWarnings(plot_surfs_probs(test_data_tfrSURFs_list,
-                                                  add_range_regions = pars[["add_range_regions"]],
-                                                  add_Schoumaker_stalls = pars[["add_Schoumaker_stalls"]],
-                                                  add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]],
-                                                  incl_small_countries = pars[["incl_small_countries"]]
-                                                  ))
+                                                 add_range_ref_lines = pars[["add_range_ref_lines"]],
+                                                 add_range_regions = pars[["add_range_regions"]],
+                                                 add_Schoumaker_stalls = pars[["add_Schoumaker_stalls"]],
+                                                 maximal_legend = pars[["maximal_legend"]],
+                                                 add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]],
+                                                 add_prob_TFR_surf_projections = pars[["add_prob_TFR_surf_projections"]],
+                                                 incl_small_countries = pars[["incl_small_countries"]]
+                                                 ))
         for (k in names(out)) {
             if (msg) message("Country code = '", k, "'")
             expect_s3_class(out[[k]], "ggplot")
@@ -185,13 +202,16 @@ test_that("'plot_surfs_probs.list()' with no 'alt' surfs to plot works.", {
 
         if (msg) message("'x_alt' = Medians")
         out <- suppressWarnings(plot_surfs_probs(test_data_tfrSURFs_list,
-                                                  x_alt = test_data_tfrSURFs_median_list,
-                                                  x_alt_label = "Median only",
-                                                  add_range_regions = pars[["add_range_regions"]],
-                                                  add_Schoumaker_stalls = pars[["add_Schoumaker_stalls"]],
-                                                  add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]],
-                                                  incl_small_countries = pars[["incl_small_countries"]]
-                                                  ))
+                                                 x_alt = test_data_tfrSURFs_median_list,
+                                                 x_alt_label = "Median only",
+                                                 add_range_ref_lines = pars[["add_range_ref_lines"]],
+                                                 add_range_regions = pars[["add_range_regions"]],
+                                                 add_Schoumaker_stalls = pars[["add_Schoumaker_stalls"]],
+                                                 maximal_legend = pars[["maximal_legend"]],
+                                                 add_prob_TFR_surfs = pars[["add_prob_TFR_surfs"]],
+                                                 add_prob_TFR_surf_projections = pars[["add_prob_TFR_surf_projections"]],
+                                                 incl_small_countries = pars[["incl_small_countries"]]
+                                                 ))
         for (k in names(out)) {
             if (msg) message("Country code = '", k, "'")
             expect_s3_class(out[[k]], "ggplot")

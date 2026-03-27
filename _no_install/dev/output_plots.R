@@ -104,11 +104,11 @@ plot_surfs_probs(surfs_df,
 ## debug(make_tfr_surfs)
 surfs_df <- make_tfr_surfs(sim.dir = bayesTFR_output_dir,
                            country_code = get_country_codes("Mozambique"))
-surfs_medians_df <- make_tfr_surfs(sim.dir = bayesTFR_output_dir,
+surfs_median_df <- make_tfr_surfs(sim.dir = bayesTFR_output_dir,
                                    median_only = TRUE,
                            country_code = get_country_codes("Mozambique"))
 
-plot_surfs_probs(surfs_df, x_alt = surfs_medians_df,
+plot_surfs_probs(surfs_df, x_alt = surfs_median_df,
                  maximal_legend = FALSE,
                  add_prob_TFR_surf_projections = FALSE,
                   plot_ann = "TEST annotation", datestamp = TRUE)
@@ -125,9 +125,10 @@ surfs_median_df <- make_tfr_surfs(sim.dir = bayesTFR_output_dir,
                                   median_only = TRUE)
 
 plot_surfs_probs(x = surfs_df, x_alt = surfs_median_df,
+                 add_prob_TFR_surfs = TRUE,
                  maximal_legend = FALSE,
                  add_prob_TFR_surf_projections = FALSE,
-                  plot_ann = "TEST annotation", datestamp = TRUE)
+                 plot_ann = "TEST annotation", datestamp = TRUE)
 
 ###-----------------------------------------------------------------------------
 ### ** Zimbabwe
@@ -138,8 +139,42 @@ surfs_df <- make_tfr_surfs(sim.dir = bayesTFR_output_dir,
 
 plot_surfs_probs(surfs_df,
                  plot_ann = "TEST annotation", datestamp = TRUE,
-                 add_Schoumaker_stalls = FALSE,
-                 all_Schoumaker_stall_types_legend = FALSE)
+                 add_Schoumaker_stalls = FALSE)
+
+###-----------------------------------------------------------------------------
+### ** Namibia
+
+## debug(make_tfr_surfs)
+surfs_df <- make_tfr_surfs(sim.dir = bayesTFR_output_dir,
+                           country_code = get_country_codes("Namibia"))
+
+surfs_median_df <- make_tfr_surfs(sim.dir = bayesTFR_output_dir,
+                                  country_code = get_country_codes("Namibia"),
+                                  median_only = TRUE)
+
+surfs_df$Schoumaker_stall_strong <- FALSE
+surfs_df$Schoumaker_stall_any <- FALSE
+surfs_df[surfs_df$year %in% 1980:1990, "Schoumaker_stall_strong"] <- TRUE
+surfs_df[surfs_df$year %in% 1980:1990, "Schoumaker_stall_any"] <- TRUE
+
+plot_surfs_probs(x = surfs_df, x_alt = surfs_median_df,
+                 plot_ann = "TEST annotation", datestamp = TRUE,
+                 add_Schoumaker_stalls = TRUE)
+
+###-----------------------------------------------------------------------------
+### ** Benin
+
+## debug(make_tfr_surfs)
+surfs_df <- make_tfr_surfs(sim.dir = bayesTFR_output_dir,
+                           country_code = get_country_codes("Benin"))
+
+surfs_median_df <- make_tfr_surfs(sim.dir = bayesTFR_output_dir,
+                                  country_code = get_country_codes("Benin"),
+                                  median_only = TRUE)
+
+plot_surfs_probs(x = surfs_df, x_alt = surfs_median_df,
+                 plot_ann = "TEST annotation", datestamp = TRUE,
+                 add_Schoumaker_stalls = TRUE)
 
 ###-----------------------------------------------------------------------------
 ### ** Gambia
@@ -149,7 +184,22 @@ surfs_df <- make_tfr_surfs(sim.dir = bayesTFR_output_dir,
                              country_code = get_country_codes("Gambia"))
 
 plot_surfs_probs(surfs_df,
-                  plot_ann = "TEST annotation", datestamp = TRUE)
+                 plot_ann = "TEST annotation", datestamp = TRUE)
+
+###-----------------------------------------------------------------------------
+### ** Cameroon
+
+## debug(make_tfr_surfs)
+surfs_df <- make_tfr_surfs(sim.dir = bayesTFR_output_dir,
+                           country_code = get_country_codes("Cameroon"))
+
+surfs_median_df <- make_tfr_surfs(sim.dir = bayesTFR_output_dir,
+                                  country_code = get_country_codes("Cameroon"),
+                                  median_only = TRUE)
+
+plot_surfs_probs(x = surfs_df, x_alt = surfs_median_df,
+                 plot_ann = "TEST annotation", datestamp = TRUE,
+                 add_Schoumaker_stalls = TRUE)
 
 ###-----------------------------------------------------------------------------
 ### ** Tanzania
@@ -175,7 +225,6 @@ surfs_median_df <- make_tfr_surfs(sim.dir = bayesTFR_output_dir,
 plot_surfs_probs(x = surfs_df, x_alt = surfs_median_df,
                  maximal_legend = FALSE,
                  add_Schoumaker_stalls = TRUE,
-                 add_prob_TFR_surfs = TRUE,
                  plot_ann = "TEST annotation", datestamp = TRUE)
 
 ### -----------------------------------------------------------------------------

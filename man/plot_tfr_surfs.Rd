@@ -26,15 +26,14 @@ plot_tfr_surfs(x, ...)
   add_range_ref_lines = identical(yvar, "surf_prob"),
   add_range_regions = TRUE,
   add_est_proj_ref_line = TRUE,
-  add_Schoumaker_stalls = isTRUE(any(x[["Schoumaker_included"]])),
-  all_Schoumaker_stall_types_legend = FALSE,
+  add_Schoumaker_stalls = isTRUE(any(x[["Schoumaker_stall_any"]])),
+  maximal_legend = FALSE,
   add_prob_TFR_surfs = isTRUE(any(x[["surf_year"]])),
   add_prob_TFR_surf_projections = FALSE,
   xlim_plot = if (identical(xvar, "year")) {
      c(1950, 2050)
  } else c(0, 10),
   ylim_plot = NULL,
-  use_ggpattern = FALSE,
   plot_ann = NULL,
   datestamp = FALSE
 )
@@ -65,9 +64,8 @@ the first projection year? Ignored if \code{xvar} \code{!=}
 \item{add_Schoumaker_stalls}{Logical; add shading to show where stalls were
 identified by \cite{Schoumaker (2019)}.}
 
-\item{all_Schoumaker_stall_types_legend}{Logical; show all Schoumaker stall
-types in the legend, even if only a subset actually occur? Only
-effective if at least one Schoumaker stall occurs.}
+\item{maximal_legend}{Logical; show all SURF and Schoumaker stall
+types in the legend, even if only a subset actually occur?}
 
 \item{add_prob_TFR_surfs}{Logical; add shading to show where probabilistic
 surfs were identified}
@@ -77,10 +75,6 @@ surfs were identified}
 the projection period?}
 
 \item{xlim_plot, ylim_plot}{Limits for x- and y-axes.}
-
-\item{use_ggpattern}{Logical; should the \pkg{ggpattern} package be used to
-add patterning to ranges added by \code{add_range_regions}? Note: this
-requires the \pkg{ggpattern} package to be installed and is quite slow.}
 
 \item{plot_ann}{Character; text string to add to plot in top-right corner.}
 

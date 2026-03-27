@@ -14,9 +14,12 @@ make_plot_tfr_surfs_param_df <- function() {
     outdf <-
         expand.grid(xvar = c("year", "TFR_median"),
                     yvar = c("surf_prob", "TFR_median"),
+                    add_range_ref_lines = c(TRUE, FALSE), ### 1
                     add_range_regions = c(TRUE, FALSE),
                     add_Schoumaker_stalls = c(TRUE, FALSE),
+                    maximal_legend = c(TRUE, FALSE), ### 2
                     add_prob_TFR_surfs = c(TRUE, FALSE),
+                    add_prob_TFR_surf_projections = c(TRUE, FALSE), ### 3
                     add_median_TFR_surfs = c(TRUE, FALSE),
                     incl_small_countries = c(TRUE, FALSE),
                     stringsAsFactors = FALSE)
