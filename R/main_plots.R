@@ -150,11 +150,12 @@ plot_tfr_surfs.data.frame <- function(x,
     ## -------* Sub Functions
 
     ## Make data frame for schoumaker stalls to be fed to geom_poly().
-    make_surf_geom_poly_df <- function(x, surf_label) {
+    make_surf_geom_poly_df <- function(x, surf_label, plot_label = surf_label) {
         idx <- which(!is.na(x[, surf_label]) & x[, surf_label])
         if (length(idx)) {
             return(data.frame(x[idx, ],
                               id = as.character(paste(x[idx, "indicator"],
+                                                      surf_label,
                                                       number_sequence_groups(x[idx, "year"])))) |>
                    plyr::ddply(.variables = c("indicator", xvar, "id"), .fun = function(z) {
                        data.frame(value = 1,
@@ -164,11 +165,28 @@ plot_tfr_surfs.data.frame <- function(x,
                    plyr::ddply(.variables = "id", function(z) {
                        z <- z[z$x %in% c(min(z[["x"]]), max(z[["x"]])), ]
                        return(z)
-                   }))
+                   }) |>
+                   data.frame(plot_label = plot_label)
+                   )
         } else {
             return(data.frame(id = character(), indicator = character(),
-                              value = numeric(), x = numeric(), y = numeric()))
+                              value = numeric(), x = numeric(), y = numeric(),
+                              plot_label = character()))
         }
+    }
+
+    ## Add plot layer for alternative surf type ('x_alt')
+    plot_x_alt_fp_surf <- function(plot_df, ggplot_obj) {
+        ggplot_obj +
+            ggplot2::geom_rug(data = plot_df,
+                              ggplot2::aes(x = x, y = NULL,
+                                           colour = x_alt_label,
+                                           linetype = x_alt_label,
+                                           fill = x_alt_label
+                                # 'fill' has to be there to get the legend to
+                                # merge properly, but it will cause a warning.
+                                           ),
+                              linewidth = 1.1)
     }
 
     ## -------* Checks
@@ -211,9 +229,9 @@ plot_tfr_surfs.data.frame <- function(x,
     legend_title <- "Legend"
 
     if (add_Schoumaker_stalls || maximal_legend) {
-        legend_title <- paste0(legend_title, " — ", "SURF / Stall Type")
+        legend_title <- paste0(legend_title, ", ", "SURF / Stall Type")
     } else if (add_prob_TFR_surfs) {
-        legend_title <- paste0(legend_title, " — ", "SURF Type")
+        legend_title <- paste0(legend_title, ", ", "SURF Type")
     }
 
     ## Names of breaks for 'scale_*_manual'
@@ -291,35 +309,34 @@ plot_tfr_surfs.data.frame <- function(x,
         jitt_2 <- 0.5
     } else jitt_1 <- jitt_2 <- 0.005
 
-    surf_df <- x[!is.na(x[,"surf_year"]) & x[,"surf_year"],]
-    surf_df <- surf_df |>
-        plyr::ddply(.variables = c("indicator", xvar), .fun = function(z) {
-            data.frame(id = as.character(paste(z[,xvar], z[,"indicator"], z[, "surf_year_group"])),
-                       value = 1,
-                       x = c(z[,xvar] - rep(jitt_1, 2)
-                           , z[,xvar] + rep(jitt_2, 2)
-                             ),
-                       y2 = ylim_plot[c(1,2,2,1)]
-                       )
-        })
-
-    stall_tfr_df <- make_surf_geom_poly_df(x, surf_label = "Schoumaker_stall_strong")
-
-    stall_tfr_moderate_df <- make_surf_geom_poly_df(x, surf_label = "Schoumaker_stall_moderate")
-
-    stall_tfr_weak_df <- make_surf_geom_poly_df(x, surf_label = "Schoumaker_stall_weak")
-
-    stall_tfr_pretransitional_df <- make_surf_geom_poly_df(x, surf_label = "Schoumaker_stall_pretransitional")
-
     surf_dummy_df <- data.frame(indicator = unique(x[["indicator"]]),
-                                 x = median(x[, xvar]), y = mean(x[, yvar]),
-                                 y2 = mean(x[, yvar]),
-                                 id = number_sequence_groups(x[, "year"]))
+                                x = median(x[, xvar]),
+                                y = mean(x[, yvar]),
+                                id = number_sequence_groups(x[, "year"]))
+
+    surf_df <- x[!is.na(x[,"surf_year"]), , drop = FALSE]
+
+    surf_est_df <-
+        make_surf_geom_poly_df(surf_df[surf_df[["year"]] <= est_proj_ref_line_year, , drop = FALSE],
+                               surf_label = "surf_year")
+    surf_proj_df <-
+        make_surf_geom_poly_df(surf_df[surf_df[["year"]] > est_proj_ref_line_year, , drop = FALSE],
+                               surf_label = "surf_year")
+
+    if (add_Schoumaker_stalls || maximal_legend) {
+        stall_tfr_df <-
+            rbind(make_surf_geom_poly_df(x, surf_label = "Schoumaker_stall_strong", plot_label = schoumaker_strong_label),
+                  make_surf_geom_poly_df(x, surf_label = "Schoumaker_stall_moderate", plot_label = schoumaker_moderate_label),
+                  make_surf_geom_poly_df(x, surf_label = "Schoumaker_stall_weak", plot_label = schoumaker_weak_label),
+                  make_surf_geom_poly_df(x, surf_label = "Schoumaker_stall_pretransitional", plot_label = schoumaker_pre_label))
+        if (!nrow(stall_tfr_df))
+            stall_tfr_df <- surf_dummy_df
+    }
 
     indicator_not_in_range_df <-
         make_surf_geom_poly_df(data.frame(x[, c("indicator", xvar)],
                                                transition_condition_not_met = !x$transition_condition_met),
-                                    surf_label = "transition_condition_not_met")
+                               surf_label = "transition_condition_not_met")
 
     ## -------* Build Plot
 
@@ -356,20 +373,26 @@ plot_tfr_surfs.data.frame <- function(x,
         }
     }
 
-    ## -------** Fill scales
+    ## -------** Scales
 
     fill_alpha <- 0.3
+    scale_breaks <- c(outside_ft_period_label, # to get the ordering as listed
+                      x_alt_label,
+                      indicator_abbrev,
+                      indicator_abbrev_proj,
+                      schoumaker_strong_label,
+                      schoumaker_moderate_label,
+                      schoumaker_weak_label,
+                      schoumaker_pre_label)
     gp <- gp +
         ggplot2::theme_bw() +
         ggplot2::scale_y_continuous(limits = ylim_plot, breaks = yscale_breaks) +
-        ggplot2::scale_fill_manual(breaks = c(outside_ft_period_label, # to get the ordering as listed
-                                              x_alt_label,
-                                              indicator_abbrev,
-                                              indicator_abbrev_proj,
-                                              schoumaker_strong_label,
-                                              schoumaker_moderate_label,
-                                              schoumaker_weak_label,
-                                              schoumaker_pre_label),
+        ggplot2::scale_linetype_manual(breaks = scale_breaks,
+                                   values = setNames(c(NA, 1, 2, 2, 2 + seq_len(length(scale_breaks) - 5), 1),
+                                                     scale_breaks),
+                                   na.value = NA,
+                                   name = legend_title) +
+        ggplot2::scale_fill_manual(breaks = scale_breaks,
                                    values = setNames(c("grey75",
                                                        NA,
                                                        "orange4",
@@ -379,47 +402,31 @@ plot_tfr_surfs.data.frame <- function(x,
                                                        RColorBrewer::brewer.pal(n = 11, "Spectral")[8],
                                                        NA
                                                        ),
-                                                     c(outside_ft_period_label,
-                                                       x_alt_label,
-                                                       indicator_abbrev,
-                                                       indicator_abbrev_proj,
-                                                       schoumaker_strong_label,
-                                                       schoumaker_moderate_label,
-                                                       schoumaker_weak_label,
-                                                       schoumaker_pre_label)),
+                                                     scale_breaks),
                                    na.value = NA,
                                    name = legend_title) +
-        ggplot2::scale_colour_manual(breaks = c(outside_ft_period_label, # to get the ordering as listed
-                                                x_alt_label,
-                                                indicator_abbrev,
-                                                indicator_abbrev_proj,
-                                                schoumaker_strong_label,
-                                                schoumaker_moderate_label,
-                                                schoumaker_weak_label,
-                                                schoumaker_pre_label),
+        ggplot2::scale_colour_manual(breaks = scale_breaks,
                                      values = setNames(c(NA,
                                                          "grey30",
-                                                         NA,
-                                                         NA,
-                                                         NA,
-                                                         NA,
-                                                         NA,
+                                                         "orange4",
+                                                         "orange3",
+                                                         RColorBrewer::brewer.pal(n = 11, "Spectral")[11],
+                                                         RColorBrewer::brewer.pal(n = 11, "Spectral")[10],
+                                                         RColorBrewer::brewer.pal(n = 11, "Spectral")[8],
                                                          "pink2"## RColorBrewer::brewer.pal(n = 11, "RdBu")[8]
                                                          ),
-                                                       c(outside_ft_period_label,
-                                                         x_alt_label,
-                                                         indicator_abbrev,
-                                                         indicator_abbrev_proj,
-                                                         schoumaker_strong_label,
-                                                         schoumaker_moderate_label,
-                                                         schoumaker_weak_label,
-                                                         schoumaker_pre_label)),
+                                                       scale_breaks),
                                      na.value = NA,
                                      name = legend_title)  +
         ggplot2::labs(title = paste0(cname, " (", rname, ")"),
                       x = xvar, y = y_axis_label) +
         ggplot2::theme(legend.position = "bottom", legend.title.align = 0.5) +
-        ggplot2::guides(fill = ggplot2::guide_legend(title.position = "top", nrow = 1))
+        ggplot2::guides(fill = ggplot2::guide_legend(title.position = "top", nrow = 1),
+                        colour = ggplot2::guide_legend(title.position = "top", nrow = 1),
+                        linetype = "none" # linetype legend does not get
+                                          # integrated with fill and colour, so
+                                          # don't show it.
+                        )
 
     if (is.numeric(xlim_plot)) {
         if (identical(xvar, "year")) {
@@ -440,7 +447,8 @@ plot_tfr_surfs.data.frame <- function(x,
                 gp <- gp + ggplot2::geom_polygon(data = indicator_not_in_range_df,
                                                  ggplot2::aes(x = x, y = y, group = id,
                                                               fill = outside_ft_period_label,
-                                                              colour = outside_ft_period_label),
+                                                              colour = outside_ft_period_label,
+                                                              linetype = outside_ft_period_label),
                                                  alpha = fill_alpha
                                                  )
         }
@@ -452,101 +460,46 @@ plot_tfr_surfs.data.frame <- function(x,
 
     if (add_Schoumaker_stalls || maximal_legend) {
 
-        ## TFR stalls
-        if (!nrow(stall_tfr_df) && maximal_legend) {
-            stall_tfr_df <- surf_dummy_df
-        }
-        if (nrow(stall_tfr_df)) {
-            gp <- gp + ggplot2::geom_polygon(data = stall_tfr_df,
-                                             ggplot2::aes(x = x, y = y, group = id,
-                                                          fill = schoumaker_strong_label,
-                                                          colour = schoumaker_strong_label),
-                                             alpha = fill_alpha
-                                             )
-        }
-
-        ## TFR moderate stalls
-        if (!nrow(stall_tfr_moderate_df) && maximal_legend) {
-            stall_tfr_moderate_df <- surf_dummy_df
-        }
-        if (nrow(stall_tfr_moderate_df)) {
-            gp <- gp + ggplot2::geom_polygon(data = stall_tfr_moderate_df,
-                                                 ggplot2::aes(x = x, y = y, group = id,
-                                                              fill = schoumaker_moderate_label,
-                                                              colour = schoumaker_moderate_label),
-                                                 alpha = fill_alpha
-                                                 )
-        }
-
-        ## TFR weak stalls
-        if (!nrow(stall_tfr_weak_df) && maximal_legend) {
-            stall_tfr_weak_df <- surf_dummy_df
-        }
-        if (nrow(stall_tfr_weak_df)) {
-            test <- schoumaker_weak_label
-        gp <- gp + ggplot2::geom_polygon(data = stall_tfr_weak_df,
-                                             ggplot2::aes(x = x, y = y, group = id,
-                                                          fill = test,
-                                                          colour = test),
-                                             alpha = fill_alpha
-                                             )
-        }
-
-        ## TFR pretransitional stalls
-        ## These are open boxes, not shaded regions.
-        if (!nrow(stall_tfr_pretransitional_df) && maximal_legend) {
-            stall_tfr_pretransitional_df <- surf_dummy_df
-        }
-        if (nrow(stall_tfr_pretransitional_df)) {
-        gp <- gp + ggplot2::geom_polygon(data = stall_tfr_pretransitional_df,
-                                             ggplot2::aes(x = x, y = y, group = id,
-                                                          fill = schoumaker_pre_label,
-                                                          colour = schoumaker_pre_label),
-                                             alpha = fill_alpha,
-                                             linewidth = 0.75)
-        }
+        gp <- gp + ggplot2::geom_polygon(data = stall_tfr_df,
+                                         ggplot2::aes(x = x, y = y, group = id,
+                                                      fill = plot_label,
+                                                      colour = plot_label,
+                                                      linetype = plot_label),
+                                         alpha = fill_alpha
+                                         )
     }
 
     ## -------** Probabilistic Stalls
 
-    if (add_prob_TFR_surfs || maximal_legend) {
+    if (add_prob_TFR_surfs) {
 
-        surf_est_df <- surf_df[surf_df[["year"]] <= est_proj_ref_line_year, ]
-        surf_proj_df <- surf_df[surf_df[["year"]] > est_proj_ref_line_year, ]
-
-        if (nrow(surf_est_df)) {
-            surf_est_df <- plyr::ddply(surf_est_df, .variables = "id", function(z) {
-                z <- z[z$x %in% c(min(z[["x"]]), max(z[["x"]])), ]
-                return(z)
-            })
-        } else if (maximal_legend) {
+        if (!nrow(surf_est_df) && maximal_legend) {
             surf_est_df <- surf_dummy_df
         }
-        if (nrow(surf_proj_df)) {
-            surf_proj_df <- plyr::ddply(surf_proj_df, .variables = "id", function(z) {
-                z <- z[z$x %in% c(min(z[["x"]]), max(z[["x"]])), ]
-                return(z)
-            })
-        } else if (maximal_legend) {
+
+        if (!nrow(surf_proj_df) && maximal_legend) {
             surf_proj_df <- surf_dummy_df
         }
+
         if (nrow(surf_est_df)) {
                 gp <- gp + ggplot2::geom_polygon(data =  surf_est_df,
-                                                 ggplot2::aes(x = x, y = y2, group = id,
+                                                 ggplot2::aes(x = x, y = y, group = id,
                                                               colour = indicator_abbrev,
-                                                              fill = indicator_abbrev),
+                                                              fill = indicator_abbrev,
+                                                              linetype = indicator_abbrev),
                                                  alpha = fill_alpha,
-                                                 linewidth = 1.05
+                                                 linetype = 2
                                                  )
         }
         if (add_prob_TFR_surf_projections) {
             if (nrow(surf_proj_df)) {
                 gp <- gp + ggplot2::geom_polygon(data =  surf_proj_df,
-                                                 ggplot2::aes(x = x, y = y2, group = id,
+                                                 ggplot2::aes(x = x, y = y, group = id,
                                                               colour = indicator_abbrev_proj,
-                                                              fill = indicator_abbrev_proj),
+                                                              fill = indicator_abbrev_proj,
+                                                              linetype = indicator_abbrev_proj),
                                                  alpha = fill_alpha,
-                                                 linewidth = 1.05
+                                                 linetype = 2
                                                  )
             }
         }
@@ -584,59 +537,14 @@ plot_tfr_surfs.data.frame <- function(x,
         ## -------*** Add Layer to Plot
 
         ## Rug
-        if (!getOption("tfrSURFs.message_about_unknown_aes")) {
-            if(nrow(x_alt_fp_surf_ALT)) {
-                gp <- suppressWarnings({
-                    gp +
-                        ggplot2::geom_rug(data = x_alt_fp_surf_ALT,
-                                          ggplot2::aes(x = x, y = NULL,
-                                                       colour = x_alt_label,
-                                                       fill = x_alt_label
-                                # 'fill' has to be there to get the legend to
-                                # merge properly, but it will cause a warning.
-                                                       ),
-                                          linewidth = 1.1)
-                })
-            }
-            if (add_prob_TFR_surf_projections && nrow(x_alt_fp_surf_proj_ALT)) {
-                gp <- suppressWarnings({
-                    gp +
-                        ggplot2::geom_rug(data = x_alt_fp_surf_proj_ALT,
-                                          ggplot2::aes(x = x, y = NULL,
-                                                       colour = x_alt_label,
-                                                       fill = x_alt_label
-                                # 'fill' has to be there to get the legend to
-                                # merge properly, but it will cause a warning.
-                                                       ),
-                                          linewidth = 1.1)
-                })
-            }
-        } else {
-            on.exit(message("NOTE: You can ignore the warning from ggplot2 about \"unknown aesthetics: fill\"."),
-                    add = TRUE, after = FALSE)
-            if(nrow(x_alt_fp_surf_ALT)) {
-                gp <- gp +
-                    ggplot2::geom_rug(data = x_alt_fp_surf_ALT,
-                                      ggplot2::aes(x = x, y = NULL,
-                                                   colour = x_alt_label,
-                                                   fill = x_alt_label
-                                # 'fill' has to be there to get the legend to
-                                # merge properly, but it will cause a warning.
-                                                   ),
-                                      linewidth = 1.1)
-            }
-            if (add_prob_TFR_surf_projections && nrow(x_alt_fp_surf_proj_ALT)) {
-                gp <- gp +
-                    ggplot2::geom_rug(data = x_alt_fp_surf_proj_ALT,
-                                      ggplot2::aes(x = x, y = NULL,
-                                                   colour = x_alt_label,
-                                                   fill = x_alt_label
-                                # 'fill' has to be there to get the legend to
-                                # merge properly, but it will cause a warning.
-                                                   ),
-                                      linewidth = 1.1)
-            }
-        }
+        on.exit(message("NOTE: You can ignore the warning from ggplot2 about \"unknown aesthetics: fill\"."),
+                add = TRUE, after = FALSE)
+
+        if(nrow(x_alt_fp_surf_ALT))
+            gp <- plot_x_alt_fp_surf(x_alt_fp_surf_ALT, gp)
+
+        if(add_prob_TFR_surf_projections && nrow(x_alt_fp_surf_proj_ALT))
+            gp <- plot_x_alt_fp_surf(x_alt_fp_surf_proj_ALT, gp)
     }
 
     ## -------** Source data

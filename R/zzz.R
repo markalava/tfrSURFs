@@ -12,7 +12,6 @@
 
     op <- options()
     op.tfrSURFs <- list(
-        tfrSURFs.message_about_unknown_aes = TRUE,
         tfrSURFs.sensitivity_analysis_output_dir_name = "sensitivity_analysis_outputs",
         tfrSURFs.sensitivity_analysis_overwrite = FALSE,
         tfrSURFs.sim.dir = NULL,
