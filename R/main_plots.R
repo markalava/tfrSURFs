@@ -149,40 +149,73 @@ plot_tfr_surfs.data.frame <- function(x,
 
     ## -------* Sub Functions
 
-    ## Make data frame for schoumaker stalls to be fed to geom_poly().
-    make_surf_geom_poly_df <- function(x, surf_label, plot_label = surf_label) {
+    ## Make data frame for schoumaker stalls and other layers to be fed to
+    ## geom_poly().
+    ##
+    ## If 'dummy_df' is TRUE, a data.frame with dummy coordinates will be
+    ## returned so that, even when there are no instances of 'surf_label', the
+    ## plot will have a legend entry for the 'surf_label' / 'plot_label'
+    ## category. Otherwise, a data frame with no rows will be returned and the
+    ## plot legend will not have such a component.
+    make_surf_geom_poly_df <- function(x, xvar, jitt_1 = 00, jitt_2 = 0.99,
+                                       surf_label, plot_label = surf_label,
+                                       dummy_df = FALSE) {
         idx <- which(!is.na(x[, surf_label]) & x[, surf_label])
+        id <- as.character(paste(x[idx, "indicator"],
+                                 surf_label,
+                                 number_sequence_groups(x[idx, "year"])))
         if (length(idx)) {
-            return(data.frame(x[idx, ],
-                              id = as.character(paste(x[idx, "indicator"],
-                                                      surf_label,
-                                                      number_sequence_groups(x[idx, "year"])))) |>
+            return(data.frame(x[idx, ], id = id) |>
                    plyr::ddply(.variables = c("indicator", xvar, "id"), .fun = function(z) {
                        data.frame(value = 1,
-                                  x = c(z[,xvar] - rep(jitt_1, 2), z[,xvar] + rep(jitt_2, 2)),
+                                  x = c(z[, xvar] - rep(jitt_1, 2), z[, xvar] + rep(jitt_2, 2)),
                                   y = ylim_plot[c(1,2,2,1)])
                    }) |>
                    plyr::ddply(.variables = "id", function(z) {
                        z <- z[z$x %in% c(min(z[["x"]]), max(z[["x"]])), ]
                        return(z)
                    }) |>
-                   data.frame(plot_label = plot_label)
-                   )
+                data.frame(plot_label = plot_label))
         } else {
-            return(data.frame(id = character(), indicator = character(),
-                              value = numeric(), x = numeric(), y = numeric(),
-                              plot_label = character()))
+            if (isTRUE(dummy_df)) {
+                indicator <- unique(na.omit(x[["indicator"]]))
+                id <- paste(indicator, surf_label, "0")
+                return(setNames(data.frame(indicator = indicator, TMP = xvar, id = id),
+                                c("indicator", xvar, "id"))|>
+                       plyr::ddply(.variables = c("indicator", xvar, "id"), .fun = function(z) {
+                           data.frame(value = 1, x = c(-1, 0), y = c(0, -1))
+                       }) |>
+                       plyr::ddply(.variables = "id", function(z) {
+                           z <- z[z$x %in% c(min(z[["x"]]), max(z[["x"]])), ]
+                           return(z)
+                       }) |>
+                       data.frame(plot_label = plot_label))
+            } else {
+                return(data.frame(id = character(), indicator = character(), year = numeric(),
+                                  value = numeric(), x = numeric(), y = numeric(),
+                                  plot_label = character()))
+            }
         }
     }
 
+    ## Add plot layer for SURFs
+    plot_x_fp_surf <- function(plot_df) {
+        ggplot2::geom_polygon(data =  plot_df,
+                                   ggplot2::aes(x = x, y = y, group = id,
+                                                colour = plot_label,
+                                                fill = plot_label,
+                                                linetype = plot_label),
+                                   alpha = fill_alpha
+                                   )
+    }
+
     ## Add plot layer for alternative surf type ('x_alt')
-    plot_x_alt_fp_surf <- function(plot_df, ggplot_obj) {
-        ggplot_obj +
-            ggplot2::geom_rug(data = plot_df,
+    plot_x_alt_fp_surf <- function(plot_df) {
+        ggplot2::geom_rug(data = plot_df,
                               ggplot2::aes(x = x, y = NULL,
                                            colour = x_alt_label,
-                                           linetype = x_alt_label,
-                                           fill = x_alt_label
+                                           fill = x_alt_label,
+                                           linetype = x_alt_label
                                 # 'fill' has to be there to get the legend to
                                 # merge properly, but it will cause a warning.
                                            ),
@@ -229,9 +262,9 @@ plot_tfr_surfs.data.frame <- function(x,
     legend_title <- "Legend"
 
     if (add_Schoumaker_stalls || maximal_legend) {
-        legend_title <- paste0(legend_title, ", ", "SURF / Stall Type")
+        legend_title <- paste0(legend_title, " ", "(SURF / Stall Type)")
     } else if (add_prob_TFR_surfs) {
-        legend_title <- paste0(legend_title, ", ", "SURF Type")
+        legend_title <- paste0(legend_title, " ", "(SURF Type)")
     }
 
     ## Names of breaks for 'scale_*_manual'
@@ -304,38 +337,55 @@ plot_tfr_surfs.data.frame <- function(x,
     TFR_range_condition_min <- min(x[x[["transition_condition_met"]], "year"], na.rm = TRUE)
     TFR_range_condition_max <- max(x[x[["transition_condition_met"]], "year"], na.rm = TRUE)
 
+    ## This is a bit of a hack to get the polygon data frames constructed properly
     if (xvar == "year") {
-        jitt_1 <- 0.5
-        jitt_2 <- 0.5
+        jitt_1 <- 0
+        jitt_2 <- 0.99
     } else jitt_1 <- jitt_2 <- 0.005
+    ## Need to re-set projection ref year
+    est_proj_ref_line_year + jitt_2
 
     surf_dummy_df <- data.frame(indicator = unique(x[["indicator"]]),
                                 x = median(x[, xvar]),
                                 y = mean(x[, yvar]),
-                                id = number_sequence_groups(x[, "year"]))
+                                id = unique(number_sequence_groups(x[, "year"])))
 
     surf_df <- x[!is.na(x[,"surf_year"]), , drop = FALSE]
 
     surf_est_df <-
         make_surf_geom_poly_df(surf_df[surf_df[["year"]] <= est_proj_ref_line_year, , drop = FALSE],
-                               surf_label = "surf_year")
+                               xvar = xvar,
+                               surf_label = "surf_year", plot_label = indicator_abbrev)
     surf_proj_df <-
         make_surf_geom_poly_df(surf_df[surf_df[["year"]] > est_proj_ref_line_year, , drop = FALSE],
-                               surf_label = "surf_year")
+                               xvar = xvar,
+                               surf_label = "surf_year", plot_label = indicator_abbrev_proj)
 
     if (add_Schoumaker_stalls || maximal_legend) {
-        stall_tfr_df <-
-            rbind(make_surf_geom_poly_df(x, surf_label = "Schoumaker_stall_strong", plot_label = schoumaker_strong_label),
-                  make_surf_geom_poly_df(x, surf_label = "Schoumaker_stall_moderate", plot_label = schoumaker_moderate_label),
-                  make_surf_geom_poly_df(x, surf_label = "Schoumaker_stall_weak", plot_label = schoumaker_weak_label),
-                  make_surf_geom_poly_df(x, surf_label = "Schoumaker_stall_pretransitional", plot_label = schoumaker_pre_label))
-        if (!nrow(stall_tfr_df))
-            stall_tfr_df <- surf_dummy_df
-    }
 
+        if (maximal_legend) dummy_df <- TRUE
+        else dummy_df <- FALSE
+
+        stall_tfr_df <-
+            rbind(make_surf_geom_poly_df(x, xvar = xvar, jitt_1 = jitt_1, jitt_2 = jitt_2,
+                                         surf_label = "Schoumaker_stall_strong",
+                                         plot_label = schoumaker_strong_label, dummy_df = dummy_df),
+                  make_surf_geom_poly_df(x, xvar = xvar, jitt_1 = jitt_1, jitt_2 = jitt_2,
+                                         surf_label = "Schoumaker_stall_moderate",
+                                         plot_label = schoumaker_moderate_label, dummy_df = dummy_df),
+                  make_surf_geom_poly_df(x, xvar = xvar, jitt_1 = jitt_1, jitt_2 = jitt_2,
+                                         surf_label = "Schoumaker_stall_weak",
+                                         plot_label = schoumaker_weak_label, dummy_df = dummy_df))
+
+        ## Has different linewidth
+        stall_tfr_pre_df <- make_surf_geom_poly_df(x, xvar = xvar, jitt_1 = jitt_1, jitt_2 = jitt_2,
+                                                   surf_label = "Schoumaker_stall_pretransitional",
+                                                   plot_label = schoumaker_pre_label, dummy_df = dummy_df)
+    }
     indicator_not_in_range_df <-
         make_surf_geom_poly_df(data.frame(x[, c("indicator", xvar)],
-                                               transition_condition_not_met = !x$transition_condition_met),
+                                          transition_condition_not_met = !x$transition_condition_met),
+                               xvar = xvar, jitt_1 = jitt_1, jitt_2 = jitt_2,
                                surf_label = "transition_condition_not_met")
 
     ## -------* Build Plot
@@ -421,11 +471,11 @@ plot_tfr_surfs.data.frame <- function(x,
         ggplot2::labs(title = paste0(cname, " (", rname, ")"),
                       x = xvar, y = y_axis_label) +
         ggplot2::theme(legend.position = "bottom", legend.title.align = 0.5) +
-        ggplot2::guides(fill = ggplot2::guide_legend(title.position = "top", nrow = 1),
-                        colour = ggplot2::guide_legend(title.position = "top", nrow = 1),
-                        linetype = "none" # linetype legend does not get
-                                          # integrated with fill and colour, so
-                                          # don't show it.
+        ggplot2::guides(linetype = "none",
+                                # linetype legend does not get integrated with
+                                # fill and colour, so don't show it.
+                        fill = ggplot2::guide_legend(title.position = "top", nrow = 1),
+                        colour = ggplot2::guide_legend(title.position = "top", nrow = 1)
                         )
 
     if (is.numeric(xlim_plot)) {
@@ -460,13 +510,25 @@ plot_tfr_surfs.data.frame <- function(x,
 
     if (add_Schoumaker_stalls || maximal_legend) {
 
-        gp <- gp + ggplot2::geom_polygon(data = stall_tfr_df,
+        if (nrow(stall_tfr_df))
+            gp <- gp + ggplot2::geom_polygon(data = stall_tfr_df,
                                          ggplot2::aes(x = x, y = y, group = id,
                                                       fill = plot_label,
                                                       colour = plot_label,
                                                       linetype = plot_label),
                                          alpha = fill_alpha
                                          )
+
+        if (nrow(stall_tfr_pre_df)) # Has different linewidth
+            gp <- gp + ggplot2::geom_polygon(data = stall_tfr_pre_df,
+                                             ggplot2::aes(x = x, y = y, group = id,
+                                                          fill = plot_label,
+                                                          colour = plot_label,
+                                                          linetype = plot_label),
+                                             alpha = fill_alpha,
+                                             linewidth = 0.75
+                                             )
+
     }
 
     ## -------** Probabilistic Stalls
@@ -482,25 +544,11 @@ plot_tfr_surfs.data.frame <- function(x,
         }
 
         if (nrow(surf_est_df)) {
-                gp <- gp + ggplot2::geom_polygon(data =  surf_est_df,
-                                                 ggplot2::aes(x = x, y = y, group = id,
-                                                              colour = indicator_abbrev,
-                                                              fill = indicator_abbrev,
-                                                              linetype = indicator_abbrev),
-                                                 alpha = fill_alpha,
-                                                 linetype = 2
-                                                 )
+            gp <- gp + plot_x_fp_surf(surf_est_df)
         }
         if (add_prob_TFR_surf_projections) {
             if (nrow(surf_proj_df)) {
-                gp <- gp + ggplot2::geom_polygon(data =  surf_proj_df,
-                                                 ggplot2::aes(x = x, y = y, group = id,
-                                                              colour = indicator_abbrev_proj,
-                                                              fill = indicator_abbrev_proj,
-                                                              linetype = indicator_abbrev_proj),
-                                                 alpha = fill_alpha,
-                                                 linetype = 2
-                                                 )
+                gp <- gp + plot_x_fp_surf(surf_proj_df)
             }
         }
     }
@@ -516,23 +564,26 @@ plot_tfr_surfs.data.frame <- function(x,
                   x_alt[["year"]] <= est_proj_ref_line_year,
                   c("indicator", xvar),
                   drop = FALSE]
-        x_alt_fp_surf_ALT <- setNames(x_alt_fp_surf_ALT, c("indicator", "x"))
 
         x_alt_fp_surf_proj_ALT <-
             x_alt[!is.na(x_alt[,"surf_year"]) & x_alt[,"surf_year"] &
                   x_alt[["year"]] > est_proj_ref_line_year,
                   c("indicator", xvar),
                   drop = FALSE]
-        x_alt_fp_surf_proj_ALT <- setNames(x_alt_fp_surf_proj_ALT, c("indicator", "x"))
 
         surf_dummy_df_ALT <-
-            data.frame(indicator = unique(x_alt[["indicator"]]),
-                       x = -median(x_alt[, xvar], na.rm = TRUE))
+            data.frame(indicator = unique(x[["indicator"]]),
+                       x = -median(x[, xvar], na.rm = TRUE))
 
         if (maximal_legend) {
-            if (!nrow(x_alt_fp_surf_ALT)) x_alt_fp_surf_ALT <- surf_dummy_df_ALT
-            if (!nrow(x_alt_fp_surf_proj_ALT)) x_alt_fp_surf_proj_ALT <- surf_dummy_df_ALT
+            if (is.null(x_alt_fp_surf_ALT) || !nrow(x_alt_fp_surf_ALT))
+                x_alt_fp_surf_ALT <- surf_dummy_df_ALT
+            if (is.null(x_alt_fp_surf_proj_ALT) || !nrow(x_alt_fp_surf_proj_ALT))
+                x_alt_fp_surf_proj_ALT <- surf_dummy_df_ALT
         }
+
+        x_alt_fp_surf_ALT <- setNames(x_alt_fp_surf_ALT, c("indicator", "x"))
+        x_alt_fp_surf_proj_ALT <- setNames(x_alt_fp_surf_proj_ALT, c("indicator", "x"))
 
         ## -------*** Add Layer to Plot
 
@@ -541,10 +592,10 @@ plot_tfr_surfs.data.frame <- function(x,
                 add = TRUE, after = FALSE)
 
         if(nrow(x_alt_fp_surf_ALT))
-            gp <- plot_x_alt_fp_surf(x_alt_fp_surf_ALT, gp)
+            gp <- gp + plot_x_alt_fp_surf(x_alt_fp_surf_ALT)
 
         if(add_prob_TFR_surf_projections && nrow(x_alt_fp_surf_proj_ALT))
-            gp <- plot_x_alt_fp_surf(x_alt_fp_surf_proj_ALT, gp)
+            gp <- gp + plot_x_alt_fp_surf(x_alt_fp_surf_proj_ALT)
     }
 
     ## -------** Source data

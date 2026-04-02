@@ -127,7 +127,7 @@ surfs_median_df <- make_tfr_surfs(sim.dir = bayesTFR_output_dir,
 plot_surfs_probs(x = surfs_df, x_alt = surfs_median_df,
                  add_prob_TFR_surfs = TRUE,
                  maximal_legend = FALSE,
-                 add_prob_TFR_surf_projections = FALSE,
+                 add_prob_TFR_surf_projections = TRUE,
                  plot_ann = "TEST annotation", datestamp = TRUE)
 
 ###-----------------------------------------------------------------------------
@@ -139,7 +139,8 @@ surfs_df <- make_tfr_surfs(sim.dir = bayesTFR_output_dir,
 
 plot_surfs_probs(surfs_df,
                  plot_ann = "TEST annotation", datestamp = TRUE,
-                 add_Schoumaker_stalls = FALSE)
+                 add_Schoumaker_stalls = TRUE,
+                 maximal_legend = FALSE)
 
 ###-----------------------------------------------------------------------------
 ### ** Namibia
