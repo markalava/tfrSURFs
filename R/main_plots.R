@@ -343,7 +343,7 @@ plot_tfr_surfs.data.frame <- function(x,
         jitt_2 <- 0.99
     } else jitt_1 <- jitt_2 <- 0.005
     ## Need to re-set projection ref year
-    est_proj_ref_line_year + jitt_2
+    est_proj_ref_line_year <- est_proj_ref_line_year + jitt_2
 
     surf_dummy_df <- data.frame(indicator = unique(x[["indicator"]]),
                                 x = median(x[, xvar]),
