@@ -4,33 +4,6 @@
 ### * Functions
 
 
-##' Create all combinations of arguments for `plot_tfr_surfs()`.
-##'
-##' @return A data frame
-##' @author Mark C Wheldon
-##' @keywords internal
-##' @noRd
-make_plot_tfr_surfs_param_df <- function() {
-    outdf <-
-        expand.grid(yvar = "surf_prob",
-                    add_prob_ref_lines = c(TRUE, FALSE),
-                    add_range_regions = c(TRUE, FALSE),
-                    add_est_proj_ref_line = c(TRUE, FALSE),
-                    add_Schoumaker_stalls = c(TRUE, FALSE),
-                    maximal_legend = c(TRUE, FALSE),
-                    add_prob_TFR_surfs = c(TRUE, FALSE),
-                    add_prob_TFR_surf_projections = c(TRUE, FALSE),
-                    incl_small_countries = c(TRUE, FALSE),
-                    datestamp = c(TRUE, FALSE),
-                    stringsAsFactors = FALSE)
-    outdf <- rbind(outdf,
-                   transform(outdf[!outdf[["add_prob_ref_lines"]], ],
-                             yvar = "TFR_median"))
-
-    return(outdf)
-}
-
-
 ##' Create all combinations of arguments for `tabulate_tfr_stats()`.
 ##'
 ##' @return A data frame

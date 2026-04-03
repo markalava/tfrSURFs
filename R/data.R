@@ -111,7 +111,7 @@
 #' subsets of countries.
 #' \describe{
 #' \item{\code{"test_data_tfrSURFs_list"}}{\code{\link{make_tfr_surfs}} applied to country codes: 12, 716, 508, 417, 764, 32, 250, 242.}
-#' \item{\code{"test_data_small_c_tfrSURFs_list"}}{\code{\link{make_tfr_surfs}} applied to countries with less than country codes: 184, 212, 500.}
+#' \item{\code{"test_data_small_c_tfrSURFs_list"}}{\code{\link{make_tfr_surfs}} applied to countries with populations less than 90000 in mid-2024, country codes: 184, 212, 500.}
 #' }
 #'
 #' These need to be prepared during development and stored in \file{./data}

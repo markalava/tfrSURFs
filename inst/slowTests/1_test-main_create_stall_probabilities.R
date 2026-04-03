@@ -20,6 +20,8 @@
 ### * Set Up
 
 library(tfrSURFs)
+library(foreach)
+library(doParallel)
 
 source(system.file("slowTests", "0_setup.R", package = "tfrSURFs"))
 
@@ -37,6 +39,13 @@ if (!file.exists(bayesTFR_short_test_file_path))
 
 bayesTFR_test_output_dir <-
     setup_bayesTFR_test_data_temp_dir(file = bayesTFR_short_test_file_path)
+
+###-----------------------------------------------------------------------------
+### * Create Cluster
+
+cl <- parallel::makeCluster(parallelly::availableCores(omit = 2))
+doParallel::registerDoParallel(cl)
+parallel::clusterExport(cl, "bayesTFR_test_output_dir")
 
 ###-----------------------------------------------------------------------------
 ### * Tests
@@ -71,8 +80,11 @@ test_that("'make_tfr_surfs' works on one country with a variety of argument conf
 
     param_df <- make_tfr_surfs_param_df()
 
-    for (param_i in seq_len(nrow(param_df))) {
-        pars <- param_df[param_i, , drop = FALSE]
+    results <-
+        expect_error(
+            foreach(param_i = seq_len(nrow(param_df)), .packages = c("testthat", "tfrSURFs"), .export = "param_df") %dopar% {
+
+                pars <- param_df[param_i, , drop = FALSE]
         message("[", param_i, " of ", nrow(param_df), "]: ",
                 paste(colnames(param_df), paste0(pars, "; "), sep = " = "))
         expect_s3_class((
@@ -93,7 +105,8 @@ test_that("'make_tfr_surfs' works on one country with a variety of argument conf
                                  incl_small_countries = pars[["incl_small_countries"]]
                                  )
         ), "data.frame")
-    }
+            },
+        NA)
 })
 
 
@@ -104,8 +117,11 @@ test_that("'make_tfr_surfs' works on multiple countries with a variety of argume
 
     param_df <- make_tfr_surfs_param_df()
 
-    for (param_i in seq_len(nrow(param_df))) {
-        pars <- param_df[param_i, , drop = FALSE]
+    results <-
+        expect_error(
+            foreach(param_i = seq_len(nrow(param_df)), .packages = c("testthat", "tfrSURFs"), .export = "param_df") %dopar% {
+
+                pars <- param_df[param_i, , drop = FALSE]
         message("[", param_i, " of ", nrow(param_df), "]: ",
                 paste(colnames(param_df), paste0(pars, "; "), sep = " = "),
                 "country_codes = c(12, 508, 417, 764, 32, 250, 242)")
@@ -124,7 +140,7 @@ test_that("'make_tfr_surfs' works on multiple countries with a variety of argume
                                  min_surf_length = pars[["min_surf_length"]],
                                  min_inter_surf_length = pars[["min_inter_surf_length"]],
                                  remove_small_countries = pars[["remove_small_countries"]],
-                                 ncores = -2)
+                                 ncores = NULL)
         expect_type(test, "list")
         expect_false(is.data.frame(test))
 
@@ -146,8 +162,14 @@ test_that("'make_tfr_surfs' works on multiple countries with a variety of argume
                                  min_surf_length = pars[["min_surf_length"]],
                                  min_inter_surf_length = pars[["min_inter_surf_length"]],
                                  remove_small_countries = pars[["remove_small_countries"]],
-                                     ncores = -2)
+                                     ncores = NULL)
         expect_type(test, "list")
         expect_false(is.data.frame(test))
-    }
+            },
+        NA)
 })
+
+###-----------------------------------------------------------------------------
+### * END
+
+stopCluster(cl)
