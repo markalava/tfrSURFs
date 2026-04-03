@@ -35,6 +35,8 @@ Imports:
     rlang,
     tidyr
 Suggests: 
+    doParallel,
+    foreach,
     gtools,
     here,
     knitr,

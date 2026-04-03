@@ -9,4 +9,8 @@
 library(testthat)
 library(tfrSURFs)
 
+library(foreach)
+library(doParallel)
+
+
 test_check("tfrSURFs")

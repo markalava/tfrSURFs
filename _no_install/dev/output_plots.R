@@ -153,10 +153,10 @@ surfs_median_df <- make_tfr_surfs(sim.dir = bayesTFR_output_dir,
                                   country_code = get_country_codes("Namibia"),
                                   median_only = TRUE)
 
-surfs_df$Schoumaker_stall_strong <- FALSE
-surfs_df$Schoumaker_stall_any <- FALSE
-surfs_df[surfs_df$year %in% 1980:1990, "Schoumaker_stall_strong"] <- TRUE
-surfs_df[surfs_df$year %in% 1980:1990, "Schoumaker_stall_any"] <- TRUE
+## surfs_df$Schoumaker_stall_strong <- FALSE
+## surfs_df$Schoumaker_stall_any <- FALSE
+## surfs_df[surfs_df$year %in% 1980:1990, "Schoumaker_stall_strong"] <- TRUE
+## surfs_df[surfs_df$year %in% 1980:1990, "Schoumaker_stall_any"] <- TRUE
 
 plot_surfs_probs(x = surfs_df, x_alt = surfs_median_df,
                  plot_ann = "TEST annotation", datestamp = TRUE,
@@ -242,6 +242,7 @@ surfs_median_df <- make_tfr_surfs(sim.dir = bayesTFR_output_dir,
 tabulate_surf_periods(surfs_df, table_type = "concise")
 
 plot_surfs_probs(x = surfs_df, x_alt = surfs_median_df,
+                 add_prob_TFR_surf_projections = TRUE,
                   plot_ann = "TEST annotation", datestamp = TRUE)
 
 ###-----------------------------------------------------------------------------

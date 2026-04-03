@@ -20,19 +20,16 @@ plot_tfr_surfs(x, ...)
 \method{plot_tfr_surfs}{data.frame}(
   x,
   x_alt = NULL,
-  xvar = c("year", "TFR_median"),
   yvar = c("surf_prob", "TFR_median"),
   x_alt_label = "Non-\\nprobabilistic",
-  add_range_ref_lines = identical(yvar, "surf_prob"),
+  add_prob_ref_lines = identical(yvar, "surf_prob"),
   add_range_regions = TRUE,
   add_est_proj_ref_line = TRUE,
   add_Schoumaker_stalls = isTRUE(any(x[["Schoumaker_stall_any"]])),
   maximal_legend = FALSE,
   add_prob_TFR_surfs = isTRUE(any(x[["surf_year"]])),
   add_prob_TFR_surf_projections = FALSE,
-  xlim_plot = if (identical(xvar, "year")) {
-     c(1950, 2050)
- } else c(0, 10),
+  xlim_plot = c(1950, 2050),
   ylim_plot = NULL,
   plot_ann = NULL,
   datestamp = FALSE
@@ -47,19 +44,18 @@ plot_tfr_surfs(x, ...)
 one too, if \code{x} is a list, \code{x_alt} must be a list of the same
 length and with the same names.}
 
-\item{xvar, yvar}{Variables to plot on the x- and y-axes.}
+\item{yvar}{Variable to plot on the y-axis.}
 
 \item{x_alt_label}{Label for legend if \code{x_alt} is not \code{NULL}.}
 
-\item{add_range_ref_lines}{Logical; add reference lines for the range
+\item{add_prob_ref_lines}{Logical; add reference lines for the probability
 condition?}
 
 \item{add_range_regions}{Logical; add shading to show periods outside the
 range condition?}
 
 \item{add_est_proj_ref_line}{Logical; add a vertical reference line marking
-the first projection year? Ignored if \code{xvar} \code{!=}
-\code{"year"}.}
+the first projection year?}
 
 \item{add_Schoumaker_stalls}{Logical; add shading to show where stalls were
 identified by \cite{Schoumaker (2019)}.}

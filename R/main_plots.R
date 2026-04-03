@@ -62,15 +62,14 @@ add_plot_datestamp <- function(gp) {
 ##'     \code{x}, i.e., if \code{x} is a \code{data.frame}, \code{x_alt} must be
 ##'     one too, if \code{x} is a list, \code{x_alt} must be a list of the same
 ##'     length and with the same names.
-##' @param xvar,yvar Variables to plot on the x- and y-axes.
+##' @param yvar Variable to plot on the y-axis.
 ##' @param x_alt_label Label for legend if \code{x_alt} is not \code{NULL}.
-##' @param add_range_ref_lines Logical; add reference lines for the range
+##' @param add_prob_ref_lines Logical; add reference lines for the probability
 ##'     condition?
 ##' @param add_range_regions Logical; add shading to show periods outside the
 ##'     range condition?
 ##' @param add_est_proj_ref_line Logical; add a vertical reference line marking
-##'     the first projection year? Ignored if \code{xvar} \code{!=}
-##'     \code{"year"}.
+##'     the first projection year?
 ##' @param add_Schoumaker_stalls Logical; add shading to show where stalls were
 ##'     identified by \cite{Schoumaker (2019)}.
 ##' @param maximal_legend Logical; show all SURF and Schoumaker stall
@@ -131,21 +130,20 @@ plot_tfr_surfs.list <- function(x, x_alt = NULL, ..., incl_small_countries = TRU
 ##' @rdname plot_tfr_surfs
 ##' @export
 plot_tfr_surfs.data.frame <- function(x,
-                                       x_alt = NULL,
-                                       xvar = c("year", "TFR_median"),
-                                       yvar = c("surf_prob", "TFR_median"),
-                                       x_alt_label = "Non-\nprobabilistic",
-                                       add_range_ref_lines = identical(yvar, "surf_prob"),
-                                       add_range_regions = TRUE,
-                                       add_est_proj_ref_line = TRUE,
+                                      x_alt = NULL,
+                                      yvar = c("surf_prob", "TFR_median"),
+                                      x_alt_label = "Non-\nprobabilistic",
+                                      add_prob_ref_lines = identical(yvar, "surf_prob"),
+                                      add_range_regions = TRUE,
+                                      add_est_proj_ref_line = TRUE,
                                       add_Schoumaker_stalls = isTRUE(any(x[["Schoumaker_stall_any"]])),
                                       maximal_legend = FALSE,
                                       add_prob_TFR_surfs = isTRUE(any(x[["surf_year"]])),
                                       add_prob_TFR_surf_projections = FALSE,
-                                       xlim_plot = if (identical(xvar, "year")) { c(1950, 2050) } else c(0, 10),
-                                       ylim_plot = NULL,
-                                       plot_ann = NULL,
-                                       datestamp = FALSE) {
+                                      xlim_plot = c(1950, 2050),
+                                      ylim_plot = NULL,
+                                      plot_ann = NULL,
+                                      datestamp = FALSE) {
 
     ## -------* Sub Functions
 
@@ -157,32 +155,32 @@ plot_tfr_surfs.data.frame <- function(x,
     ## plot will have a legend entry for the 'surf_label' / 'plot_label'
     ## category. Otherwise, a data frame with no rows will be returned and the
     ## plot legend will not have such a component.
-    make_surf_geom_poly_df <- function(x, xvar, jitt_1 = 00, jitt_2 = 0.99,
+    make_surf_geom_poly_df <- function(x, jitt_1 = 00, jitt_2 = 0.99,
                                        surf_label, plot_label = surf_label,
                                        dummy_df = FALSE) {
         idx <- which(!is.na(x[, surf_label]) & x[, surf_label])
+
         id <- as.character(paste(x[idx, "indicator"],
                                  surf_label,
                                  number_sequence_groups(x[idx, "year"])))
         if (length(idx)) {
             return(data.frame(x[idx, ], id = id) |>
-                   plyr::ddply(.variables = c("indicator", xvar, "id"), .fun = function(z) {
+                   plyr::ddply(.variables = c("indicator", "year", "id"), .fun = function(z) {
                        data.frame(value = 1,
-                                  x = c(z[, xvar] - rep(jitt_1, 2), z[, xvar] + rep(jitt_2, 2)),
+                                  x = c(z[, "year"] - rep(jitt_1, 2), z[, "year"] + rep(jitt_2, 2)),
                                   y = ylim_plot[c(1,2,2,1)])
                    }) |>
                    plyr::ddply(.variables = "id", function(z) {
                        z <- z[z$x %in% c(min(z[["x"]]), max(z[["x"]])), ]
                        return(z)
                    }) |>
-                data.frame(plot_label = plot_label))
+                   data.frame(plot_label = plot_label))
         } else {
             if (isTRUE(dummy_df)) {
                 indicator <- unique(na.omit(x[["indicator"]]))
                 id <- paste(indicator, surf_label, "0")
-                return(setNames(data.frame(indicator = indicator, TMP = xvar, id = id),
-                                c("indicator", xvar, "id"))|>
-                       plyr::ddply(.variables = c("indicator", xvar, "id"), .fun = function(z) {
+                return(data.frame(indicator = indicator, year = 0, id = id) |>
+                       plyr::ddply(.variables = c("indicator", "year", "id"), .fun = function(z) {
                            data.frame(value = 1, x = c(-1, 0), y = c(0, -1))
                        }) |>
                        plyr::ddply(.variables = "id", function(z) {
@@ -199,27 +197,27 @@ plot_tfr_surfs.data.frame <- function(x,
     }
 
     ## Add plot layer for SURFs
-    plot_x_fp_surf <- function(plot_df) {
+    plot_x_fp_surf <- function(plot_df, alpha) {
         ggplot2::geom_polygon(data =  plot_df,
-                                   ggplot2::aes(x = x, y = y, group = id,
-                                                colour = plot_label,
-                                                fill = plot_label,
-                                                linetype = plot_label),
-                                   alpha = fill_alpha
-                                   )
+                              ggplot2::aes(x = x, y = y, group = id,
+                                           colour = plot_label,
+                                           fill = plot_label,
+                                           linetype = plot_label),
+                              alpha = alpha
+                              )
     }
 
     ## Add plot layer for alternative surf type ('x_alt')
     plot_x_alt_fp_surf <- function(plot_df) {
         ggplot2::geom_rug(data = plot_df,
-                              ggplot2::aes(x = x, y = NULL,
-                                           colour = x_alt_label,
-                                           fill = x_alt_label,
-                                           linetype = x_alt_label
+                          ggplot2::aes(x = x, y = NULL,
+                                       colour = x_alt_label,
+                                       fill = x_alt_label,
+                                       linetype = x_alt_label
                                 # 'fill' has to be there to get the legend to
                                 # merge properly, but it will cause a warning.
-                                           ),
-                              linewidth = 1.1)
+                                       ),
+                          linewidth = 1.1)
     }
 
     ## -------* Checks
@@ -228,8 +226,13 @@ plot_tfr_surfs.data.frame <- function(x,
     if (!identical(length(unique(x[["country_code"]])), 1L))
         stop("'x' must have exactly one country.")
 
-    xvar <- match.arg(xvar)
     yvar <- match.arg(yvar)
+
+    stopifnot(is.logical(add_prob_ref_lines))
+    if (add_prob_ref_lines && !identical(yvar, "surf_prob")) {
+        add_prob_ref_lines <- FALSE
+        message("'add_prob_ref_lines' set to 'FALSE' because 'yvar' is not '\"surf_prob\"'.")
+    }
 
     stopifnot(is.logical(add_range_regions))
     stopifnot(is.logical(add_est_proj_ref_line))
@@ -245,8 +248,6 @@ plot_tfr_surfs.data.frame <- function(x,
     ## Some of these were arguments in earlier versions, but should now just be
     ## fixed. Keep in alphabetical order.
 
-    add_source_data <- FALSE
-    est_proj_ref_line_year <- x[1, "bayesTFR_present_year"]
     rate_prob_threshold <- x[1, "rate_prob_threshold"]
 
     ## SURFs and Stalls only plotted if they are present
@@ -291,6 +292,15 @@ plot_tfr_surfs.data.frame <- function(x,
 
     probability_scale <- "percent" # (redundant now)
 
+    TFR_range_condition_min <- min(x[x[["transition_condition_met"]], "year"], na.rm = TRUE)
+    TFR_range_condition_max <- max(x[x[["transition_condition_met"]], "year"], na.rm = TRUE)
+
+    ## This is a bit of a hack to get the polygon data frames constructed properly
+    jitt_1 <- 0
+    jitt_2 <- 0.99
+    xlim_plot[2] <- xlim_plot[2] + jitt_2
+    est_proj_ref_line_year <- x[1, "bayesTFR_present_year"] + jitt_2
+
     if (is.null(ylim_plot)) {
         if (identical(yvar, "annual_change_50%")) {
             ylim_plot <- c(-10, 10)
@@ -334,31 +344,19 @@ plot_tfr_surfs.data.frame <- function(x,
 
     ## -------** Create Stall Period Dataframes
 
-    TFR_range_condition_min <- min(x[x[["transition_condition_met"]], "year"], na.rm = TRUE)
-    TFR_range_condition_max <- max(x[x[["transition_condition_met"]], "year"], na.rm = TRUE)
-
-    ## This is a bit of a hack to get the polygon data frames constructed properly
-    if (xvar == "year") {
-        jitt_1 <- 0
-        jitt_2 <- 0.99
-    } else jitt_1 <- jitt_2 <- 0.005
-    ## Need to re-set projection ref year
-    est_proj_ref_line_year <- est_proj_ref_line_year + jitt_2
-
     surf_dummy_df <- data.frame(indicator = unique(x[["indicator"]]),
-                                x = median(x[, xvar]),
+                                x = median(x[, "year"]),
                                 y = mean(x[, yvar]),
-                                id = unique(number_sequence_groups(x[, "year"])))
+                                id = unique(number_sequence_groups(x[, "year"])),
+                                year = 0)
 
     surf_df <- x[!is.na(x[,"surf_year"]), , drop = FALSE]
 
     surf_est_df <-
-        make_surf_geom_poly_df(surf_df[surf_df[["year"]] <= est_proj_ref_line_year, , drop = FALSE],
-                               xvar = xvar,
+        make_surf_geom_poly_df(surf_df[surf_df[["year"]] <= x[1, "bayesTFR_present_year"], , drop = FALSE],
                                surf_label = "surf_year", plot_label = indicator_abbrev)
     surf_proj_df <-
-        make_surf_geom_poly_df(surf_df[surf_df[["year"]] > est_proj_ref_line_year, , drop = FALSE],
-                               xvar = xvar,
+        make_surf_geom_poly_df(surf_df[surf_df[["year"]] > x[1, "bayesTFR_present_year"], , drop = FALSE],
                                surf_label = "surf_year", plot_label = indicator_abbrev_proj)
 
     if (add_Schoumaker_stalls || maximal_legend) {
@@ -367,59 +365,43 @@ plot_tfr_surfs.data.frame <- function(x,
         else dummy_df <- FALSE
 
         stall_tfr_df <-
-            rbind(make_surf_geom_poly_df(x, xvar = xvar, jitt_1 = jitt_1, jitt_2 = jitt_2,
+            rbind(make_surf_geom_poly_df(x, jitt_1 = jitt_1, jitt_2 = jitt_2,
                                          surf_label = "Schoumaker_stall_strong",
                                          plot_label = schoumaker_strong_label, dummy_df = dummy_df),
-                  make_surf_geom_poly_df(x, xvar = xvar, jitt_1 = jitt_1, jitt_2 = jitt_2,
+                  make_surf_geom_poly_df(x, jitt_1 = jitt_1, jitt_2 = jitt_2,
                                          surf_label = "Schoumaker_stall_moderate",
                                          plot_label = schoumaker_moderate_label, dummy_df = dummy_df),
-                  make_surf_geom_poly_df(x, xvar = xvar, jitt_1 = jitt_1, jitt_2 = jitt_2,
+                  make_surf_geom_poly_df(x, jitt_1 = jitt_1, jitt_2 = jitt_2,
                                          surf_label = "Schoumaker_stall_weak",
                                          plot_label = schoumaker_weak_label, dummy_df = dummy_df))
 
         ## Has different linewidth
-        stall_tfr_pre_df <- make_surf_geom_poly_df(x, xvar = xvar, jitt_1 = jitt_1, jitt_2 = jitt_2,
+        stall_tfr_pre_df <- make_surf_geom_poly_df(x, jitt_1 = jitt_1, jitt_2 = jitt_2,
                                                    surf_label = "Schoumaker_stall_pretransitional",
                                                    plot_label = schoumaker_pre_label, dummy_df = dummy_df)
     }
     indicator_not_in_range_df <-
-        make_surf_geom_poly_df(data.frame(x[, c("indicator", xvar)],
+        make_surf_geom_poly_df(data.frame(x[, c("indicator", "year")],
                                           transition_condition_not_met = !x$transition_condition_met),
-                               xvar = xvar, jitt_1 = jitt_1, jitt_2 = jitt_2,
+                               jitt_1 = jitt_1, jitt_2 = jitt_2,
                                surf_label = "transition_condition_not_met")
 
     ## -------* Build Plot
 
     ## -------** Base plot
 
-    gp <- ggplot2::ggplot(data = x, ggplot2::aes(x = .data[[xvar]], y = .data[[yvar]]))
+    gp <- ggplot2::ggplot(data = x, ggplot2::aes(x = .data[["year"]], y = .data[[yvar]]))
 
     ## -------** Reference lines
 
-    if (add_range_ref_lines) {
-        if (yvar %in% c("TFR_median")) {
-            if (identical(yvar, "TFR_median")) {
-                ref_line_df_1 <- data.frame(indicator = "TFR",
-                                            xintercept = TFR_range_condition_min)
-                ref_line_df_2 <- data.frame(indicator = "TFR",
-                                            xintercept = TFR_range_condition_max)
-            }
+    if (add_prob_ref_lines) {
+        if (identical(probability_scale, "percent")) rate_prob_threshold <- 100 * rate_prob_threshold
+        ref_line_df <-
+            data.frame(indicator = "TFR", yintercept = rate_prob_threshold)
 
+        if (nrow(ref_line_df)) {
             gp <- gp +
-                ggplot2::geom_hline(data = ref_line_df_1, ggplot2::aes(yintercept = yintercept), linetype = 2, col = "blue") +
-                ggplot2::geom_hline(data = ref_line_df_2, ggplot2::aes(yintercept = yintercept), linetype = 2, col = "blue")
-
-        } else if (identical(yvar, "surf_prob")) {
-
-            if (identical(probability_scale, "percent")) rate_prob_threshold <- 100 * rate_prob_threshold
-            ref_line_df <-
-                data.frame(indicator = "TFR", yintercept = rate_prob_threshold)
-
-            if (nrow(ref_line_df)) {
-                gp <- gp +
-                    ggplot2::geom_hline(data = ref_line_df, ggplot2::aes(yintercept = yintercept), linetype = 2, col = "blue")
-            }
-
+                ggplot2::geom_hline(data = ref_line_df, ggplot2::aes(yintercept = yintercept), linetype = 2, col = "blue")
         }
     }
 
@@ -438,15 +420,15 @@ plot_tfr_surfs.data.frame <- function(x,
         ggplot2::theme_bw() +
         ggplot2::scale_y_continuous(limits = ylim_plot, breaks = yscale_breaks) +
         ggplot2::scale_linetype_manual(breaks = scale_breaks,
-                                   values = setNames(c(NA, 1, 2, 2, 2 + seq_len(length(scale_breaks) - 5), 1),
-                                                     scale_breaks),
-                                   na.value = NA,
-                                   name = legend_title) +
+                                       values = setNames(c(NA, 1, 2, 2, 2 + seq_len(length(scale_breaks) - 5), 1),
+                                                         scale_breaks),
+                                       na.value = NA,
+                                       name = legend_title) +
         ggplot2::scale_fill_manual(breaks = scale_breaks,
                                    values = setNames(c("grey75",
                                                        NA,
                                                        "orange4",
-                                                       "orange3",
+                                                       "orange4",
                                                        RColorBrewer::brewer.pal(n = 11, "Spectral")[11],
                                                        RColorBrewer::brewer.pal(n = 11, "Spectral")[10],
                                                        RColorBrewer::brewer.pal(n = 11, "Spectral")[8],
@@ -459,34 +441,28 @@ plot_tfr_surfs.data.frame <- function(x,
                                      values = setNames(c(NA,
                                                          "grey30",
                                                          "orange4",
-                                                         "orange3",
+                                                         "orange4",
                                                          RColorBrewer::brewer.pal(n = 11, "Spectral")[11],
                                                          RColorBrewer::brewer.pal(n = 11, "Spectral")[10],
                                                          RColorBrewer::brewer.pal(n = 11, "Spectral")[8],
-                                                         "pink2"## RColorBrewer::brewer.pal(n = 11, "RdBu")[8]
+                                                         "pink2"
                                                          ),
                                                        scale_breaks),
                                      na.value = NA,
                                      name = legend_title)  +
         ggplot2::labs(title = paste0(cname, " (", rname, ")"),
-                      x = xvar, y = y_axis_label) +
+                      x = "year", y = y_axis_label) +
         ggplot2::theme(legend.position = "bottom", legend.title.align = 0.5) +
-        ggplot2::guides(linetype = "none",
-                                # linetype legend does not get integrated with
-                                # fill and colour, so don't show it.
+        ggplot2::guides(linetype = ggplot2::guide_legend(title.position = "top", nrow = 1),
                         fill = ggplot2::guide_legend(title.position = "top", nrow = 1),
                         colour = ggplot2::guide_legend(title.position = "top", nrow = 1)
                         )
 
     if (is.numeric(xlim_plot)) {
-        if (identical(xvar, "year")) {
-            xyear_breaks <- seq(from = xlim_plot[1], to = xlim_plot[2], by = 10)
-            gp <- gp +
-                ggplot2::scale_x_continuous(limits = c(xlim_plot[1] - 0.5, xlim_plot[2] + 0.5),
-                                            breaks = xyear_breaks, labels = xyear_breaks)
-        } else {
-            gp <- gp + ggplot2::xlim(xlim_plot)
-        }
+        xyear_breaks <- seq(from = xlim_plot[1], to = xlim_plot[2], by = 10)
+        gp <- gp +
+            ggplot2::scale_x_continuous(limits = c(xlim_plot[1] - 0.5, xlim_plot[2] + 0.5),
+                                        breaks = xyear_breaks, labels = xyear_breaks)
     }
 
     ## -------** Transition condition
@@ -494,13 +470,13 @@ plot_tfr_surfs.data.frame <- function(x,
     if (add_range_regions || maximal_legend) {
 
         if (nrow(indicator_not_in_range_df)) {
-                gp <- gp + ggplot2::geom_polygon(data = indicator_not_in_range_df,
-                                                 ggplot2::aes(x = x, y = y, group = id,
-                                                              fill = outside_ft_period_label,
-                                                              colour = outside_ft_period_label,
-                                                              linetype = outside_ft_period_label),
-                                                 alpha = fill_alpha
-                                                 )
+            gp <- gp + ggplot2::geom_polygon(data = indicator_not_in_range_df,
+                                             ggplot2::aes(x = x, y = y, group = id,
+                                                          fill = outside_ft_period_label,
+                                                          colour = outside_ft_period_label,
+                                                          linetype = outside_ft_period_label),
+                                             alpha = fill_alpha
+                                             )
         }
     }
 
@@ -512,12 +488,12 @@ plot_tfr_surfs.data.frame <- function(x,
 
         if (nrow(stall_tfr_df))
             gp <- gp + ggplot2::geom_polygon(data = stall_tfr_df,
-                                         ggplot2::aes(x = x, y = y, group = id,
-                                                      fill = plot_label,
-                                                      colour = plot_label,
-                                                      linetype = plot_label),
-                                         alpha = fill_alpha
-                                         )
+                                             ggplot2::aes(x = x, y = y, group = id,
+                                                          fill = plot_label,
+                                                          colour = plot_label,
+                                                          linetype = plot_label),
+                                             alpha = fill_alpha
+                                             )
 
         if (nrow(stall_tfr_pre_df)) # Has different linewidth
             gp <- gp + ggplot2::geom_polygon(data = stall_tfr_pre_df,
@@ -536,19 +512,19 @@ plot_tfr_surfs.data.frame <- function(x,
     if (add_prob_TFR_surfs) {
 
         if (!nrow(surf_est_df) && maximal_legend) {
-            surf_est_df <- surf_dummy_df
+            surf_est_df <- data.frame(surf_dummy_df, plot_label = indicator_abbrev)
         }
 
         if (!nrow(surf_proj_df) && maximal_legend) {
-            surf_proj_df <- surf_dummy_df
+            surf_proj_df <- data.frame(surf_dummy_df, plot_label = indicator_abbrev_proj)
         }
 
         if (nrow(surf_est_df)) {
-            gp <- gp + plot_x_fp_surf(surf_est_df)
+            gp <- gp + plot_x_fp_surf(surf_est_df, alpha = fill_alpha)
         }
         if (add_prob_TFR_surf_projections) {
             if (nrow(surf_proj_df)) {
-                gp <- gp + plot_x_fp_surf(surf_proj_df)
+                gp <- gp + plot_x_fp_surf(surf_proj_df, alpha = fill_alpha * 0.5)
             }
         }
     }
@@ -562,18 +538,18 @@ plot_tfr_surfs.data.frame <- function(x,
         x_alt_fp_surf_ALT <-
             x_alt[!is.na(x_alt[,"surf_year"]) & x_alt[,"surf_year"] &
                   x_alt[["year"]] <= est_proj_ref_line_year,
-                  c("indicator", xvar),
+                  c("indicator", "year"),
                   drop = FALSE]
 
         x_alt_fp_surf_proj_ALT <-
             x_alt[!is.na(x_alt[,"surf_year"]) & x_alt[,"surf_year"] &
                   x_alt[["year"]] > est_proj_ref_line_year,
-                  c("indicator", xvar),
+                  c("indicator", "year"),
                   drop = FALSE]
 
         surf_dummy_df_ALT <-
             data.frame(indicator = unique(x[["indicator"]]),
-                       x = -median(x[, xvar], na.rm = TRUE))
+                       x = -median(x[, "year"], na.rm = TRUE))
 
         if (maximal_legend) {
             if (is.null(x_alt_fp_surf_ALT) || !nrow(x_alt_fp_surf_ALT))
@@ -596,14 +572,6 @@ plot_tfr_surfs.data.frame <- function(x,
 
         if(add_prob_TFR_surf_projections && nrow(x_alt_fp_surf_proj_ALT))
             gp <- gp + plot_x_alt_fp_surf(x_alt_fp_surf_proj_ALT)
-    }
-
-    ## -------** Source data
-
-    if (add_source_data) {
-        gp <- gp + ggplot2::geom_point(data = source_data_df,
-                                       ggplot2::aes(x = .data[[xvar_source]], y = .data[[yvar_source]]))
-
     }
 
     ## -------** Indicator Lines and Ribbons
@@ -636,7 +604,7 @@ plot_tfr_surfs.data.frame <- function(x,
                                  alpha = 0.15, fill = ribbon_fill)
     }
 
-    if (add_est_proj_ref_line && identical(xvar, "year")) {
+    if (add_est_proj_ref_line) {
         gp <- gp + ggplot2::geom_vline(ggplot2::aes(xintercept = est_proj_ref_line_year), linetype = 5, colour = "darkgrey")
     }
 
@@ -710,7 +678,7 @@ plot_surfs_probs.data.frame <- function(x, x_alt = NULL, ...) {
 
     ldots <- list(...)
     ndots <- names(ldots)
-    if (any(c("xvar", "yvar") %in% ndots)) stop("You cannot specifiy 'xvar' or 'yvar' in the call to 'plot_surfs_probs'.")
+    if ("yvar" %in% ndots) stop("You cannot specify 'yvar' in the call to 'plot_surfs_probs'.")
 
     ## Add just one annotation and datestamp, if requested
     if ("plot_ann" %in% ndots) {
@@ -726,13 +694,13 @@ plot_surfs_probs.data.frame <- function(x, x_alt = NULL, ...) {
     ## Make the plots
     pl1 <- do.call("plot_tfr_surfs",
                    args = c(list(x = x, x_alt = x_alt,
-                                 xvar = "year", yvar = "TFR_median"),
+                                 yvar = "TFR_median"),
                             ldots)) +
         ggplot2::ggtitle(label = "\nTotal Fertility Rate (TFR)")
 
     pl2 <- do.call("plot_tfr_surfs",
                    args = c(list(x = x, x_alt = x_alt,
-                                 xvar = "year", yvar = "surf_prob"),
+                                 yvar = "surf_prob"),
                             ldots)) +
         ggplot2::ggtitle(label = "\nSURF Probability")
 
