@@ -63,7 +63,7 @@ usethis::use_data(test_data_small_c_tfrSURFs_list, internal = FALSE, overwrite =
 
 ## SELECTED COUNTRIES
 test_data_tfrSURFs_median_list <-
-    make_tfr_surfs(country_codes = c(12, 716, 508, 417, 764, 32, 250, 242),
+    make_tfr_surfs(country_codes = c(12, 716, 404, 508, 417, 764, 32, 250),
                     sim.dir = bayesTFR_output_dir,
                     median_only = TRUE,
                     ncores = NULL # Need this because parallel running requires package to be fully installed

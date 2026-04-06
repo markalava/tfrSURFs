@@ -37,7 +37,7 @@
 ##' @param median_only Logical; should all analysis be performed using only the
 ##'     posterior medians? If \code{FALSE} (default), all trajectories are used
 ##'     and the SURF analysis is probabilistic.
-##' @param transition_condition_type Character string; key word giving the level
+##' @param transition_condition_type Character string; key word giving the transition
 ##'     condition to apply.
 ##' @param rate_threshold Rate condition; any smoothed estimates of annual
 ##'     change \emph{greater} than \code{rate_threshold} will be identifed as a

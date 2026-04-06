@@ -41,7 +41,7 @@ than 90000 in mid 2024?}
 be columns in \code{x}.}
 
 \item{filter_zero_rows}{Logical; remove rows where \code{stat} is zero for
-all columns. For example, don't include countries with not tfrSURFs in the
+all columns. For example, don't include countries with no tfrSURFs in the
 table?}
 
 \item{proj_split}{Character; determines how the tfrSURFs are split between

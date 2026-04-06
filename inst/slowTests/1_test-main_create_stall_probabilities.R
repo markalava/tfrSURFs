@@ -46,6 +46,7 @@ bayesTFR_test_output_dir <-
 cl <- parallel::makeCluster(parallelly::availableCores(omit = 2))
 parallel::clusterExport(cl, "bayesTFR_test_output_dir")
 doParallel::registerDoParallel(cl)
+on.exit(stopCluster(cl), add = TRUE, after = FALSE)
 
 ###-----------------------------------------------------------------------------
 ### * Tests
@@ -82,7 +83,7 @@ test_that("'make_tfr_surfs' works on one country with a variety of argument conf
 
     results <-
         expect_error(
-            foreach(param_i = seq_len(nrow(param_df))[1:5], #TEMP: !!!!!!
+            foreach(param_i = seq_len(nrow(param_df))
                     .packages = c("testthat", "tfrSURFs")) %dopar% {
 
                 pars <- param_df[param_i, , drop = FALSE]
@@ -121,14 +122,14 @@ test_that("'make_tfr_surfs' works on multiple countries with a variety of argume
 
     results <-
         expect_error(
-            foreach(param_i = seq_len(nrow(param_df))[1:5], #TEMP: !!!!!!
+            foreach(param_i = seq_len(nrow(param_df))
                     .packages = c("testthat", "tfrSURFs")) %dopar% {
 
                 pars <- param_df[param_i, , drop = FALSE]
         ## message("[", param_i, " of ", nrow(param_df), "]: ",
         ##         paste(colnames(param_df), paste0(pars, "; "), sep = " = "),
-        ##         "country_codes = c(12, 508, 417, 764, 32, 250, 242)")
-        test <- make_tfr_surfs(country_codes = c(12, 716, 508, 417, 764, 32, 250, 242),
+                ##         "country_codes = c(12, 716, 404, 508, 417, 764, 32, 250)")
+                test <- make_tfr_surfs(country_codes = c(12, 716, 404, 508, 417, 764, 32, 250),
                                 sim.dir = bayesTFR_test_output_dir,
                                     median_only = pars[["median_only"]],
                                     transition_condition_type = pars[["transition_condition_type"]],
@@ -171,8 +172,3 @@ test_that("'make_tfr_surfs' works on multiple countries with a variety of argume
             },
         NA)
 })
-
-###-----------------------------------------------------------------------------
-### * END
-
-stopCluster(cl)

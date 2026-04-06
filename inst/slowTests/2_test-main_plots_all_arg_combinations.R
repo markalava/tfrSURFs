@@ -25,7 +25,6 @@ library(testthat)
 library(tfrSURFs)
 
 source(system.file("slowTests", "0_setup.R", package = "tfrSURFs"))
-## source(here::here("inst", "slowTests", "0_setup.R"))
 
 ncores <- parallelly::availableCores(omit = 2)
 cl <- parallel::makeCluster(ncores)
@@ -56,7 +55,6 @@ test_that("'plot_tfr_surfs.data.frame()' works.", {
                                          plot_fn = "plot_tfr_surfs",
                                          x = test_data_tfrSURFs_list[["716"]],
                                          x_alt = test_data_tfrSURFs_median_list[["716"]])
-                    stop("I'm inside the expectation.")
                 }
 })
 
@@ -76,7 +74,6 @@ test_that("'plot_surfs_probs.data.frame()' works.", {
                                              plot_fn = "plot_surfs_probs",
                                              x = test_data_tfrSURFs_list[["716"]],
                                              x_alt = test_data_tfrSURFs_median_list[["716"]])
-                        stop("I'm inside the expectation.")
                     }
     })
 
@@ -99,7 +96,6 @@ test_that("'plot_tfr_surfs.list()' works.", {
                                          plot_fn = "plot_tfr_surfs",
                                          x = test_data_tfrSURFs_list[c("716", "404", "508")],
                                          x_alt = test_data_tfrSURFs_median_list[c("716", "404", "508")])
-                    stop("I'm inside the expectation.")
                 }
 })
 
@@ -119,6 +115,5 @@ test_that("'plot_surfs_probs.list()' works.", {
                                          plot_fn = "plot_surfs_probs",
                                          x = test_data_tfrSURFs_list[c("716", "404", "508")],
                                          x_alt = test_data_tfrSURFs_median_list[c("716", "404", "508")])
-                    stop("I'm inside the expectation.")
                 }
 })
