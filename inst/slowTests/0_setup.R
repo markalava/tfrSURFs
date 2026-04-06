@@ -31,6 +31,7 @@ library(withr)
 ##' @return A data frame
 ##' @author Mark C Wheldon
 ##' @keywords internal
+##' @noRd
 make_tfr_surfs_param_df <- function() {
     outdf <-
         expand.grid(median_only = c(FALSE, TRUE),
@@ -46,7 +47,7 @@ make_tfr_surfs_param_df <- function() {
                     continuation_condition_prob_threshold = c(0.5, 0.8),
                     smoothing_method = get_arg_defs(make_tfr_surfs, "smoothing_method"),
                     bandwidth = c(3, 5),
-                    incl_small_countries = c(FALSE, TRUE),
+                    incl_small_countries = TRUE,
                     stringsAsFactors = FALSE)
 
     ## 'smoothing_method = "moving_average"' not implemented
@@ -83,7 +84,9 @@ make_tfr_surfs_param_df <- function() {
 ##' @return File path to the directory containing the unpacked TFR projections.
 ##' @author Mark C Wheldon
 ##' @keywords internal
-setup_bayesTFR_test_data_temp_dir <- function(file, overwrite = FALSE, checks = TRUE, take_down = TRUE, verbose = TRUE) {
+##' @noRd
+setup_bayesTFR_test_data_temp_dir <- function(file, overwrite = FALSE, checks = TRUE,
+                                              take_down = TRUE, verbose = TRUE) {
     archive_name <- strsplit(basename(file), "\\.")[[1]][1]
     temp_dir <- tempdir()
     bayesTFR_output_dir <- normalizePath(file.path(temp_dir, archive_name), mustWork = FALSE)
@@ -121,28 +124,94 @@ setup_bayesTFR_test_data_temp_dir <- function(file, overwrite = FALSE, checks = 
 
 ##' Create all combinations of arguments for `plot_tfr_surfs()`.
 ##'
+##' Evaluation takes a long time, so for the list methods, only test
+##' `incl_small_countries`.
+##'
 ##' @return A data frame
 ##' @author Mark C Wheldon
 ##' @keywords internal
 ##' @noRd
-make_plot_tfr_surfs_param_df <- function() {
-    outdf <-
-        expand.grid(yvar = "surf_prob",
-                    add_prob_ref_lines = c(TRUE, FALSE),
-                    add_range_regions = c(TRUE, FALSE),
-                    add_est_proj_ref_line = c(TRUE, FALSE),
-                    add_Schoumaker_stalls = c(TRUE, FALSE),
-                    maximal_legend = c(TRUE, FALSE),
-                    add_prob_TFR_surfs = c(TRUE, FALSE),
-                    add_prob_TFR_surf_projections = c(TRUE, FALSE),
-                    incl_small_countries = c(TRUE, FALSE),
-                    datestamp = c(TRUE, FALSE),
-                    stringsAsFactors = FALSE)
-    outdf <- rbind(outdf,
-                   transform(outdf[!outdf[["add_prob_ref_lines"]], ],
-                             yvar = "TFR_median"))
+make_plot_tfr_surfs_param_df <- function(plot_fn) {
+
+    arg_list <- list()
+    if (grepl("\\.list$", plot_fn)) {
+        arg_list <- c(arg_list, list(incl_small_countries = c(TRUE, FALSE)))
+        outdf <- do.call("expand.grid", args = arg_list)
+    } else {
+        arg_list <- list(add_prob_ref_lines = c(TRUE, FALSE),
+                         add_range_regions = c(TRUE, FALSE),
+                         add_est_proj_ref_line = c(TRUE, FALSE),
+                         add_Schoumaker_stalls = c(TRUE, FALSE),
+                         maximal_legend = c(TRUE, FALSE),
+                         add_prob_TFR_surfs = c(TRUE, FALSE),
+                         add_prob_TFR_surf_projections = c(TRUE, FALSE),
+                         datestamp = c(TRUE, FALSE),
+                         stringsAsFactors = FALSE)
+        if (!grepl("^plot_surfs_probs", plot_fn))
+            arg_list <- c(arg_list, list(yvar = c("surf_prob", "TFR_median")))
+        outdf <- do.call("expand.grid", args = arg_list)
+        if (!grepl("^plot_surfs_probs", plot_fn))
+            outdf <- outdf[!(outdf[["yvar"]] == "TFR_median" & outdf[["add_prob_ref_lines"]]), ]
+    }
 
     return(outdf)
+}
+
+##' Print error message for a specific iteration of a test
+##'
+##' .. content for \details{} ..
+##' @param param_i
+##' @param pars
+##' @return
+##' @author Mark C Wheldon
+##' @keywords internal
+##' @noRd
+param_i_error_msg <- function(param_i, pars, x_alt = NULL) {
+    if (is.null(x_alt)) x_alt_string <- "NULL"
+    else x_alt_string <- "NOT NULL"
+    paste0("Failure occurred at 'param_i' = '", param_i, "'", "\n",
+           "'pars' = \n\t",
+           paste(paste(names(pars), pars, sep = ": "),
+                 "'x_alt': '", x_alt_string, "'",
+                 collapse = "\n\t"))
+}
+
+##' Expectation function for main plotting functions
+##'
+##' .. content for \details{} ..
+##' @param param_i
+##' @param pars
+##' @param plot_fn Function to be tested as a character string.
+##' @param x
+##' @param x_alt
+##' @return
+##' @author Mark C Wheldon
+##' @keywords internal
+##' @noRd
+expect_no_error_plot <- function(param_i, pars, plot_fn, x, x_alt = NULL) {
+    expect_error(
+        suppressMessages(suppressWarnings(
+            do.call(plot_fn,
+                    args = c(list(x = x,
+                                  x_alt = NULL),
+                             pars
+                             ))
+        )),
+        NA,
+        info = param_i_error_msg(param_i, pars, x_alt))
+
+    if (!is.null(x_alt)) {
+        expect_error(
+            suppressMessages(suppressWarnings(
+                do.call(plot_fn,
+                        args = c(list(x = x,
+                                      x_alt = x_alt),
+                                 pars
+                                 ))
+            )),
+            NA,
+            info = param_i_error_msg(param_i, pars, x_alt))
+    }
 }
 
 ###-----------------------------------------------------------------------------

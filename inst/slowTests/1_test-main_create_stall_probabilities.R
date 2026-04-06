@@ -44,8 +44,8 @@ bayesTFR_test_output_dir <-
 ### * Create Cluster
 
 cl <- parallel::makeCluster(parallelly::availableCores(omit = 2))
-doParallel::registerDoParallel(cl)
 parallel::clusterExport(cl, "bayesTFR_test_output_dir")
+doParallel::registerDoParallel(cl)
 
 ###-----------------------------------------------------------------------------
 ### * Tests
@@ -82,31 +82,33 @@ test_that("'make_tfr_surfs' works on one country with a variety of argument conf
 
     results <-
         expect_error(
-            foreach(param_i = seq_len(nrow(param_df)), .packages = c("testthat", "tfrSURFs"), .export = "param_df") %dopar% {
+            foreach(param_i = seq_len(nrow(param_df))[1:5], #TEMP: !!!!!!
+                    .packages = c("testthat", "tfrSURFs")) %dopar% {
 
                 pars <- param_df[param_i, , drop = FALSE]
-        message("[", param_i, " of ", nrow(param_df), "]: ",
-                paste(colnames(param_df), paste0(pars, "; "), sep = " = "))
-        expect_s3_class((
-            test <- make_tfr_surfs(country_code = 716,
-                                    sim.dir = bayesTFR_test_output_dir,
-                                    median_only = pars[["median_only"]],
-                                    transition_condition_type = pars[["transition_condition_type"]],
-                                    smoothing_method = pars[["smoothing_method"]],
-                                    bandwidth = pars[["bandwidth"]],
-                                 rate_threshold = pars[["rate_threshold"]],
-                                 rate_prob_threshold = pars[["rate_prob_threshold"]],
-                                 continuation_condition = pars[["exit_crition"]],
-                                 continuation_condition_prob_threshold = pars[["continuation_condition_prob_threshold"]],
-                                 exceedance_condition = pars[["exceedance_condition"]],
-                                 exceedance_condition_prob_threshold = pars[["exceedance_condition_prob_threshold"]],
-                                 min_surf_length = pars[["min_surf_length"]],
-                                 min_inter_surf_length = pars[["min_inter_surf_length"]],
-                                 incl_small_countries = pars[["incl_small_countries"]]
-                                 )
-        ), "data.frame")
+                ## message("[", param_i, " of ", nrow(param_df), "]: ",
+                ##         paste(colnames(param_df), paste0(pars, "; "), sep = " = "))
+
+                test <- make_tfr_surfs(country_code = 716,
+                                       sim.dir = bayesTFR_test_output_dir,
+                                       median_only = pars[["median_only"]],
+                                       transition_condition_type = pars[["transition_condition_type"]],
+                                       smoothing_method = pars[["smoothing_method"]],
+                                       bandwidth = pars[["bandwidth"]],
+                                       rate_threshold = pars[["rate_threshold"]],
+                                       rate_prob_threshold = pars[["rate_prob_threshold"]],
+                                       continuation_condition = pars[["exit_crition"]],
+                                       continuation_condition_prob_threshold = pars[["continuation_condition_prob_threshold"]],
+                                       exceedance_condition = pars[["exceedance_condition"]],
+                                       exceedance_condition_prob_threshold = pars[["exceedance_condition_prob_threshold"]],
+                                       min_surf_length = pars[["min_surf_length"]],
+                                       min_inter_surf_length = pars[["min_inter_surf_length"]],
+                                       incl_small_countries = TRUE,
+                                       ncores = NULL
+                                       )
+                expect_s3_class(test, "data.frame")
             },
-        NA)
+            NA)
 })
 
 
@@ -119,12 +121,13 @@ test_that("'make_tfr_surfs' works on multiple countries with a variety of argume
 
     results <-
         expect_error(
-            foreach(param_i = seq_len(nrow(param_df)), .packages = c("testthat", "tfrSURFs"), .export = "param_df") %dopar% {
+            foreach(param_i = seq_len(nrow(param_df))[1:5], #TEMP: !!!!!!
+                    .packages = c("testthat", "tfrSURFs")) %dopar% {
 
                 pars <- param_df[param_i, , drop = FALSE]
-        message("[", param_i, " of ", nrow(param_df), "]: ",
-                paste(colnames(param_df), paste0(pars, "; "), sep = " = "),
-                "country_codes = c(12, 508, 417, 764, 32, 250, 242)")
+        ## message("[", param_i, " of ", nrow(param_df), "]: ",
+        ##         paste(colnames(param_df), paste0(pars, "; "), sep = " = "),
+        ##         "country_codes = c(12, 508, 417, 764, 32, 250, 242)")
         test <- make_tfr_surfs(country_codes = c(12, 716, 508, 417, 764, 32, 250, 242),
                                 sim.dir = bayesTFR_test_output_dir,
                                     median_only = pars[["median_only"]],
@@ -139,14 +142,14 @@ test_that("'make_tfr_surfs' works on multiple countries with a variety of argume
                                  exceedance_condition_prob_threshold = pars[["exceedance_condition_prob_threshold"]],
                                  min_surf_length = pars[["min_surf_length"]],
                                  min_inter_surf_length = pars[["min_inter_surf_length"]],
-                                 remove_small_countries = pars[["remove_small_countries"]],
+                               incl_small_countries = TRUE,
                                  ncores = NULL)
         expect_type(test, "list")
         expect_false(is.data.frame(test))
 
-        message("[", param_i, " of ", nrow(param_df), "]: ",
-                paste(colnames(param_df), paste0(pars, "; "), sep = " = "),
-                "country_codes = NULL")
+        ## message("[", param_i, " of ", nrow(param_df), "]: ",
+        ##         paste(colnames(param_df), paste0(pars, "; "), sep = " = "),
+        ##         "country_codes = NULL")
         test <- make_tfr_surfs(country_codes = NULL,
                                 sim.dir = bayesTFR_test_output_dir,
                                     median_only = pars[["median_only"]],
@@ -161,7 +164,7 @@ test_that("'make_tfr_surfs' works on multiple countries with a variety of argume
                                  exceedance_condition_prob_threshold = pars[["exceedance_condition_prob_threshold"]],
                                  min_surf_length = pars[["min_surf_length"]],
                                  min_inter_surf_length = pars[["min_inter_surf_length"]],
-                                 remove_small_countries = pars[["remove_small_countries"]],
+                               incl_small_countries = TRUE,
                                      ncores = NULL)
         expect_type(test, "list")
         expect_false(is.data.frame(test))

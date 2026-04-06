@@ -124,6 +124,7 @@ plot_tfr_surfs.list <- function(x, x_alt = NULL, ..., incl_small_countries = TRU
                                nm = names(x)[i]))
         if (plot) print(out[[i]])
     }
+
     return(invisible(out))
 }
 
@@ -132,7 +133,7 @@ plot_tfr_surfs.list <- function(x, x_alt = NULL, ..., incl_small_countries = TRU
 plot_tfr_surfs.data.frame <- function(x,
                                       x_alt = NULL,
                                       yvar = c("surf_prob", "TFR_median"),
-                                      x_alt_label = "Non-\nprobabilistic",
+                                      x_alt_label = "Non-\nprobabilistic\nSURF",
                                       add_prob_ref_lines = identical(yvar, "surf_prob"),
                                       add_range_regions = TRUE,
                                       add_est_proj_ref_line = TRUE,
@@ -272,8 +273,8 @@ plot_tfr_surfs.data.frame <- function(x,
 
     outside_ft_period_label <- "Outside fertility\ntransition period"
 
-    indicator_abbrev <- "Probabilistic"
-    indicator_abbrev_proj <- paste0(indicator_abbrev, " (projected)")
+    indicator_abbrev <- "Probabilistic\nSURF"
+    indicator_abbrev_proj <- paste0(indicator_abbrev, "\n(projected)")
 
     schoumaker_strong_label <- "Schoumaker:\nStrong+\nevidence"
     schoumaker_moderate_label <- "Schoumaker:\nModerate\nevidence"
@@ -668,6 +669,7 @@ plot_surfs_probs.list <- function(x, x_alt = NULL, ..., incl_small_countries = T
                                nm = names(x)[i]))
         if (plot) print(out[[i]])
     }
+
     return(invisible(out))
 }
 

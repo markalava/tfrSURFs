@@ -21,7 +21,7 @@ plot_tfr_surfs(x, ...)
   x,
   x_alt = NULL,
   yvar = c("surf_prob", "TFR_median"),
-  x_alt_label = "Non-\\nprobabilistic",
+  x_alt_label = "Non-\\nprobabilistic\\nSURF",
   add_prob_ref_lines = identical(yvar, "surf_prob"),
   add_range_regions = TRUE,
   add_est_proj_ref_line = TRUE,
