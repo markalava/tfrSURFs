@@ -119,7 +119,7 @@ tabulate_loc_by_surf.data.frame <- function(x, ...,
 ##' @param geographies Cross-classifying geographies for the table. These must
 ##'     be columns in \code{x}.
 ##' @param filter_zero_rows Logical; remove rows where \code{stat} is zero for
-##'     all columns. For example, don't include countries with not tfrSURFs in the
+##'     all columns. For example, don't include countries with no tfrSURFs in the
 ##'     table?
 ##' @param proj_split Character; determines how the tfrSURFs are split between
 ##'     estimation and projection types. See \dQuote{Details}.
@@ -173,9 +173,12 @@ tabulate_surf_stats.data.frame <- function(x, stat = c("count", "avg_len"),
 
     if (identical(stat, "count")) {
         tbl_fn <- function(z, f) {
-            z <- table(z[z[["surf_year_start"]], geographies, drop = FALSE])
+            z[["surf_year_start"]] <- factor(z[["surf_year_start"]], levels = c(TRUE, FALSE))
+
+            z <- table(z[, c("surf_year_start", geographies), drop = FALSE])
+
             z <- as.data.frame(z, responseName = "count", stringsAsFactors = FALSE)
-            z <- z[z$count > 0, , drop = FALSE]
+            z <- z[as.logical(z[["surf_year_start"]]), c(geographies, "count"), drop = FALSE]
             return(z)
         }
 
@@ -231,20 +234,24 @@ tabulate_surf_stats.data.frame <- function(x, stat = c("count", "avg_len"),
     if ("global" %in% geographies) {
         if (length(geographies) > 1) {
             out <- tabulate_surf_stats(x = x, stat = stat,
-                                       geographies = "global", filter_zero_rows = filter_zero_rows,
+                                       geographies = "global", filter_zero_rows = FALSE,
                                        proj_split = proj_split, last_est_year = last_est_year)
             out <- data.frame(as.data.frame(lapply(setNames(nm = geographies[!geographies == "global"]),
                                                    function(z) "GLOBAL")),
                               out)
-            ## vvv EARLY RETURN
-            return(rbind(data.frame(tabulate_surf_stats(x = x, stat = stat,
+            out <- rbind(data.frame(tabulate_surf_stats(x = x, stat = stat,
                                                         geographies = geographies[!geographies == "global"],
-                                                        filter_zero_rows = filter_zero_rows,
+                                                        filter_zero_rows = FALSE,
                                                         proj_split = proj_split,
                                                         last_est_year = last_est_year),
                                     global = FALSE),
-                         out))
+                         out)
+            if (filter_zero_rows) out <- out[out[["count"]] > 0, , drop = FALSE]
+
+            ## vvv EARLY RETURN
+            return(out)
             ## ^^^ EARLY RETURN
+
         } else {
             x$global <- TRUE
         }
@@ -283,15 +290,16 @@ tabulate_surf_stats.data.frame <- function(x, stat = c("count", "avg_len"),
         }
     }
 
-    ## Add geographies with zero stats
-    if (!filter_zero_rows) {
-        by_geog <- intersect(geographies, c("area_name", "reg_name", "name"))
-        by_geog <- intersect(by_geog, colnames(UNlocations_countries))
-        if (length(by_geog)) {
-            out <- base::merge(x = unique(UNlocations_countries[, by_geog, drop = FALSE]),
-                               y = out,
-                               by = by_geog, all = TRUE)
-        }
+    ## Remove geographies with zero stats
+    if (filter_zero_rows) {
+        out <- out[out[["count"]] > 0, , drop = FALSE]
+        ## by_geog <- intersect(geographies, c("area_name", "reg_name", "name"))
+        ## by_geog <- intersect(by_geog, colnames(UNlocations_countries))
+        ## if (length(by_geog)) {
+        ##     out <- base::merge(x = unique(UNlocations_countries[, by_geog, drop = FALSE]),
+        ##                        y = out,
+        ##                        by = by_geog, all = TRUE)
+        ## }
     }
 
     ## -------* END

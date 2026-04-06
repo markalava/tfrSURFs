@@ -38,7 +38,7 @@ bayesTFR_output_dir <-
 
 ## SELECTED COUNTRIES
 test_data_tfrSURFs_list <-
-    make_tfr_surfs(country_codes = c(12, 716, 508, 417, 764, 32, 250, 242),
+    make_tfr_surfs(country_codes = c(12, 716, 404, 508, 417, 764, 32, 250),
                          sim.dir = bayesTFR_output_dir,
                     ncores = NULL # Need this because parallel running requires package to be fully installed
                     )
