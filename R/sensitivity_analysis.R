@@ -505,6 +505,7 @@ make_alt_surfs_stats_tables <- function(x, ...) {
 make_alt_surfs_stats_tables.list <- function(x, ...,
                                              median_only = FALSE,
                                              incl_small_countries = FALSE,
+                                             filter_zero_rows = FALSE,
                                              overwrite = getOption("tfrSURFs.sensitivity_analysis_overwrite"),
                                              stat = c("count", "avg_len"),
                                              output_dir_name = getOption("tfrSURFs.sensitivity_analysis_output_dir_name")) {
@@ -514,6 +515,7 @@ make_alt_surfs_stats_tables.list <- function(x, ...,
         make_alt_surfs_stats_tables(this_alt_id,
                                     median_only = median_only,
                                     incl_small_countries = incl_small_countries,
+                                    filter_zero_rows = filter_zero_rows,
                                     overwrite = overwrite,
                                     stat = stat,
                                     output_dir_name = output_dir_name)
@@ -529,6 +531,7 @@ make_alt_surfs_stats_tables.list <- function(x, ...,
 make_alt_surfs_stats_tables.character <- function(x,
                                                   median_only = FALSE,
                                                   incl_small_countries = FALSE,
+                                                  filter_zero_rows = FALSE,
                                                   overwrite = getOption("tfrSURFs.sensitivity_analysis_overwrite"),
                                                   stat = c("count", "avg_len"),
                                                   output_dir_name = getOption("tfrSURFs.sensitivity_analysis_output_dir_name")) {
@@ -559,6 +562,7 @@ make_alt_surfs_stats_tables.character <- function(x,
 
     openxlsx::write.xlsx(tabulate_surf_stats(alt_surfs_res_list, stat = stat,
                                              geographies = geographies,
+                                             filter_zero_rows = filter_zero_rows,
                                              incl_small_countries = incl_small_countries),
                          file = tbl_filename,
                          asTable = TRUE, tableStyle = "TableStyleMedium2")
@@ -583,7 +587,7 @@ make_alt_surfs_stats_tables.character <- function(x,
 make_alt_surfs_variant_comparison_df <- function(alt_surfs, median_only = FALSE,
                                                  stat = c("count", "avg_len"),
                                                  incl_small_countries = FALSE,
-                                                 filter_zero_rows = TRUE,
+                                                 filter_zero_rows = FALSE,
                                                  geographies = c("area_name", "reg_name", "name", "sub_saharan_africa", "global"),
                                                  timevar = c("alt_surf", "geog"),
                                                  output_dir_name = getOption("tfrSURFs.sensitivity_analysis_output_dir_name")) {
@@ -665,7 +669,7 @@ make_alt_surfs_variant_comparison_table <- function(alt_surfs,
                                                     median_only = FALSE,
                                                     stat = c("count", "avg_len"),
                                                     incl_small_countries = FALSE,
-                                                    filter_zero_rows = TRUE,
+                                                    filter_zero_rows = FALSE,
                                                     overwrite = getOption("tfrSURFs.sensitivity_analysis_overwrite"),
                                                     output_dir_name = getOption("tfrSURFs.sensitivity_analysis_output_dir_name")) {
 
@@ -747,6 +751,7 @@ make_alt_surfs_periods_tables <- function(x, ...) {
 make_alt_surfs_periods_tables.list <- function(x, ...,
                                              median_only = FALSE,
                                              incl_small_countries = FALSE,
+                                             filter_zero_rows = FALSE,
                                              overwrite = getOption("tfrSURFs.sensitivity_analysis_overwrite"),
                                              table_type = c("concise", "surfs only", "detailed"),
                                              output_dir_name = getOption("tfrSURFs.sensitivity_analysis_output_dir_name")) {
@@ -757,6 +762,7 @@ make_alt_surfs_periods_tables.list <- function(x, ...,
         make_alt_surfs_periods_tables(this_alt_id,
                                     median_only = median_only,
                                     incl_small_countries = incl_small_countries,
+                                    filter_zero_rows = filter_zero_rows,
                                     overwrite = overwrite,
                                     table_type = table_type,
                                     output_dir_name = output_dir_name)
@@ -772,6 +778,7 @@ make_alt_surfs_periods_tables.list <- function(x, ...,
 make_alt_surfs_periods_tables.character <- function(x,
                                                   median_only = FALSE,
                                                   incl_small_countries = FALSE,
+                                                  filter_zero_rows = FALSE,
                                                   overwrite = getOption("tfrSURFs.sensitivity_analysis_overwrite"),
                                                   table_type = c("concise", "surfs only", "detailed"),
                                                   output_dir_name = getOption("tfrSURFs.sensitivity_analysis_output_dir_name")) {
@@ -798,6 +805,7 @@ make_alt_surfs_periods_tables.character <- function(x,
     }
 
     openxlsx::write.xlsx(tabulate_surf_periods(alt_surfs_res_list, table_type = table_type,
+                                               filter_zero_rows = filter_zero_rows,
                                              incl_small_countries = incl_small_countries),
                          file = tbl_filename,
                          asTable = TRUE, tableStyle = "TableStyleMedium2")
