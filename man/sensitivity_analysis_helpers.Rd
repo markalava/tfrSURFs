@@ -104,6 +104,7 @@ make_alt_surfs_stats_tables(x, ...)
   ...,
   median_only = FALSE,
   incl_small_countries = FALSE,
+  filter_zero_rows = FALSE,
   overwrite = getOption("tfrSURFs.sensitivity_analysis_overwrite"),
   stat = c("count", "avg_len"),
   output_dir_name = getOption("tfrSURFs.sensitivity_analysis_output_dir_name")
@@ -113,6 +114,7 @@ make_alt_surfs_stats_tables(x, ...)
   x,
   median_only = FALSE,
   incl_small_countries = FALSE,
+  filter_zero_rows = FALSE,
   overwrite = getOption("tfrSURFs.sensitivity_analysis_overwrite"),
   stat = c("count", "avg_len"),
   output_dir_name = getOption("tfrSURFs.sensitivity_analysis_output_dir_name")
@@ -123,7 +125,7 @@ make_alt_surfs_variant_comparison_df(
   median_only = FALSE,
   stat = c("count", "avg_len"),
   incl_small_countries = FALSE,
-  filter_zero_rows = TRUE,
+  filter_zero_rows = FALSE,
   geographies = c("area_name", "reg_name", "name", "sub_saharan_africa", "global"),
   timevar = c("alt_surf", "geog"),
   output_dir_name = getOption("tfrSURFs.sensitivity_analysis_output_dir_name")
@@ -134,7 +136,7 @@ make_alt_surfs_variant_comparison_table(
   median_only = FALSE,
   stat = c("count", "avg_len"),
   incl_small_countries = FALSE,
-  filter_zero_rows = TRUE,
+  filter_zero_rows = FALSE,
   overwrite = getOption("tfrSURFs.sensitivity_analysis_overwrite"),
   output_dir_name = getOption("tfrSURFs.sensitivity_analysis_output_dir_name")
 )
@@ -259,13 +261,14 @@ These functions generate and summarize the results using alternative SURF
 definitions, and save them in a hierarchical directory structure under
 \code{file.path(root_dir, output_dir_name)}.
 
-The main user function is \code{make_alt_surfs} which takes a list
-of different argument combinations as input and saves the results in the
-hierarchy. The input list has one element per alternative definition, each
-of these being an argument list for \code{link{make_tfr_surfs}}. Note that
-you do not need to explicitly vary the \code{median_only} argument in your
-alternative definitions; \code{make_alt_surfs} can take this
-argument and modify the alternative argument list appropriately.
+The main user function is \code{make_alt_surfs} which takes a list of
+different argument combinations as input and saves the results in the
+directory structure. The input list has one element per alternative
+definition, each of these being an argument list for
+\code{link{make_tfr_surfs}}. Note that you do not need to explicitly vary
+the \code{median_only} argument in your alternative definitions;
+\code{make_alt_surfs} can take this argument and modify the alternative
+argument list appropriately.
 
 \describe{
 
