@@ -446,7 +446,7 @@ make_alt_surfs_db_tables.list <- function(x, ...,
                                     overwrite = overwrite,
                                     output_dir_name = output_dir_name)
     })
-    if (getOption("tfrSURFs.verbose")) message("Tables written to '", dirname(head(out, 1)), "', ..., '",   dirname(tail(out, 1)), "'.")
+    message("Tables written to '", dirname(head(out, 1)), "', ..., '",   dirname(tail(out, 1)), "'.")
     return(invisible(out))
 }
 
@@ -473,7 +473,7 @@ make_alt_surfs_db_tables.character <- function(x, ...,
 
     if (!overwrite && file.exists(tbl_filename)) {
         if (file.mtime(tbl_filename) > file.mtime(rds_filename))
-            if (getOption("tfrSURFs.verbose")) message(toString(x), ": Nothing to do; 'overwrite' is 'FALSE' and 'xlsx' file is newer than 'rds' file.")
+            message(toString(x), ": Nothing to do; 'overwrite' is 'FALSE' and 'xlsx' file is newer than 'rds' file.")
         return(invisible(tbl_filename))
     } else {
         alt_surfs_res_list <- readRDS(rds_filename)
@@ -482,7 +482,7 @@ make_alt_surfs_db_tables.character <- function(x, ...,
     openxlsx::write.xlsx(do.call("rbind", alt_surfs_res_list), file = tbl_filename,
                          asTable = TRUE, tableStyle = "TableStyleMedium3")
 
-    if (getOption("tfrSURFs.verbose")) message("Tables written to '", toString(tbl_filename))
+    message("Tables written to '", toString(tbl_filename))
     return(invisible(tbl_filename))
 }
 
@@ -518,7 +518,7 @@ make_alt_surfs_stats_tables.list <- function(x, ...,
                                     stat = stat,
                                     output_dir_name = output_dir_name)
     })
-    if (getOption("tfrSURFs.verbose")) message("Tables written to '", dirname(head(out, 1)), "', ..., '",   dirname(tail(out, 1)), "'.")
+    message("Tables written to '", dirname(head(out, 1)), "', ..., '",   dirname(tail(out, 1)), "'.")
     return(invisible(out))
 }
 
@@ -562,7 +562,7 @@ make_alt_surfs_stats_tables.character <- function(x,
                                              incl_small_countries = incl_small_countries),
                          file = tbl_filename,
                          asTable = TRUE, tableStyle = "TableStyleMedium2")
-    if (getOption("tfrSURFs.verbose")) message("Tables written to '", toString(tbl_filename))
+    message("Tables written to '", toString(tbl_filename))
     return(invisible(tbl_filename))
 }
 
@@ -689,7 +689,7 @@ make_alt_surfs_variant_comparison_table <- function(alt_surfs,
             return(file.mtime(rds_fn))
         })
         if (all(unlist(lapply(rds_mtimes, function(z) z < file.mtime(fp))))) {
-            if (getOption("tfrSURFs.verbose")) message("Nothing to do: the table file '", fp, "' is newer than all '.rds' files.")
+            message("Nothing to do: the table file '", fp, "' is newer than all '.rds' files.")
             return(invisible(fp))
         }
     }
@@ -720,7 +720,7 @@ make_alt_surfs_variant_comparison_table <- function(alt_surfs,
     } else {
         openxlsx::write.xlsx(out, file = fp,
                              asTable = TRUE, tableStyle = "TableStyleMedium2")
-        if (getOption("tfrSURFs.verbose")) message("Comparison table written to '", fp, "'.")
+        message("Comparison table written to '", fp, "'.")
         return(invisible(fp))
     }
 }
@@ -761,7 +761,7 @@ make_alt_surfs_periods_tables.list <- function(x, ...,
                                     table_type = table_type,
                                     output_dir_name = output_dir_name)
     })
-    if (getOption("tfrSURFs.verbose")) message("Tables written to '", dirname(head(out, 1)), "', ..., '",   dirname(tail(out, 1)), "'.")
+    message("Tables written to '", dirname(head(out, 1)), "', ..., '",   dirname(tail(out, 1)), "'.")
     return(invisible(out))
 }
 
@@ -801,7 +801,7 @@ make_alt_surfs_periods_tables.character <- function(x,
                                              incl_small_countries = incl_small_countries),
                          file = tbl_filename,
                          asTable = TRUE, tableStyle = "TableStyleMedium2")
-    if (getOption("tfrSURFs.verbose")) message("Tables written to '", toString(tbl_filename))
+    message("Tables written to '", toString(tbl_filename))
     return(invisible(tbl_filename))
 }
 
@@ -883,7 +883,7 @@ make_alt_surfs_plots.character <- function(x, file_type = c("pdf", "svg"),
 
         if (!overwrite && file.exists(filename_s) &&
             file.mtime(filename_s) > file.mtime(rds_filename)) {
-            if (getOption("tfrSURFs.verbose")) message(toString(x), ": Nothing to do; 'overwrite' is 'FALSE' and 'pdf' file is newer than 'rds' file.")
+            message(toString(x), ": Nothing to do; 'overwrite' is 'FALSE' and 'pdf' file is newer than 'rds' file.")
             return(invisible(filename_s))
         } else {
             alt_surfs_res_list <- readRDS(rds_filename)
@@ -917,7 +917,7 @@ make_alt_surfs_plots.character <- function(x, file_type = c("pdf", "svg"),
 
         dev.off()
 
-        if (getOption("tfrSURFs.verbose")) message("Plots saved to '", toString(filename_s))
+        message("Plots saved to '", toString(filename_s))
 
     } else if (identical(file_type, "svg")) {
 
@@ -972,7 +972,7 @@ make_alt_surfs_plots.character <- function(x, file_type = c("pdf", "svg"),
         }
         if (flag_already_exist)
             message("Argument 'overwrite' is 'FALSE' and some svg files already exist and are newer than the rds file.")
-        if (getOption("tfrSURFs.verbose")) message("Plots saved to '", toString(dir_list[["svg_plots_dir"]]))
+        message("Plots saved to '", toString(dir_list[["svg_plots_dir"]]))
     }
 
     options(op)
