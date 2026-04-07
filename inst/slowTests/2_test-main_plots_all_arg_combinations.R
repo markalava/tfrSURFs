@@ -47,7 +47,7 @@ test_that("'plot_tfr_surfs.data.frame()' works.", {
 
     param_df <- make_plot_tfr_surfs_param_df("plot_tfr_surfs.data.frame")
     results <-
-        foreach(param_i = seq_len(nrow(param_df)),
+        expect_error(foreach(param_i = seq_len(nrow(param_df)),
                 .export = c("param_i_error_msg", "expect_no_error_plot"),
                 .packages = c("testthat", "tfrSURFs")) %dopar% {
                     pars <- param_df[param_i, , drop = FALSE]
@@ -55,7 +55,8 @@ test_that("'plot_tfr_surfs.data.frame()' works.", {
                                          plot_fn = "plot_tfr_surfs",
                                          x = test_data_tfrSURFs_list[["716"]],
                                          x_alt = test_data_tfrSURFs_median_list[["716"]])
-                }
+                },
+                NA)
 })
 
 ###-----------------------------------------------------------------------------
@@ -66,7 +67,7 @@ test_that("'plot_surfs_probs.data.frame()' works.", {
     param_df <- make_plot_tfr_surfs_param_df("plot_surfs_probs.data.frame")
 
         results <-
-            foreach(param_i = seq_len(nrow(param_df)),
+            expect_error(foreach(param_i = seq_len(nrow(param_df)),
                     .export = c("param_i_error_msg", "expect_no_error_plot"),
                     .packages = c("testthat", "tfrSURFs")) %dopar% {
                         pars <- param_df[param_i, , drop = FALSE]
@@ -74,7 +75,8 @@ test_that("'plot_surfs_probs.data.frame()' works.", {
                                              plot_fn = "plot_surfs_probs",
                                              x = test_data_tfrSURFs_list[["716"]],
                                              x_alt = test_data_tfrSURFs_median_list[["716"]])
-                    }
+                    },
+                    NA)
     })
 
 ###-----------------------------------------------------------------------------
@@ -88,7 +90,7 @@ test_that("'plot_tfr_surfs.list()' works.", {
     param_df <- make_plot_tfr_surfs_param_df("plot_tfr_surfs.list")
 
     results <-
-        foreach(param_i = seq_len(nrow(param_df)),
+        expect_error(foreach(param_i = seq_len(nrow(param_df)),
                 .export = c("param_i_error_msg", "expect_no_error_plot"),
                 .packages = c("testthat", "tfrSURFs")) %dopar% {
                     pars <- param_df[param_i, , drop = FALSE]
@@ -96,7 +98,8 @@ test_that("'plot_tfr_surfs.list()' works.", {
                                          plot_fn = "plot_tfr_surfs",
                                          x = test_data_tfrSURFs_list[c("716", "404", "508")],
                                          x_alt = test_data_tfrSURFs_median_list[c("716", "404", "508")])
-                }
+                },
+                NA)
 })
 
 ###-----------------------------------------------------------------------------
@@ -107,7 +110,7 @@ test_that("'plot_surfs_probs.list()' works.", {
     param_df <- make_plot_tfr_surfs_param_df("plot_surfs_probs.list")
 
     results <-
-        foreach(param_i = seq_len(nrow(param_df)),
+        expect_error(foreach(param_i = seq_len(nrow(param_df)),
                 .export = c("param_i_error_msg", "expect_no_error_plot"),
                 .packages = c("testthat", "tfrSURFs")) %dopar% {
                     pars <- param_df[param_i, , drop = FALSE]
@@ -115,5 +118,6 @@ test_that("'plot_surfs_probs.list()' works.", {
                                          plot_fn = "plot_surfs_probs",
                                          x = test_data_tfrSURFs_list[c("716", "404", "508")],
                                          x_alt = test_data_tfrSURFs_median_list[c("716", "404", "508")])
-                }
+                },
+                NA)
 })

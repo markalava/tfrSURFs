@@ -12,8 +12,9 @@
 
     op <- options()
     op.tfrSURFs <- list(
-        tfrSURFs.sensitivity_analysis_output_dir_name = "sensitivity_analysis_outputs",
+        tfrSURFs.sensitivity_analysis_output_dir_name = "sensitivity_analysis",
         tfrSURFs.sensitivity_analysis_overwrite = FALSE,
+        tfrSURFs.show_ggplot_warning_note = TRUE,
         tfrSURFs.sim.dir = NULL,
         tfrSURFs.verbose = getOption("verbose")
     )

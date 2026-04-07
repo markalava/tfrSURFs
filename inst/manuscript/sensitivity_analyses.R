@@ -48,7 +48,7 @@ options("tfrSURFs.sim.dir" = bayesTFR_output_dir)
 ###-----------------------------------------------------------------------------
 ### *** Output
 
-output_dir_name <- "sensitivity_analysis_outputs"
+output_dir_name <- "sensitivity_analysis"
 
 ###-----------------------------------------------------------------------------
 ### * TFR Trajectories

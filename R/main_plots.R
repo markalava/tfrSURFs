@@ -565,8 +565,10 @@ plot_tfr_surfs.data.frame <- function(x,
         ## -------*** Add Layer to Plot
 
         ## Rug
-        on.exit(message("NOTE: You can ignore the warning from ggplot2 about \"unknown aesthetics: fill\"."),
-                add = TRUE, after = FALSE)
+        if (isTRUE(getOption("tfrSURFs.show_ggplot_warning_note"))) {
+            on.exit(message("NOTE: You can ignore the warning from ggplot2 about \"unknown aesthetics: fill\"."),
+                    add = TRUE, after = FALSE)
+        }
 
         if(nrow(x_alt_fp_surf_ALT))
             gp <- gp + plot_x_alt_fp_surf(x_alt_fp_surf_ALT)

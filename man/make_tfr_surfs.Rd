@@ -39,7 +39,7 @@ coerced to numeric via \code{\link{as.numeric}}. Must be in
 posterior medians? If \code{FALSE} (default), all trajectories are used
 and the SURF analysis is probabilistic.}
 
-\item{transition_condition_type}{Character string; key word giving the level
+\item{transition_condition_type}{Character string; key word giving the transition
 condition to apply.}
 
 \item{smoothing_method}{Character string giving type of local smoothing to
