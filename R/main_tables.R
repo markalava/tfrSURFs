@@ -118,9 +118,8 @@ tabulate_loc_by_surf.data.frame <- function(x, ...,
 ##' @param stat Character; the statistic to tabulate.
 ##' @param geographies Cross-classifying geographies for the table. These must
 ##'     be columns in \code{x}.
-##' @param filter_zero_rows Logical; remove rows where \code{stat} is zero for
-##'     all columns. For example, don't include countries with no tfrSURFs in the
-##'     table?
+##' @param filter_zero_rows Logical; remove rows for countries or regions with
+##'     no tfrSURFs. Only applicable if \code{stat = "count"}.
 ##' @param proj_split Character; determines how the tfrSURFs are split between
 ##'     estimation and projection types. See \dQuote{Details}.
 ##' @param last_est_year Numeric; the first year of the projection period, for
@@ -142,11 +141,23 @@ tabulate_surf_stats <- function(x, ...) {
 ##' @export
 tabulate_surf_stats.list <- function(x, stat = c("count", "avg_len"), incl_small_countries = TRUE,
                                      geographies = c("area_name", "reg_name", "name", "sub_saharan_africa", "global"),
-                                     filter_zero_rows = TRUE,
+                                     filter_zero_rows = identical(stat, "count"),
                                      proj_split = c("none", "by_surf", "by_year"),
                                      last_est_year = x[[1]][1, "bayesTFR_present_year"]) {
     stopifnot(is.logical(incl_small_countries))
     if (!incl_small_countries) x <- remove_small_countries(x)
+
+    stat <- match.arg(stat)
+    stopifnot(is.logical(filter_zero_rows))
+    if (filter_zero_rows && !identical(stat, "count")) {
+        if (getOption("tfrSURFs.verbose")) {
+            message("'filter_zero_rows' has no effect when 'stat' != '\"count\"'; resetting to it to 'FALSE'.")
+        }
+        ## Reset to 'FALSE' to prevent lots of messages from the 'data.frame'
+        ## method.
+        filter_zero_rows <- FALSE
+    }
+
     return(tabulate_surf_stats(do.call("rbind", c(x, list(make.row.names = TRUE))),
                                stat = stat, geographies = geographies, filter_zero_rows = filter_zero_rows,
                                proj_split = proj_split,
@@ -158,7 +169,7 @@ tabulate_surf_stats.list <- function(x, stat = c("count", "avg_len"), incl_small
 ##' @export
 tabulate_surf_stats.data.frame <- function(x, stat = c("count", "avg_len"),
                                            geographies = c("area_name", "reg_name", "name", "sub_saharan_africa", "global"),
-                                           filter_zero_rows = TRUE,
+                                           filter_zero_rows = identical(stat, "count"),
                                            proj_split = c("none", "by_surf", "by_year"),
                                            last_est_year = x[1, "bayesTFR_present_year"]) {
 
@@ -168,6 +179,10 @@ tabulate_surf_stats.data.frame <- function(x, stat = c("count", "avg_len"),
     proj_split <- match.arg(proj_split)
     geographies <- match.arg(geographies, several.ok = TRUE)
     stopifnot(is.logical(filter_zero_rows))
+    if (getOption("tfrSURFs.verbose")) {
+        if (filter_zero_rows && !identical(stat, "count"))
+            message("'filter_zero_rows' has no effect when 'stat' != '\"count\"'.")
+    }
 
     ## -------* Functions
 
@@ -246,7 +261,8 @@ tabulate_surf_stats.data.frame <- function(x, stat = c("count", "avg_len"),
                                                         last_est_year = last_est_year),
                                     global = FALSE),
                          out)
-            if (filter_zero_rows) out <- out[out[["count"]] > 0, , drop = FALSE]
+            if (filter_zero_rows && identical(stat, "count"))
+                out <- out[out[["count"]] > 0, , drop = FALSE]
 
             ## vvv EARLY RETURN
             return(out)
@@ -291,15 +307,8 @@ tabulate_surf_stats.data.frame <- function(x, stat = c("count", "avg_len"),
     }
 
     ## Remove geographies with zero stats
-    if (filter_zero_rows) {
+    if (filter_zero_rows && identical(stat, "count")) {
         out <- out[out[["count"]] > 0, , drop = FALSE]
-        ## by_geog <- intersect(geographies, c("area_name", "reg_name", "name"))
-        ## by_geog <- intersect(by_geog, colnames(UNlocations_countries))
-        ## if (length(by_geog)) {
-        ##     out <- base::merge(x = unique(UNlocations_countries[, by_geog, drop = FALSE]),
-        ##                        y = out,
-        ##                        by = by_geog, all = TRUE)
-        ## }
     }
 
     ## -------* END

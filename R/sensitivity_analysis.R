@@ -439,7 +439,6 @@ make_alt_surfs_db_tables.list <- function(x, ...,
     if (is.null(names(x))) names(x) <- sapply(x, "[[", "id")
 
     out <- sapply(names(x), function(this_alt_id) {
-        this_x <- x[[this_alt_id]]
         make_alt_surfs_db_tables(this_alt_id,
                                     median_only = median_only,
                                     incl_small_countries = incl_small_countries,
@@ -505,13 +504,12 @@ make_alt_surfs_stats_tables <- function(x, ...) {
 make_alt_surfs_stats_tables.list <- function(x, ...,
                                              median_only = FALSE,
                                              incl_small_countries = FALSE,
-                                             filter_zero_rows = FALSE,
+                                             filter_zero_rows = identical(stat, "count"),
                                              overwrite = getOption("tfrSURFs.sensitivity_analysis_overwrite"),
                                              stat = c("count", "avg_len"),
                                              output_dir_name = getOption("tfrSURFs.sensitivity_analysis_output_dir_name")) {
     if (is.null(names(x))) names(x) <- sapply(x, "[[", "id")
     out <- sapply(names(x), function(this_alt_id) {
-        this_x <- x[[this_alt_id]]
         make_alt_surfs_stats_tables(this_alt_id,
                                     median_only = median_only,
                                     incl_small_countries = incl_small_countries,
@@ -531,7 +529,7 @@ make_alt_surfs_stats_tables.list <- function(x, ...,
 make_alt_surfs_stats_tables.character <- function(x,
                                                   median_only = FALSE,
                                                   incl_small_countries = FALSE,
-                                                  filter_zero_rows = FALSE,
+                                                  filter_zero_rows = identical(stat, "count"),
                                                   overwrite = getOption("tfrSURFs.sensitivity_analysis_overwrite"),
                                                   stat = c("count", "avg_len"),
                                                   output_dir_name = getOption("tfrSURFs.sensitivity_analysis_output_dir_name")) {
@@ -587,7 +585,7 @@ make_alt_surfs_stats_tables.character <- function(x,
 make_alt_surfs_variant_comparison_df <- function(alt_surfs, median_only = FALSE,
                                                  stat = c("count", "avg_len"),
                                                  incl_small_countries = FALSE,
-                                                 filter_zero_rows = FALSE,
+                                                 filter_zero_rows = identical(stat, "count"),
                                                  geographies = c("area_name", "reg_name", "name", "sub_saharan_africa", "global"),
                                                  timevar = c("alt_surf", "geog"),
                                                  output_dir_name = getOption("tfrSURFs.sensitivity_analysis_output_dir_name")) {
@@ -608,15 +606,14 @@ make_alt_surfs_variant_comparison_df <- function(alt_surfs, median_only = FALSE,
         rds_filename <-
             file.path(dir_list[["rds_dir"]],
                       make_alt_surfs_filenames(this_alt_id, median_only = median_only)[["rds"]])
-        out <-
-            c(out,
-              list(data.frame(
-                  var = this_alt_id,
-                  tabulate_surf_stats(readRDS(file = rds_filename),
-                                      stat = stat,
-                                      incl_small_countries = incl_small_countries,
-                                      filter_zero_rows = filter_zero_rows,
-                                      geographies = geographies))))
+        tmp <- tabulate_surf_stats(readRDS(file = rds_filename),
+                                   stat = stat,
+                                   incl_small_countries = incl_small_countries,
+                                   filter_zero_rows = filter_zero_rows,
+                                   geographies = geographies)
+        if (nrow(tmp)) {
+            out <- c(out, list(data.frame(var = this_alt_id, tmp)))
+        }
     }
 
     out <- do.call("rbind", out)
@@ -658,6 +655,13 @@ make_alt_surfs_variant_comparison_df <- function(alt_surfs, median_only = FALSE,
     colnames(out)[colnames(out) %in% newcols] <-
         gsub(paste0(stat, "."), "", colnames(out)[colnames(out) %in% newcols], fixed = TRUE)
 
+    ## Sort if countries
+
+    srt_geog <- intersect(c("area_name", "reg_name", "name", "sub_saharan_africa", "global"),
+                          colnames(out))
+    if (length(srt_geog))
+        out <- out[do.call("order", unname(out[, srt_geog])), ]
+
     return(out)
 }
 
@@ -669,7 +673,7 @@ make_alt_surfs_variant_comparison_table <- function(alt_surfs,
                                                     median_only = FALSE,
                                                     stat = c("count", "avg_len"),
                                                     incl_small_countries = FALSE,
-                                                    filter_zero_rows = FALSE,
+                                                    filter_zero_rows = identical(stat, "count"),
                                                     overwrite = getOption("tfrSURFs.sensitivity_analysis_overwrite"),
                                                     output_dir_name = getOption("tfrSURFs.sensitivity_analysis_output_dir_name")) {
 
@@ -711,10 +715,9 @@ make_alt_surfs_variant_comparison_table <- function(alt_surfs,
         tmp <- make_alt_surfs_variant_comparison_df(alt_surfs, stat = stat,
                                              incl_small_countries = incl_small_countries,
                                              median_only = median_only,
-                                             filter_zero_rows = FALSE,
+                                             filter_zero_rows = filter_zero_rows,
                                              geographies = z,
                                              timevar = tv)
-        if (filter_zero_rows) tmp <- tmp[tmp[[ncol(tmp)]] > 0, ]
         return(tmp)
     })
 
@@ -757,7 +760,6 @@ make_alt_surfs_periods_tables.list <- function(x, ...,
     if (is.null(names(x))) names(x) <- sapply(x, "[[", "id")
     table_type <- match.arg(table_type)
     out <- sapply(names(x), function(this_alt_id) {
-        this_x <- x[[this_alt_id]]
         make_alt_surfs_periods_tables(this_alt_id,
                                     median_only = median_only,
                                     incl_small_countries = incl_small_countries,

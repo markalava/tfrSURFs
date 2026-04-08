@@ -104,7 +104,7 @@ make_alt_surfs_stats_tables(x, ...)
   ...,
   median_only = FALSE,
   incl_small_countries = FALSE,
-  filter_zero_rows = FALSE,
+  filter_zero_rows = TRUE,
   overwrite = getOption("tfrSURFs.sensitivity_analysis_overwrite"),
   stat = c("count", "avg_len"),
   output_dir_name = getOption("tfrSURFs.sensitivity_analysis_output_dir_name")
@@ -114,7 +114,7 @@ make_alt_surfs_stats_tables(x, ...)
   x,
   median_only = FALSE,
   incl_small_countries = FALSE,
-  filter_zero_rows = FALSE,
+  filter_zero_rows = TRUE,
   overwrite = getOption("tfrSURFs.sensitivity_analysis_overwrite"),
   stat = c("count", "avg_len"),
   output_dir_name = getOption("tfrSURFs.sensitivity_analysis_output_dir_name")
@@ -125,7 +125,7 @@ make_alt_surfs_variant_comparison_df(
   median_only = FALSE,
   stat = c("count", "avg_len"),
   incl_small_countries = FALSE,
-  filter_zero_rows = FALSE,
+  filter_zero_rows = TRUE,
   geographies = c("area_name", "reg_name", "name", "sub_saharan_africa", "global"),
   timevar = c("alt_surf", "geog"),
   output_dir_name = getOption("tfrSURFs.sensitivity_analysis_output_dir_name")
@@ -136,7 +136,7 @@ make_alt_surfs_variant_comparison_table(
   median_only = FALSE,
   stat = c("count", "avg_len"),
   incl_small_countries = FALSE,
-  filter_zero_rows = FALSE,
+  filter_zero_rows = TRUE,
   overwrite = getOption("tfrSURFs.sensitivity_analysis_overwrite"),
   output_dir_name = getOption("tfrSURFs.sensitivity_analysis_output_dir_name")
 )
