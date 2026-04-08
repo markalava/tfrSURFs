@@ -91,14 +91,17 @@ ECHO.
 rem Rscript --no-save --no-restore -e "setwd('inst/slowTests'); for (nm in sort(list.files('.', pattern = '[.][RrSsQq]$'))) { source('0_setup.R'); if (!identical(nm, '0_setup.R')) source(file.path('.', nm)) }"
 rem if %ERRORLEVEL% GEQ 1 PAUSE
 
+CD inst\slowTests
 FOR %%F IN (*.R) DO (
 ECHO Running %%F
 Rscript "%%F"
-IF errorlevel 1 (
+IF %ERRORLEVEL% GEQ 1 (
 ECHO Error running %%F
 PAUSE 
 )
 )
+CD ..\..
+
 
 ECHO.
 ECHO.
