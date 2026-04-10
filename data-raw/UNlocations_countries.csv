@@ -10,7 +10,7 @@
 "Mauritius",480,"Eastern Africa","Africa",TRUE,FALSE
 "Mayotte",175,"Eastern Africa","Africa",TRUE,FALSE
 "Mozambique",508,"Eastern Africa","Africa",TRUE,FALSE
-"Reunion",638,"Eastern Africa","Africa",TRUE,FALSE
+"Réunion",638,"Eastern Africa","Africa",TRUE,FALSE
 "Rwanda",646,"Eastern Africa","Africa",TRUE,FALSE
 "Seychelles",690,"Eastern Africa","Africa",TRUE,FALSE
 "Somalia",706,"Eastern Africa","Africa",TRUE,FALSE
@@ -43,7 +43,7 @@
 "Benin",204,"Western Africa","Africa",TRUE,FALSE
 "Burkina Faso",854,"Western Africa","Africa",TRUE,FALSE
 "Cabo Verde",132,"Western Africa","Africa",TRUE,FALSE
-"Cote d'Ivoire",384,"Western Africa","Africa",TRUE,FALSE
+"Côte d'Ivoire",384,"Western Africa","Africa",TRUE,FALSE
 "Gambia",270,"Western Africa","Africa",TRUE,FALSE
 "Ghana",288,"Western Africa","Africa",TRUE,FALSE
 "Guinea",324,"Western Africa","Africa",TRUE,FALSE
@@ -105,7 +105,7 @@
 "Saudi Arabia",682,"Western Asia","Asia",FALSE,FALSE
 "State of Palestine",275,"Western Asia","Asia",FALSE,FALSE
 "Syrian Arab Republic",760,"Western Asia","Asia",FALSE,FALSE
-"Turkiye",792,"Western Asia","Asia",FALSE,FALSE
+"Türkiye",792,"Western Asia","Asia",FALSE,FALSE
 "United Arab Emirates",784,"Western Asia","Asia",FALSE,FALSE
 "Yemen",887,"Western Asia","Asia",FALSE,FALSE
 "Belarus",112,"Eastern Europe","Europe",FALSE,FALSE
@@ -167,7 +167,7 @@
 "British Virgin Islands",92,"Caribbean","Latin America and the Caribbean",FALSE,TRUE
 "Cayman Islands",136,"Caribbean","Latin America and the Caribbean",FALSE,TRUE
 "Cuba",192,"Caribbean","Latin America and the Caribbean",FALSE,FALSE
-"Curacao",531,"Caribbean","Latin America and the Caribbean",FALSE,FALSE
+"Curaçao",531,"Caribbean","Latin America and the Caribbean",FALSE,FALSE
 "Dominica",212,"Caribbean","Latin America and the Caribbean",FALSE,TRUE
 "Dominican Republic",214,"Caribbean","Latin America and the Caribbean",FALSE,FALSE
 "Grenada",308,"Caribbean","Latin America and the Caribbean",FALSE,FALSE

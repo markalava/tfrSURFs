@@ -13,7 +13,7 @@ tabulate_surf_stats(x, ...)
   stat = c("count", "avg_len"),
   incl_small_countries = TRUE,
   geographies = c("area_name", "reg_name", "name", "sub_saharan_africa", "global"),
-  filter_zero_rows = TRUE,
+  filter_zero_rows = identical(stat, "count"),
   proj_split = c("none", "by_surf", "by_year"),
   last_est_year = x[[1]][1, "bayesTFR_present_year"]
 )
@@ -22,7 +22,7 @@ tabulate_surf_stats(x, ...)
   x,
   stat = c("count", "avg_len"),
   geographies = c("area_name", "reg_name", "name", "sub_saharan_africa", "global"),
-  filter_zero_rows = TRUE,
+  filter_zero_rows = identical(stat, "count"),
   proj_split = c("none", "by_surf", "by_year"),
   last_est_year = x[1, "bayesTFR_present_year"]
 )
@@ -40,9 +40,8 @@ than 90000 in mid 2024?}
 \item{geographies}{Cross-classifying geographies for the table. These must
 be columns in \code{x}.}
 
-\item{filter_zero_rows}{Logical; remove rows where \code{stat} is zero for
-all columns. For example, don't include countries with no tfrSURFs in the
-table?}
+\item{filter_zero_rows}{Logical; remove rows for countries or regions with
+no tfrSURFs. Only applicable if \code{stat = "count"}.}
 
 \item{proj_split}{Character; determines how the tfrSURFs are split between
 estimation and projection types. See \dQuote{Details}.}
