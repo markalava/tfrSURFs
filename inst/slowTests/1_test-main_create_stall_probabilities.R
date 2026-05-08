@@ -122,7 +122,7 @@ test_that("'make_tfr_surfs' works on multiple countries with a variety of argume
 
     results <-
         expect_error(
-            foreach(param_i = seq_len(nrow(param_df))
+            foreach(param_i = seq_len(nrow(param_df)),
                     .packages = c("testthat", "tfrSURFs")) %dopar% {
 
                 pars <- param_df[param_i, , drop = FALSE]
