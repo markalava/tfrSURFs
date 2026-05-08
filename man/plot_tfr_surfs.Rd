@@ -26,9 +26,10 @@ plot_tfr_surfs(x, ...)
   add_range_regions = TRUE,
   add_est_proj_ref_line = TRUE,
   add_Schoumaker_stalls = isTRUE(any(x[["Schoumaker_stall_any"]])),
-  maximal_legend = FALSE,
   add_prob_TFR_surfs = isTRUE(any(x[["surf_year"]])),
   add_prob_TFR_surf_projections = FALSE,
+  maximal_legend = FALSE,
+  surf_prob_geom = c("line", "step"),
   xlim_plot = c(1950, 2050),
   ylim_plot = NULL,
   plot_ann = NULL,
@@ -60,15 +61,18 @@ the first projection year?}
 \item{add_Schoumaker_stalls}{Logical; add shading to show where stalls were
 identified by \cite{Schoumaker (2019)}.}
 
-\item{maximal_legend}{Logical; show all SURF and Schoumaker stall
-types in the legend, even if only a subset actually occur?}
-
 \item{add_prob_TFR_surfs}{Logical; add shading to show where probabilistic
 surfs were identified}
 
 \item{add_prob_TFR_surf_projections}{Logical; \emph{if}
 \code{add_prob_TFR_surfs} is \code{TRUE}, should the shading extend into
 the projection period?}
+
+\item{maximal_legend}{Logical; show all SURF and Schoumaker stall types in
+the legend, even if only a subset actually occur?}
+
+\item{surf_prob_geom}{Character; should SURF probabilities be plotted using
+\code{\link{ggplot2::geom_line}} or \code{\link{ggplot2::geom_step}}?}
 
 \item{xlim_plot, ylim_plot}{Limits for x- and y-axes.}
 

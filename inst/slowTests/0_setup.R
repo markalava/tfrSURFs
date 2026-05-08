@@ -148,10 +148,16 @@ make_plot_tfr_surfs_param_df <- function(plot_fn) {
                          datestamp = c(TRUE, FALSE),
                          stringsAsFactors = FALSE)
         if (!grepl("^plot_surfs_probs", plot_fn))
-            arg_list <- c(arg_list, list(yvar = c("surf_prob", "TFR_median")))
+            arg_list <- c(arg_list, list(yvar = c("surf_prob", "TFR_median"),
+                                         surf_prob_geom = c("line", "step")))
         outdf <- do.call("expand.grid", args = arg_list)
-        if (!grepl("^plot_surfs_probs", plot_fn))
+        if (!grepl("^plot_surfs_probs", plot_fn)) {
             outdf <- outdf[!(outdf[["yvar"]] == "TFR_median" & outdf[["add_prob_ref_lines"]]), ]
+        } else {
+            outdf <-
+                outdf[!(outdf[["yvar"]] == "TFR_median" & !(outdf[["surf_prob_geom"]] == "line")), ]
+                                # Only need one set of geom if yvar is TFR_median
+        }
     }
 
     return(outdf)

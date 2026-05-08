@@ -243,7 +243,26 @@ tabulate_surf_periods(surfs_df, table_type = "concise")
 
 plot_surfs_probs(x = surfs_df, x_alt = surfs_median_df,
                  add_prob_TFR_surf_projections = TRUE,
-                  plot_ann = "TEST annotation", datestamp = TRUE)
+                 plot_ann = "TEST annotation", datestamp = TRUE)
+
+### -----------------------------------------------------------------------------
+### ** Slovakia
+
+## debug(make_tfr_surfs)
+surfs_df <- make_tfr_surfs(sim.dir = bayesTFR_output_dir,
+                           min_surf_length = 1,
+                           country_code = get_country_codes("Slovakia"))
+
+surfs_median_df <- make_tfr_surfs(sim.dir = bayesTFR_output_dir,
+                                  min_surf_length = 1,
+                                  country_code = get_country_codes("Slovakia"),
+                                  median_only = TRUE)
+
+plot_tfr_surfs(x = surfs_df, x_alt = surfs_median_df,
+               yvar = "surf_prob",
+               surf_prob_geom = "step",
+               add_prob_TFR_surf_projections = TRUE,
+               plot_ann = "TEST annotation", datestamp = TRUE)
 
 ###-----------------------------------------------------------------------------
 ### ** ALL

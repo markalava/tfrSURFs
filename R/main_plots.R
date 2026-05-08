@@ -54,7 +54,9 @@ add_plot_datestamp <- function(gp) {
 ##'
 ##' Uses \pkg{ggplot2} to generate line plots showing time periods where TFR
 ##' surfs were detected. If \code{yvar = "surf_prob"}, the surf probabilities
-##' are plotted; otherwise the total fertility rates (TFRs) are plotted.
+##' are plotted (see argument \code{surf_prob_geom}); otherwise the total
+##' fertility rates (TFRs) are plotted. TFRs and SURF probabilities are plotted
+##' at mid-year on the x-axis.
 ##'
 ##' @param x Output of \code{\link{make_tfr_surfs}}.
 ##' @param x_alt Alternative results to compare with \code{x} by adding
@@ -72,8 +74,10 @@ add_plot_datestamp <- function(gp) {
 ##'     the first projection year?
 ##' @param add_Schoumaker_stalls Logical; add shading to show where stalls were
 ##'     identified by \cite{Schoumaker (2019)}.
-##' @param maximal_legend Logical; show all SURF and Schoumaker stall
-##'     types in the legend, even if only a subset actually occur?
+##' @param maximal_legend Logical; show all SURF and Schoumaker stall types in
+##'     the legend, even if only a subset actually occur?
+##' @param surf_prob_geom Character; should SURF probabilities be plotted using
+##'     \code{\link{ggplot2::geom_line}} or \code{\link{ggplot2::geom_step}}?
 ##' @param add_prob_TFR_surfs Logical; add shading to show where probabilistic
 ##'     surfs were identified
 ##' @param add_prob_TFR_surf_projections Logical; \emph{if}
@@ -138,9 +142,10 @@ plot_tfr_surfs.data.frame <- function(x,
                                       add_range_regions = TRUE,
                                       add_est_proj_ref_line = TRUE,
                                       add_Schoumaker_stalls = isTRUE(any(x[["Schoumaker_stall_any"]])),
-                                      maximal_legend = FALSE,
                                       add_prob_TFR_surfs = isTRUE(any(x[["surf_year"]])),
                                       add_prob_TFR_surf_projections = FALSE,
+                                      maximal_legend = FALSE,
+                                      surf_prob_geom = c("line", "step"),
                                       xlim_plot = c(1950, 2050),
                                       ylim_plot = NULL,
                                       plot_ann = NULL,
@@ -241,6 +246,8 @@ plot_tfr_surfs.data.frame <- function(x,
     stopifnot(is.logical(add_prob_TFR_surfs))
     stopifnot(is.logical(add_prob_TFR_surf_projections))
     stopifnot(is.logical(maximal_legend))
+
+    surf_prob_geom <- match.arg(surf_prob_geom)
 
     stopifnot(is.logical(datestamp))
 
@@ -344,6 +351,8 @@ plot_tfr_surfs.data.frame <- function(x,
     }
 
     ## -------** Create Stall Period Dataframes
+
+
 
     surf_dummy_df <- data.frame(indicator = unique(x[["indicator"]]),
                                 x = median(x[, "year"]),
@@ -579,9 +588,11 @@ plot_tfr_surfs.data.frame <- function(x,
 
     ## -------** Indicator Lines and Ribbons
 
-    gp <- gp + ggplot2::geom_line(colour = line_colour, na.rm = TRUE)
-
     if (yvar %in% c("TFR_median")) {
+
+        gp <- gp + ggplot2::geom_line(ggplot2::aes(x = .data[["year"]] + 0.5),
+                                      colour = line_colour, na.rm = TRUE)
+
         yvar_indicator <- gsub("_median", "", yvar)
         if (paste0(yvar_indicator, ".10pc") %in% colnames(x) &&
             paste0(yvar_indicator, ".90pc") %in% colnames(x)) {
@@ -599,12 +610,16 @@ plot_tfr_surfs.data.frame <- function(x,
                                      alpha = 0.15, fill = ribbon_fill)
         }
 
-    } else if (identical(yvar, "annual_change_50%")) {
-        gp <- gp +
-            ggplot2::geom_line(ggplot2::aes(y = `annual_change_10pc`), linetype = 2, colour = line_colour, na.rm = TRUE) +
-            ggplot2::geom_line(ggplot2::aes(y = `annual_change_90pc`), linetype = 2, colour = line_colour, na.rm = TRUE) +
-            ggplot2::geom_ribbon(ggplot2::aes(ymin = `annual_change_2.5pc`, ymax = `annual_change_97.5pc`),
-                                 alpha = 0.15, fill = ribbon_fill)
+    } else if (identical(yvar, "surf_prob")) {
+
+        if (identical(surf_prob_geom, "step")) {
+            gp <- gp + ggplot2::geom_step(colour = line_colour, na.rm = TRUE)##  +
+                ## ggplot2::geom_col(just = 0, alpha = 0.1, na.rm = TRUE)
+        } else {
+            gp <- gp + ggplot2::geom_line(ggplot2::aes(x = .data[["year"]] + 0.5),
+                                              colour = line_colour, na.rm = TRUE)
+
+        }
     }
 
     if (add_est_proj_ref_line) {
