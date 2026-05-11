@@ -45,6 +45,25 @@ bayesTFR_output_dir <-
 ##                         country_code = c(654, 398),
 ##                         incl_small_countries = TRUE)
 
+###-----------------------------------------------------------------------------
+### ** Viet Nam
+
+## Has an extra SURF when exceedance condition turned off.
+
+surfs_df_exc <- make_tfr_surfs(sim.dir = bayesTFR_output_dir,
+                               country_code = get_country_codes("Viet Nam"))
+
+plot_surfs_probs(surfs_df_exc, plot_ann = "Default")
+
+surfs_df_no_cont <- make_tfr_surfs(sim.dir = bayesTFR_output_dir,
+                                   country_code = get_country_codes("Viet Nam"),
+                                   continuation_condition = "NONE")
+
+dev.new()
+plot_surfs_probs(surfs_df_no_cont, plot_ann = "No continuation")
+
+## Exploration
+
 
 ###-----------------------------------------------------------------------------
 ### ** Zimbabwe
