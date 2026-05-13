@@ -245,6 +245,11 @@ plot_surfs_probs(x = surfs_df, x_alt = surfs_median_df,
                  add_prob_TFR_surf_projections = TRUE,
                  plot_ann = "TEST annotation", datestamp = TRUE)
 
+dev.new()
+plot_surfs_probs(x = surfs_df, x_alt = surfs_median_df,
+                 add_prob_TFR_surf_projections = FALSE,
+                 plot_ann = "TEST annotation", datestamp = TRUE)
+
 ### -----------------------------------------------------------------------------
 ### ** Slovakia
 

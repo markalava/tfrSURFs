@@ -984,3 +984,54 @@ make_alt_surfs_plots.character <- function(x, file_type = c("pdf", "svg"),
     options(op)
     return(invisible(filename_s))
 }
+
+
+##' Interactive plot to compare SURF alternatives
+##'
+##' Applies \code{link{plot_surfs_probs}} to two or three different SURF
+##' alternatives so they can be compared. Unlike the
+##' \code{\link{make_alt_surfs_plots}}, this function is designed for
+##' interactive use and the plots are not saved.
+##'
+##' @param cc Country code
+##' @param alt_id_1,alt_id_2,alt_id_3 IDs of alternatives to plot; the third is optional.
+##' @return A \pkg{ggplot2} plot.
+##' @author Mark C Wheldon
+##'
+##' @rdname sensitivity_analysis_helpers
+##' @keywords internal
+##'
+##' @examples
+##' \dontrun{
+##' plot_alt_surfs(get_country_codes("Paraguay"), "default", "bandwidth_5")
+##' }
+##'
+##' @export
+plot_alt_surfs <- function(cc, alt_id_1, alt_id_2, alt_id_3 = NULL) {
+    cc <- as.character(cc)
+    gp1 <- plot_surfs_probs(readRDS(get_rds_filepath(alt_id_1))[[cc]],
+                            x_alt = readRDS(get_rds_filepath(alt_id_1, median_only = TRUE))[[cc]],
+                             plot_ann = paste0("ID: ", alt_id_1), datestamp = FALSE)
+
+    gp2 <- plot_surfs_probs(readRDS(get_rds_filepath(alt_id_2))[[cc]],
+                            x_alt = readRDS(get_rds_filepath(alt_id_2, median_only = TRUE))[[cc]],
+                            plot_ann = paste0("ID: ", alt_id_2), datestamp = FALSE)
+
+    if (is.null(alt_id_3)) {
+    ggpubr::ggarrange(gp1, gp2, nrow =2) |>
+        ggpubr::annotate_figure(fig.lab = paste0(format(Sys.time(), "%Y-%m-%d %H:%M"),
+                                                 "\nPackage version: ",
+                                                 packageVersion("tfrSURFs")),
+                                fig.lab.pos = "bottom.right",
+                                fig.lab.size = 7)
+    } else {
+        gp3 <- plot_surfs_probs(readRDS(get_rds_filepath(alt_id_3))[[cc]],
+                                plot_ann = paste0("ID: ", alt_id_3), datestamp = FALSE)
+        ggpubr::ggarrange(gp1, gp2, gp3, nrow = 3) |>
+            ggpubr::annotate_figure(fig.lab = paste0(format(Sys.time(), "%Y-%m-%d %H:%M"),
+                                                     "\nPackage version: ",
+                                                     packageVersion("tfrSURFs")),
+                                    fig.lab.pos = "bottom.right",
+                                    fig.lab.size = 7)
+    }
+}
