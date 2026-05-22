@@ -1,12 +1,12 @@
 ################################################################################
 ###
-### DATE CREATED: 2025-09-15
+### DATE CREATED: 2026-03-26
 ###
 ### AUTHOR: Mark Wheldon
 ###
-### PROJECT: Probabilistic tfrSURFs
+### PROJECT: Probabilistic TFR Stalls
 ###
-### DESCRIPTION: Create main results for manuscript.
+### DESCRIPTION: Create results for main manuscript.
 ###
 ###-----------------------------------------------------------------------------
 ###
@@ -34,7 +34,16 @@ options(tfrSURFs.verbose = TRUE)
 ### ** Path to bayesTFR trajectories
 
 bayesTFR_output_dir <-
-    stop("Specify directory to bayesTFR trajectories. These can be generated using the bayesTFR package (https://github.com/PPgp/bayesTFR; see below for code) or downloaded from hmessagettps://bayespop.csss.washington.edu/data/bayesTFR/TFR1simWPP2024.tgz)")
+    ## message("Specify directory to bayesTFR trajectories. These can be generated using the bayesTFR package (https://github.com/PPgp/bayesTFR; see below for code) or downloaded from https://bayespop.csss.washington.edu/data/bayesTFR/TFR1simWPP2024.tgz)")
+## TEMP:
+    file.path(Sys.getenv("MY_LOCAL_MODEL_RUNS_DIR"),
+              "bayesTFR_wpp2024/TFR1simWPP2024/TFR1unc/sim20241101")
+
+## ## TEMP: TESTING ONLY!!
+## source(here::here("inst", "slowTests", "0_setup.R"))
+## bayesTFR_output_dir <-
+##     setup_bayesTFR_test_data_temp_dir(here::here("data-raw", "bigData",
+##                                                  "bayesTFR_short_test.tar.gz"))
 
 ###-----------------------------------------------------------------------------
 ### ** Outputs of this script
@@ -52,6 +61,35 @@ for (x in dir_list) {
     if (!dir.exists(x)) dir.create(x, recursive = TRUE)
 }
 
+surfs_list_rda_filename <- file.path(dir_list[["rdata_dir"]], "tfr_surfs_lst.rda")
+surfs_median_list_rda_filename <-
+    file.path(dir_list[["rdata_dir"]], "tfr_surfs_median_lst.rda")
+
+###-----------------------------------------------------------------------------
+### * TFR Trajectories
+
+### Generate probabilistic projections of TFR using 'bayesTFR' package, or
+### download from
+### 'https://bayespop.csss.washington.edu/data/bayesTFR/TFR1simWPP2024.tgz' and
+### set 'bayesTFR_output_dir' to the location of the results.
+
+## nr.chains <- 6
+## total.iter <- 5000
+## thin <- 10
+
+## mc <- run.tfr.mcmc(output.dir = bayesTFR_output_dir, iter = total.iter, thin = thin,
+##                    nr.chains = nr.chains, annual = TRUE, ar.phase2 = TRUE, uncertainty = TRUE,
+##                    ## present.year = 2023,
+##                    wpp.year = 2022,
+##                    parallel = TRUE,
+##                    replace.output = FALSE)
+
+## pred <- tfr.predict(sim.dir = bayesTFR_output_dir,
+##                     nr.traj = dim(get.tfr.estimation(sim.dir = bayesTFR_output_dir,
+##                                                  country = 4)$tfr_table)[1],
+##                     burnin = 0, burnin3 = 0,
+##                     uncertainty = TRUE, replace.output = TRUE)
+
 ###-----------------------------------------------------------------------------
 ### * Probabilistic SURFs
 
@@ -64,28 +102,30 @@ get_arg_defs("make_tfr_surfs")
 ###-----------------------------------------------------------------------------
 ### *** Probabilistic
 
-## RUN MAIN FUNCTION
-tfr_surfs_lst <- make_tfr_surfs(sim.dir = bayesTFR_output_dir)
+if (file.exists(surfs_list_rda_filename)) {
+    ## Load (if re-analyzing)
+    load(surfs_list_rda_filename)
+} else {
+    ## RUN MAIN FUNCTION
+    tfr_surfs_lst <- make_tfr_surfs(sim.dir = bayesTFR_output_dir)
 
-## Save Results
-save(tfr_surfs_lst, file = file.path(dir_list[["rdata_dir"]], "tfr_surfs_lst.rda"))
-
-## Load (if re-analyzing)
-load(file.path(dir_list[["rdata_dir"]], "tfr_surfs_lst.rda"))
+    ## Save Results
+    save(tfr_surfs_lst, file = surfs_list_rda_filename)
+}
 
 ###-----------------------------------------------------------------------------
 ### *** Medians
 
-## RUN MAIN FUNCTION
-tfr_surfs_median_lst <-
-    make_tfr_surfs(sim.dir = bayesTFR_output_dir, median_only = TRUE)
+if (file.exists(surfs_median_list_rda_filename)) {
+    ## Load (if re-analyzing)
+    load(surfs_median_list_rda_filename)
+} else {
+    ## RUN MAIN FUNCTION
+    tfr_surfs_lst <- make_tfr_surfs(sim.dir = bayesTFR_output_dir)
 
-## Save Results
-save(tfr_surfs_median_lst,
-     file = file.path(dir_list[["rdata_dir"]], "tfr_surfs_median_lst.rda"))
-
-## Load (if re-analyzing)
-load(file.path(dir_list[["rdata_dir"]], "tfr_surfs_median_lst.rda"))
+    ## Save Results
+    save(tfr_surfs_lst, file = surfs_median_list_rda_filename)
+}
 
 ###-----------------------------------------------------------------------------
 ### ** Export 'Database' of SURFs
@@ -98,7 +138,7 @@ data(output_column_definitions)
 write.xlsx(list(definitions = output_column_definitions,
                 probabilistic = do.call("rbind", tfr_surfs_lst),
                 non_probabilistic = do.call("rbind", tfr_surfs_median_lst)),
-           file = file.path(dir_list[["tables_dir"]], "Appendix_2_Table_C.xlsx"),
+           file = file.path(dir_list[["tables_dir"]], "surfs_db.xlsx"),
            asTable = TRUE, tableStyle = "TableStyleMedium3")
 
 ###-----------------------------------------------------------------------------
@@ -129,7 +169,7 @@ surfs_tbl_medians <- tabulate_surf_periods(tfr_surfs_median_lst,
 
 write.xlsx(list(probabilistic = surfs_tbl,
                 non_probabilistic = surfs_tbl_medians),
-           file = file.path(dir_list[["tables_dir"]], "Appendix_2_Table_B.xlsx"),
+           file = file.path(dir_list[["tables_dir"]], "surf_periods_concise.xlsx"),
            asTable = TRUE, tableStyle = "TableStyleMedium2")
 
 
@@ -275,13 +315,13 @@ surf_count_country <-
                                        incl_small_countries = FALSE,
                                        filter_zero_rows = FALSE,
                                         geographies = c("area_name", "reg_name", "name"),
-                                        proj_split = "none")),
+                                        proj_split = "by_year")),
         data.frame(SURF_type = "medians_only",
                    tabulate_surf_stats(tfr_surfs_median_lst, stat = "count",
                                        incl_small_countries = FALSE,
                                        filter_zero_rows = FALSE,
                                        geographies = c("area_name", "reg_name", "name"),
-                                        proj_split = "none")))
+                                       proj_split = "by_year")))
 
 ## write.xlsx(surf_count_country,
 ##           file = file.path(dir_list[["tables_dir"]], "surf_count_by_country.xlsx"),
@@ -297,13 +337,13 @@ surf_count_subregion <-
                                        incl_small_countries = FALSE,
                                        filter_zero_rows = FALSE,
                                        geographies = c("area_name", "reg_name", "global"),
-                                        proj_split = "none")),
+                                        proj_split = "by_year")),
         data.frame(SURF_type = "medians_only",
                    tabulate_surf_stats(tfr_surfs_median_lst, stat = "count",
                                        incl_small_countries = FALSE,
                                        filter_zero_rows = FALSE,
                                        geographies = c("area_name", "reg_name", "global"),
-                                        proj_split = "none")))
+                                        proj_split = "by_year")))
 
 ## write.xlsx(surf_count_subregion,
 ##           file = file.path(dir_list[["tables_dir"]], "surf_count_by_subregion.xlsx"),
@@ -319,13 +359,13 @@ surf_count_sub_sah_afr <-
                                        incl_small_countries = FALSE,
                                        filter_zero_rows = FALSE,
                                        geographies = c("sub_saharan_africa", "global"),
-                                        proj_split = "none")),
+                                        proj_split = "by_year")),
         data.frame(SURF_type = "medians_only",
                    tabulate_surf_stats(tfr_surfs_median_lst, stat = "count",
                                        incl_small_countries = FALSE,
                                        filter_zero_rows = FALSE,
                                        geographies = c("sub_saharan_africa", "global"),
-                                        proj_split = "none")))
+                                        proj_split = "by_year")))
 
 ## write.xlsx(surf_count_sub_sah_afr,
 ##           file = file.path(dir_list[["tables_dir"]], "surf_count_by_sub_sah_afr.xlsx"),
@@ -341,13 +381,13 @@ surf_count_region <-
                                        incl_small_countries = FALSE,
                                        filter_zero_rows = FALSE,
                                        geographies = c("area_name", "reg_name", "global"),
-                                        proj_split = "none")),
+                                        proj_split = "by_year")),
         data.frame(SURF_type = "medians_only",
                    tabulate_surf_stats(tfr_surfs_median_lst, stat = "count",
                                        incl_small_countries = FALSE,
                                        filter_zero_rows = FALSE,
                                        geographies = c("area_name", "reg_name", "global"),
-                                        proj_split = "none")))
+                                        proj_split = "by_year")))
 
 ## write.xlsx(surf_count_region,
 ##            file = file.path(dir_list[["tables_dir"]], "surf_count_by_region.xlsx"),
@@ -366,13 +406,13 @@ surf_len_country <-
                                        incl_small_countries = FALSE,
                                        filter_zero_rows = FALSE,
                                        geographies = c("area_name", "reg_name", "name", "global"),
-                                       proj_split = "none")),
+                                       proj_split = "by_year")),
         data.frame(SURF_type = "medians_only",
                    tabulate_surf_stats(tfr_surfs_median_lst, stat = "avg_len",
                                        incl_small_countries = FALSE,
                                        filter_zero_rows = FALSE,
                                        geographies = c("area_name", "reg_name", "name", "global"),
-                                       proj_split = "none")))
+                                       proj_split = "by_year")))
 
 ## write.xlsx(surf_len_country,
 ##            file = file.path(dir_list[["tables_dir"]], "surf_lengths_by_country.xlsx"),
@@ -388,13 +428,13 @@ surf_len_subregion <-
                                        incl_small_countries = FALSE,
                                        filter_zero_rows = FALSE,
                                        geographies = c("area_name", "reg_name", "global"),
-                                         proj_split = "none")),
+                                         proj_split = "by_year")),
         data.frame(SURF_type = "medians_only",
                    tabulate_surf_stats(tfr_surfs_median_lst, stat = "avg_len",
                                        incl_small_countries = FALSE,
                                        filter_zero_rows = FALSE,
                                        geographies = c("area_name", "reg_name", "global"),
-                                         proj_split = "none")))
+                                         proj_split = "by_year")))
 
 ## write.xlsx(surf_len_subregion,
 ##            file = file.path(dir_list[["tables_dir"]], "surf_lengths_by_subregion.xlsx"),
@@ -420,13 +460,13 @@ surf_len_sub_sah_afr <-
                                        incl_small_countries = FALSE,
                                        filter_zero_rows = FALSE,
                                        geographies = c("sub_saharan_africa", "global"),
-                                         proj_split = "none")),
+                                         proj_split = "by_year")),
         data.frame(SURF_type = "medians_only",
                    tabulate_surf_stats(tfr_surfs_median_lst, stat = "avg_len",
                                        incl_small_countries = FALSE,
                                        filter_zero_rows = FALSE,
                                        geographies = c("sub_saharan_africa", "global"),
-                                         proj_split = "none")))
+                                         proj_split = "by_year")))
 
 ## write.xlsx(surf_len_sub_sah_afr,
 ##            file = file.path(dir_list[["tables_dir"]], "surf_lengths_by_sub_sah_afr.xlsx"),
@@ -442,13 +482,13 @@ surf_len_region <-
                                        incl_small_countries = FALSE,
                                        filter_zero_rows = FALSE,
                                        geographies = c("area_name", "global"),
-                                         proj_split = "none")),
+                                         proj_split = "by_year")),
         data.frame(SURF_type = "medians_only",
                    tabulate_surf_stats(tfr_surfs_median_lst, stat = "avg_len",
                                        incl_small_countries = FALSE,
                                        filter_zero_rows = FALSE,
                                        geographies = c("area_name", "global"),
-                                         proj_split = "none")))
+                                         proj_split = "by_year")))
 
 ## write.xlsx(surf_len_region,
 ##            file = file.path(dir_list[["tables_dir"]], "surf_lengths_by_region.xlsx"),
@@ -497,7 +537,7 @@ write.xlsx(list(probabilistic = subset(surf_stats_subreg, SURF_type == "probabil
                                        select = -SURF_type),
                 non_probabilistic = subset(surf_stats_subreg, SURF_type == "medians_only",
                                       select = -SURF_type)),
-           file = file.path(dir_list[["tables_dir"]], "Appendix_2_Table_A.xlsx"),
+           file = file.path(dir_list[["tables_dir"]], "surf_stats_by_subreg.xlsx"),
            asTable = TRUE, tableStyle = "TableStyleMedium2",
            keepNA = TRUE, na.string = "-")
 

@@ -398,12 +398,13 @@ make_alt_surfs.tfr_surfs_args_list <- function(x,
 ##' @export
 get_rds_filepath <- function(alt_id,
                              median_only = FALSE,
-                             output_dir_name = getOption("tfrSURFs.sensitivity_analysis_output_dir_name"),
-                             overwrite = getOption("tfrSURFs.sensitivity_analysis_overwrite")) {
+                             output_dir_name = getOption("tfrSURFs.sensitivity_analysis_output_dir_name")) {
     dir_list <- make_alt_surfs_output_dir_list(alt_id, output_dir_name = output_dir_name, create = FALSE)
     rds_filename <-
         file.path(dir_list[["rds_dir"]],
                   make_alt_surfs_filenames(alt_id, median_only = median_only)[["rds"]])
+    if (!file.exists(rds_filename))
+        stop("'", rds_filename, "' not found. Make sure you have run the sensitivity analysis script and check that 'getOption(\"tfrSURFs.sensitivity_analysis_output_dir_name\")' points to the directory containing the results.,")
     return(rds_filename)
 }
 

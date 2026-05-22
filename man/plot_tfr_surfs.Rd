@@ -87,7 +87,9 @@ A \pkg{ggplot2} object, which will be displayed by default.
 \description{
 Uses \pkg{ggplot2} to generate line plots showing time periods where TFR
 surfs were detected. If \code{yvar = "surf_prob"}, the surf probabilities
-are plotted; otherwise the total fertility rates (TFRs) are plotted.
+are plotted (see argument \code{surf_prob_geom}); otherwise the total
+fertility rates (TFRs) are plotted. TFRs and SURF probabilities are plotted
+at mid-year on the x-axis.
 }
 \references{
 Schoumaker, B. (2019), \dQuote{Stalls in Fertility Transitions in

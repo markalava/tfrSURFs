@@ -19,7 +19,6 @@
 
 library(tfrSURFs)
 
-stopifnot(requireNamespace("FPPlateaus", quietly = TRUE))
 stopifnot(requireNamespace("gdata", quietly = TRUE))
 stopifnot(requireNamespace("here", quietly = TRUE))
 stopifnot(requireNamespace("openxlsx", quietly = TRUE))

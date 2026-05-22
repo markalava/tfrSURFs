@@ -24,6 +24,7 @@
 \alias{make_alt_surfs_plots}
 \alias{make_alt_surfs_plots.list}
 \alias{make_alt_surfs_plots.character}
+\alias{plot_alt_surfs}
 \title{Sensitivity analysis helper functions}
 \usage{
 make_tfr_surfs_arg_list(
@@ -73,8 +74,7 @@ make_alt_surfs(x, ...)
 get_rds_filepath(
   alt_id,
   median_only = FALSE,
-  output_dir_name = getOption("tfrSURFs.sensitivity_analysis_output_dir_name"),
-  overwrite = getOption("tfrSURFs.sensitivity_analysis_overwrite")
+  output_dir_name = getOption("tfrSURFs.sensitivity_analysis_output_dir_name")
 )
 
 make_alt_surfs_db_tables(x, ...)
@@ -184,6 +184,8 @@ make_alt_surfs_plots(x, ...)
   overwrite = getOption("tfrSURFs.sensitivity_analysis_overwrite"),
   output_dir_name = getOption("tfrSURFs.sensitivity_analysis_output_dir_name")
 )
+
+plot_alt_surfs(cc, alt_id_1, alt_id_2, alt_id_3 = NULL)
 }
 \arguments{
 \item{id}{Character; short ID name for the alternative SURF definition.}
@@ -236,6 +238,10 @@ the most granular of \code{geographies} is used.}
 \item{add_median_TFR_surfs}{Logical; add the medians-only
 \code{\link[=ggplot2::geom_rug]{rugs}} to the plot?}
 
+\item{cc}{Country code}
+
+\item{alt_id_1, alt_id_2, alt_id_3}{IDs of alternatives to plot; the third is optional.}
+
 \item{verbose}{Logical; print informational messages?}
 
 \item{fn_suff}{Filename suffix.}
@@ -245,6 +251,9 @@ created by \code{\link{make_alt_surfs}}. If this is
 \code{NULL}, the results list will be loaded from files pointed to by
 \code{dir_list}.}
 }
+\value{
+A \pkg{ggplot2} plot.
+}
 \description{
 These functions are used in scripts that generate, save, and compare the
 results for variations of the SURF conditions. To define a SURF variant, use
@@ -253,6 +262,11 @@ combined to create a list of alternative SURF definitions (see
 \dQuote{Examples}). Each variant is saved to its own subfolder of
 \code{output_dir_name} to allow for the addition of other variants at a
 later time.
+
+Applies \code{link{plot_surfs_probs}} to two or three different SURF
+alternatives so they can be compared. Unlike the
+\code{\link{make_alt_surfs_plots}}, this function is designed for
+interactive use and the plots are not saved.
 }
 \details{
 \subsection{Functions that create and save outputs}{
@@ -321,6 +335,10 @@ alt_SURF_defs <-
                                alt_args = list(transition_condition_type = "Phase II only")))
 
 str(alt_SURF_defs)
+\dontrun{
+plot_alt_surfs(get_country_codes("Paraguay"), "default", "bandwidth_5")
+}
+
 }
 \author{
 Mark C Wheldon
