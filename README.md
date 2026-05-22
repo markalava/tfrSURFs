@@ -11,7 +11,7 @@ Install the latest version directly from within *R* using the *devtools* package
 
     ```
     install.packages("devtools")
-    devtools::install_github("https://github.com/markalava/tfrSURFs", build_manual = TRUE, build_vignettes = TRUE)
+    devtools::install_github("https://github.com/markalava/tfrSURFs")
     ```
 
 Alternatively, visit the [Releases](https://github.com/markalava/tfrSURFs/releases "'Releases' page of the tfrSURFs package") page and download the source code of a specific version. See the *R* help page for `install.packages()` for instructions on how to install the package from source.

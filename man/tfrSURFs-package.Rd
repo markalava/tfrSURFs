@@ -4,10 +4,21 @@
 \name{tfrSURFs-package}
 \alias{tfrSURFs}
 \alias{tfrSURFs-package}
-\title{tfrSURFs: Probabilistic estimates of stalls, upswings, and reversals in total fertility rates (tfrSURFs)}
+\title{tfrSURFs: Probabilistic estimates of stalls, upswings, and reversals in fertility transitions (SURFs)}
 \description{
-Given a sample from the posterior distribution of annual total fertility rates (e.g., as produced by package "bayesTFR"), this package will produce estimates of the probability that a SURF occurred in each year. Plotting and tabulation functions are also provided.
+Estimates the annual probabilities of stalls, upswings and reversals in the fertility transitions (SURFs) from a sample from the posterior distribution of annual total fertility rates (e.g., as produced by 'bayesTFR'). Plotting, tabulation, and sensitivity analysis functionality is also provided.
 }
+\section{Package options}{
+
+\describe{
+\item{sensitivity_analysis_output_dir_name}{(Default = \code{"sensitivity_analysis"}) Name of the directory in which to save the sensitivity analysis results (see \code{?sensitivity_analysis_helpers}).}
+\item{sensitivity_analysis_overwrite}{(Default = \code{FALSE}) Logical; should any existing sensitivity analysis results be overridden (see \code{?sensitivity_analysis_helpers})?}
+\item{show_ggplot_warning_note}{(Default = \code{TRUE}) Logical. \pkg{ggplot2} code in the function \code{link{plot_tfr_surfs}} produces a spurious warning. When this option is \code{TRUE}, a message is generated noting that this can be ignored.}
+\item{sim.dir}{(Default = \code{NULL}) Name of the directory containing the sample from the posterior distribution of total fertility rate (TFR); see \code{link{make_tfr_surfs}}.
+\item{verbose}{(Default = \code{getOption("verbose")}) Logical; should lots of messages be generated?}
+}
+}
+
 \seealso{
 Useful links:
 \itemize{
@@ -24,7 +35,7 @@ Other contributors:
   \item Vladimíra Kantorová (\href{https://orcid.org/0000-0002-2960-5930}{ORCID}) [contributor]
   \item Joseph Molitoris (\href{https://orcid.org/0000-0001-6038-8332}{ORCID}) [contributor]
   \item Thomas Spoorenberg (\href{https://orcid.org/0000-0001-8608-1398}{ORCID}) [contributor]
-  \item Yumiko Kamiya [contributor]
+  \item Yumiko Kamiya (\href{https://orcid.org/0000-0003-3318-2229}{ORCID}) [contributor]
   \item Patrick Gerland (\href{https://orcid.org/0000-0002-2082-3122}{ORCID}) [contributor]
 }
 
