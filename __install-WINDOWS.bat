@@ -38,9 +38,10 @@ ECHO. ==========================================================================
 ECHO. DOCUMENT
 ECHO. ================================================================================
 ECHO.
+Rscript --no-save --no-restore -e "desc::desc_set('Date', Sys.Date())"
+ECHO.
 Rscript --no-save --no-restore -e "suppressPackageStartupMessages(devtools::document())"
 if %ERRORLEVEL% GEQ 1 PAUSE
-
 ECHO.
 ECHO.
 ECHO.
@@ -57,6 +58,21 @@ ECHO.
 CHDIR .. && R CMD INSTALL --build --install-tests %CurrDirName% && CHDIR %CurrDirName%
 if %ERRORLEVEL% GEQ 1 PAUSE
 
+ECHO.
+ECHO.
+ECHO.
+ECHO.
+ECHO.
+ECHO.
+ECHO.
+
+
+ECHO. ================================================================================
+ECHO. TIDY UP
+ECHO. ================================================================================
+ECHO.
+REM Remove 'Date' from DESCRIPTION 
+Rscript --no-save --no-restore -e "desc::desc_del('Date')"
 ECHO.
 ECHO.
 ECHO.
