@@ -334,21 +334,17 @@ tabulate_surf_stats.data.frame <- function(x, stat = c("count", "avg_len"),
 ##' @noRd
 add_surf_periods_blocks <- function(x, table_type) {
 
+
     ## Functions
-    tbl_blocks_fn <- function(z) {
+    tbl_Schoumaker_any_blocks_fn <- function(z) {
 
         z <- z[, c("Schoumaker_stall_any", "transition_condition_met", "year")]
         colnames(z)[colnames(z) == "Schoumaker_stall_any"] <- "surf_year"
 
-        ## if (any(!z[["transition_condition_met"]])) {
-        ##     z2 <- z[!z[["transition_condition_met"]], ]
-        ##     z2[["transition_condition_met"]] <- TRUE
-        ##     z <- rbind(add_surf_lengths(z2, min_surf_length = 1),
-        ##                add_surf_lengths(z, min_surf_length = 1))
-        ##     z <- z[order(z[["year"]]), ]
-        ## } else {
-            z <- add_surf_lengths(z, min_surf_length = 1)
-        ## }
+        ## Transition condition not relevant for Schoumaker stalls
+        z[["transition_condition_met"]] <- TRUE
+
+        z <- add_surf_lengths(z, min_surf_length = 1)
 
         for (nm in c("surf_year_start_min_length",
                      "surf_year_group_min_length", "surf_year_len_min_length")) {
@@ -381,16 +377,6 @@ add_surf_periods_blocks <- function(x, table_type) {
 
     if (any(tfr_surfs)) {
 
-        ## ## TEMP: ('Schoumaker_stall_type' should already be in 'x' as of 2025-08-19)
-        ## ## -->|
-        ## x <- x |>
-        ##     dplyr::mutate(Schoumaker_stall_type =
-        ##                       dplyr::case_when(Schoumaker_stall_strong ~ "Strong+ evidence",
-        ##                                        Schoumaker_stall_moderate ~ "Moderate evidence",
-        ##                                        Schoumaker_stall_weak ~ "Limited evidence",
-        ##                                        TRUE ~ as.character(NA)))
-        ## ## |<--
-
         ## Stall years
         x <- x |>
             dplyr::arrange(reg_name, name, year)
@@ -412,7 +398,7 @@ add_surf_periods_blocks <- function(x, table_type) {
 
             ## Get stall groupings for Schoumaker stalls. Don't distinguish
             ## between evidence type, but do "no stalls" separately.
-                tmp_ <- tbl_blocks_fn(x)
+                tmp_ <- tbl_Schoumaker_any_blocks_fn(x)
 
             ## Merge on to main data frame
             x <-
@@ -644,8 +630,8 @@ tabulate_surf_periods.data.frame <- function(tfr_surfs_df,
             x <- tfr_surfs_df[which(tfr_surfs_df[["surf_year"]]), ]
         }
 
-        ## Keep only years that satisfy transition condition
-        x <- x[x[["transition_condition_met"]], ]
+        ## ## Keep only years that satisfy transition condition
+        ## x <- x[x[["transition_condition_met"]], ]
 
         if (nrow(x)) {
 
@@ -750,9 +736,15 @@ tabulate_surf_periods.data.frame <- function(tfr_surfs_df,
                 x[is.na(x[["surf_period"]]), "surf_period"] <- tbl_no_value_string
 
                 x <- x[order(x[["year"]]), ]
+
                 row.names(x) <- NULL
             }
             out <- as.data.frame(x[, out_cols])
+
+            ## If the transition condition changed part-way through the
+            ## Schoumaker-only stall there might be multiple identical rows.
+            ## Keep only one:
+            out <- unique(out)
 
             ## Replace 'NA's with string
             col_idx <- which(colnames(out) %in% c("Schoumaker_stall_type", "Schoumaker_stall_period"))

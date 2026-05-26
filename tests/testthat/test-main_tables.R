@@ -86,7 +86,7 @@ test_that("'tabulate_rfr_surfs()' fails properly when 'no small countries' resul
 ## COMMENT OUT for now; the 'test_surfs_df' data is now obsolete so this test
 ## fails. Need to regenerate with updated column names.
 ##
-## test_that("'tabulate_rfr_surfs()' works as expected on a specially constructed results data frame.", {
+## test_that("'tabulate_tfr_surfs()' works as expected on a specially constructed results data frame.", {
 ##     test_surfs_df <- readRDS(file = testthat::test_path("test_data", "test_surfs_df.rds"))
 
 ##     tbl_surfs <- tabulate_surf_periods(test_surfs_df, table_type = "surfs only")

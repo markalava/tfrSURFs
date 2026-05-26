@@ -185,18 +185,26 @@ load(file.path(test_results_dir, "tfr_surfs_median_lst.rda"))
 ##     tabulate_surf_periods(test_surfs_df, table_type = "concise")
 ## surfs_tbl_3 <- tabulate_surf_periods(test_surfs_df, table_type = "detailed")
 
-## surfs_tbl_1 <- tabulate_surf_periods(tfr_surfs_lst, table_type = "surfs only")
+surfs_tbl_1 <- tabulate_surf_periods(tfr_surfs_lst, table_type = "surfs only")
 
 surfs_tbl_2 <- tabulate_surf_periods(tfr_surfs_lst, table_type = "concise",
                                      incl_no_surfs = TRUE,
                                      flag_schoumaker_excl = TRUE)
-openxlsx::write.xlsx(surfs_tbl_2, file = "surfs_tbl_2.xlsx", asTable = TRUE)
+## openxlsx::write.xlsx(surfs_tbl_2, file = "surfs_tbl_2.xlsx", asTable = TRUE)
 
 surfs_median_tbl_2 <- tabulate_surf_periods(tfr_surfs_median_lst, table_type = "concise",
                                      incl_no_surfs = TRUE,
                                      flag_schoumaker_excl = TRUE)
-## openxlsx::write.xlsx(surfs_median_tbl_2, file = "surfs_median_tbl_2.xlsx", asTable = TRUE)
+openxlsx::write.xlsx(surfs_median_tbl_2, file = "surfs_median_tbl_2.xlsx", asTable = TRUE)
 
-## surfs_tbl_3 <- tabulate_surf_periods(tfr_surfs_lst, table_type = "detailed")
+surfs_tbl_3 <- tabulate_surf_periods(tfr_surfs_lst, table_type = "detailed")
 
+###-----------------------------------------------------------------------------
+### ** DR Congo
+
+surfs_df <- make_tfr_surfs(sim.dir = bayesTFR_output_dir,
+                           country_code = get_country_codes("Democratic Republic of the Congo"))
+
+surfs_tbl <- tabulate_surf_periods(surfs_df,
+                                   table_type = "concise", digits = 1)
 
