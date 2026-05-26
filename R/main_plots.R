@@ -264,6 +264,10 @@ plot_tfr_surfs.data.frame <- function(x,
 
     ## -------* Create Dataframe(s) and Plot Annotations
 
+    ## -------** Mid-year Variable
+
+    x[["mid_year"]] <- x[["year"]] + 0.5
+
     ## -------** Annotations
 
     ## -------*** Legends
@@ -298,11 +302,6 @@ plot_tfr_surfs.data.frame <- function(x,
     cname <- x[1, "name"]
     rname <- x[1, "reg_name"]
 
-    probability_scale <- "percent" # (redundant now)
-
-    TFR_range_condition_min <- min(x[x[["transition_condition_met"]], "year"], na.rm = TRUE)
-    TFR_range_condition_max <- max(x[x[["transition_condition_met"]], "year"], na.rm = TRUE)
-
     ## This is a bit of a hack to get the polygon data frames constructed properly
     jitt_1 <- 0
     jitt_2 <- 0.99
@@ -313,10 +312,7 @@ plot_tfr_surfs.data.frame <- function(x,
         if (identical(yvar, "annual_change_50%")) {
             ylim_plot <- c(-10, 10)
             yscale_breaks <- seq(from = ylim_plot[1], to = ylim_plot[2], by = 4)
-        } else if (identical(yvar, "surf_prob") && identical(probability_scale, "prop")) {
-            ylim_plot <- c(0, 1)
-            yscale_breaks <- seq(from = ylim_plot[1], to = ylim_plot[2], by = 0.2)
-        } else if (identical(yvar, "surf_prob") && identical(probability_scale, "percent")) {
+        } else if (identical(yvar, "surf_prob")) {
             ylim_plot <- c(0, 100)
             yscale_breaks <- seq(from = ylim_plot[1], to = ylim_plot[2], by = 20)
         } else if (yvar %in% c("TFR_median")) {
@@ -332,18 +328,12 @@ plot_tfr_surfs.data.frame <- function(x,
 
     ## y-axis scale (percentage or proportion)
     if (identical(yvar, "surf_prob")) {
-        if (identical(probability_scale, "percent")) {
             x[[yvar]] <- 100 * x[[yvar]]
-        }
     }
 
     ## y-axis labels
     if (identical(yvar, "surf_prob")) {
-        if (identical(probability_scale, "percent")) {
             y_axis_label <- "SURF probability (%)"
-        } else if (identical(probability_scale, "prop")) {
-            y_axis_label <- "SURF probability"
-        }
     } else if (identical(yvar, "TFR_median")) {
         y_axis_label <- "Children per woman"
     } else if (identical(yvar, "annual_change_50%")) {
@@ -352,10 +342,8 @@ plot_tfr_surfs.data.frame <- function(x,
 
     ## -------** Create Stall Period Dataframes
 
-
-
     surf_dummy_df <- data.frame(indicator = unique(x[["indicator"]]),
-                                x = median(x[, "year"]),
+                                x = median(x[, "mid_year"]),
                                 y = mean(x[, yvar]),
                                 id = unique(number_sequence_groups(x[, "year"])),
                                 year = 0)
@@ -400,12 +388,12 @@ plot_tfr_surfs.data.frame <- function(x,
 
     ## -------** Base plot
 
-    gp <- ggplot2::ggplot(data = x, ggplot2::aes(x = .data[["year"]], y = .data[[yvar]]))
+    gp <- ggplot2::ggplot(data = x, ggplot2::aes(x = .data[["mid_year"]], y = .data[[yvar]]))
 
     ## -------** Reference lines
 
     if (add_prob_ref_lines) {
-        if (identical(probability_scale, "percent")) rate_prob_threshold <- 100 * rate_prob_threshold
+        rate_prob_threshold <- 100 * rate_prob_threshold
         ref_line_df <-
             data.frame(indicator = "TFR", yintercept = rate_prob_threshold)
 
@@ -559,7 +547,7 @@ plot_tfr_surfs.data.frame <- function(x,
 
         surf_dummy_df_ALT <-
             data.frame(indicator = unique(x[["indicator"]]),
-                       x = -median(x[, "year"], na.rm = TRUE))
+                       x = -median(x[, "mid_year"], na.rm = TRUE))
 
         if (maximal_legend) {
             if (is.null(x_alt_fp_surf_ALT) || !nrow(x_alt_fp_surf_ALT))
@@ -590,7 +578,7 @@ plot_tfr_surfs.data.frame <- function(x,
 
     if (yvar %in% c("TFR_median")) {
 
-        gp <- gp + ggplot2::geom_line(ggplot2::aes(x = .data[["year"]] + 0.5),
+        gp <- gp + ggplot2::geom_line(ggplot2::aes(x = .data[["mid_year"]]),
                                       colour = line_colour, na.rm = TRUE)
 
         yvar_indicator <- gsub("_median", "", yvar)
@@ -616,7 +604,7 @@ plot_tfr_surfs.data.frame <- function(x,
             gp <- gp + ggplot2::geom_step(colour = line_colour, na.rm = TRUE)##  +
                 ## ggplot2::geom_col(just = 0, alpha = 0.1, na.rm = TRUE)
         } else {
-            gp <- gp + ggplot2::geom_line(ggplot2::aes(x = .data[["year"]] + 0.5),
+            gp <- gp + ggplot2::geom_line(ggplot2::aes(x = .data[["mid_year"]]),
                                               colour = line_colour, na.rm = TRUE)
 
         }

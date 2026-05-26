@@ -79,6 +79,16 @@ args_list <- list(sim.dir = bayesTFR_output_dir## ,
 ### * Checks
 
 ###-----------------------------------------------------------------------------
+### ** Iceland
+
+## debug(make_tfr_surfs)
+surfs_df <- make_tfr_surfs(sim.dir = bayesTFR_output_dir,
+                           country_code = get_country_codes("Iceland"))
+
+plot_surfs_probs(surfs_df,
+                 plot_ann = "TEST annotation", datestamp = TRUE)
+
+###-----------------------------------------------------------------------------
 ### ** South Africa
 
 ## debug(make_tfr_surfs)
