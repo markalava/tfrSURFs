@@ -601,8 +601,7 @@ plot_tfr_surfs.data.frame <- function(x,
     } else if (identical(yvar, "surf_prob")) {
 
         if (identical(surf_prob_geom, "step")) {
-            gp <- gp + ggplot2::geom_step(colour = line_colour, na.rm = TRUE)##  +
-                ## ggplot2::geom_col(just = 0, alpha = 0.1, na.rm = TRUE)
+            gp <- gp + ggplot2::geom_step(colour = line_colour, na.rm = TRUE)
         } else {
             gp <- gp + ggplot2::geom_line(ggplot2::aes(x = .data[["mid_year"]]),
                                               colour = line_colour, na.rm = TRUE)

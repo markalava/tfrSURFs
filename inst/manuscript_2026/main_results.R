@@ -24,7 +24,7 @@ options("openxlsx.dateFormat" = "yyyy-mmm-dd")
 library(tfrSURFs)
 ## devtools::load_all()            # Assumes working dir is this file's directory.
 packageVersion("tfrSURFs")
-options(tfrSURFs.message_about_unknown_aes = FALSE)
+options(tfrSURFs.show_ggplot_warning_note = FALSE)
 options(tfrSURFs.verbose = TRUE)
 
 ###-----------------------------------------------------------------------------
@@ -121,14 +121,15 @@ if (file.exists(surfs_median_list_rda_filename)) {
     load(surfs_median_list_rda_filename)
 } else {
     ## RUN MAIN FUNCTION
-    tfr_surfs_lst <- make_tfr_surfs(sim.dir = bayesTFR_output_dir)
+    tfr_surfs_median_lst <- make_tfr_surfs(sim.dir = bayesTFR_output_dir,
+                                           median_only = TRUE) #<<<<<<< !!!
 
     ## Save Results
-    save(tfr_surfs_lst, file = surfs_median_list_rda_filename)
+    save(tfr_surfs_median_lst, file = surfs_median_list_rda_filename)
 }
 
 ###-----------------------------------------------------------------------------
-### ** Export 'Database' of SURFs
+### ** Export 'Database' of SURFs: Appendix 2, Table C
 
 ## This is the main output object. Probabilistic and medians runs in one
 ## workbook.
@@ -138,14 +139,14 @@ data(output_column_definitions)
 write.xlsx(list(definitions = output_column_definitions,
                 probabilistic = do.call("rbind", tfr_surfs_lst),
                 non_probabilistic = do.call("rbind", tfr_surfs_median_lst)),
-           file = file.path(dir_list[["tables_dir"]], "surfs_db.xlsx"),
+           file = file.path(dir_list[["tables_dir"]], "Appendix_2_Table_C_surfs_database.xlsx"),
            asTable = TRUE, tableStyle = "TableStyleMedium3")
 
 ###-----------------------------------------------------------------------------
 ### ** Tables
 
 ###-----------------------------------------------------------------------------
-### *** SURF Periods
+### *** SURF Periods: Appendix 2, Table B
 
 ### SURFs Only
 
@@ -167,11 +168,23 @@ surfs_tbl_medians <- tabulate_surf_periods(tfr_surfs_median_lst,
                                    incl_small_countries = FALSE,
                                    table_type = "concise", digits = 1)
 
-write.xlsx(list(probabilistic = surfs_tbl,
-                non_probabilistic = surfs_tbl_medians),
-           file = file.path(dir_list[["tables_dir"]], "surf_periods_concise.xlsx"),
+write.xlsx(list(
+    definitions = data.frame(
+        name = colnames(surfs_tbl),
+        type = c("character", "character", "logical", "character", "numeric range (as character)",
+                 "numeric range (as character)", "character"),
+        description =
+            c(output_column_definitions[output_column_definitions[["name"]] == "area_name", "description"],
+              output_column_definitions[output_column_definitions[["name"]] == "reg_name", "description"],
+              output_column_definitions[output_column_definitions[["name"]] == "sub_saharan_africa", "description"],
+              output_column_definitions[output_column_definitions[["name"]] == "name", "description"],
+              "Year range of SURF",
+              "Range of TFR during SURF",
+              "Year range of Schoumaker stall with evidence, or note")),
+    probabilistic = surfs_tbl,
+    non_probabilistic = surfs_tbl_medians),
+           file = file.path(dir_list[["tables_dir"]], "Appendix_2_Table_B.xlsx"),
            asTable = TRUE, tableStyle = "TableStyleMedium2")
-
 
 ### Full Detail: SURF Periods Intersected with Schoumaker Stalls
 
@@ -188,6 +201,59 @@ surfs_and_schoumaker_stalls <-
 
 summary(subset(do.call("rbind", tfr_surfs_lst),
                sub_saharan_africa & surf_year)$TFR_median)
+
+###-----------------------------------------------------------------------------
+### **** Formatted for Manuscript
+
+### Probabilistic
+
+surf_periods_tbl_df <-
+    gdata::rename.vars(surfs_tbl,
+                       from = c("area_name", "reg_name", "name",
+                                "sub_saharan_africa", "surf_period",
+                                "TFR", "Schoumaker_stall_period"),
+                       to = c("Region", "Subregion", "Country", "Sub-Saharan Africa",
+                              "SURF Period", "TFR Range",
+                              "TFR Stalls (Schoumaker, 2019)"),
+                       info = TRUE)
+
+write.xlsx(list(
+    Sub_Saharan_Africa =
+        blankCells(subset(surf_periods_tbl_df, `Sub-Saharan Africa`, -`Sub-Saharan Africa`),
+                   cols = c("Region", "Subregion", "Country")),
+    Outside_Sub_Saharan_Africa =
+        blankCells(subset(surf_periods_tbl_df, !`Sub-Saharan Africa`,
+                          -c(`Sub-Saharan Africa`,
+                             `TFR Stalls (Schoumaker, 2019)`)),
+                   cols = c("Region", "Subregion", "Country"))),
+           file = file.path(dir_list[["tables_dir"]],
+                            "Appendix_2_Table_B_probabilistic-for-word.xlsx"),
+    asTable = TRUE, tableStyle = "TableStyleMedium2")
+
+### Medians
+
+surf_periods_tbl_medians_df <-
+    gdata::rename.vars(surfs_tbl_medians,
+                       from = c("area_name", "reg_name", "name",
+                                "sub_saharan_africa", "surf_period",
+                                "TFR", "Schoumaker_stall_period"),
+                       to = c("Region", "Subregion", "Country", "Sub-Saharan Africa",
+                              "SURF Period", "TFR Range",
+                              "TFR Stalls (Schoumaker, 2019)"),
+                       info = FALSE)
+
+write.xlsx(list(
+    Sub_Saharan_Africa =
+        blankCells(subset(surf_periods_tbl_medians_df, `Sub-Saharan Africa`, -`Sub-Saharan Africa`),
+                   cols = c("Region", "Subregion", "Country")),
+    Outside_Sub_Saharan_Africa =
+        blankCells(subset(surf_periods_tbl_medians_df, !`Sub-Saharan Africa`,
+                          -c(`Sub-Saharan Africa`,
+                             `TFR Stalls (Schoumaker, 2019)`)),
+                   cols = c("Region", "Subregion", "Country"))),
+           file = file.path(dir_list[["tables_dir"]],
+                            "Appendix_2_Table_B_medians-for-word.xlsx"),
+    asTable = TRUE, tableStyle = "TableStyleMedium2")
 
 ###-----------------------------------------------------------------------------
 ### *** Location Counts
@@ -495,10 +561,7 @@ surf_len_region <-
 ##            asTable = TRUE, tableStyle = "TableStyleMedium2")
 
 ###-----------------------------------------------------------------------------
-### *** Tables in Manuscript
-
-###-----------------------------------------------------------------------------
-### **** SURF Statistics
+### *** SURF Statistics: Appendix 2, Table A
 
 surf_stats_subreg <-
     base::merge(surf_count_subregion, surf_len_subregion, sort = FALSE)
@@ -519,80 +582,36 @@ surf_stats_subreg <-
 ##     surf_stats_subreg[, j] <- formatC(surf_stats_subreg[, j], format = "f", digits = 1)
 ## }
 
-cols_sub <- c("area_name", "reg_name", "count_estimates",
-              "avg_len_estimates",
-              "count_projections", "avg_len_projections",
-              "count", "avg_len")
+cols_sub <- c("area_name", "reg_name", "count_estimates", "avg_len_estimates",
+              "count_projections", "avg_len_projections", "count", "avg_len")
+cols_to <- c("Count (estimates)", "Avg. Length (estimates)",
+             "Count (projections)", "Avg. Length (projections)",
+             "Count (total)", "Avg. Length (total)")
+
 surf_stats_subreg <-
     gdata::rename.vars(surf_stats_subreg,
                        from = cols_sub[cols_sub %in% colnames(surf_stats_subreg)],
-                       to = c("Region", "Subregion", "Count (estimates)",
-                              "Avg. Length (estimates)",
-                              "Count (projections)", "Avg. Length (projections)",
-                              "Count (total)",
-                              "Avg. Length (total)")[cols_sub %in% colnames(surf_stats_subreg)],
-                       info = FALSE)
-
-write.xlsx(list(probabilistic = subset(surf_stats_subreg, SURF_type == "probabilistic",
-                                       select = -SURF_type),
-                non_probabilistic = subset(surf_stats_subreg, SURF_type == "medians_only",
-                                      select = -SURF_type)),
-           file = file.path(dir_list[["tables_dir"]], "surf_stats_by_subreg.xlsx"),
-           asTable = TRUE, tableStyle = "TableStyleMedium2",
-           keepNA = TRUE, na.string = "-")
-
-###-----------------------------------------------------------------------------
-### **** SURF Periods
-
-### Probabilistic
-
-surf_periods_tbl_df <-
-    gdata::rename.vars(surfs_tbl,
-                       from = c("area_name", "reg_name", "name",
-                                "sub_saharan_africa", "surf_period",
-                                "TFR", "Schoumaker_stall_period"),
-                       to = c("Region", "Subregion", "Country", "Sub-Saharan Africa",
-                              "SURF Period", "TFR Range",
-                              "TFR Stalls (Schoumaker, 2019)"),
-                       info = TRUE)
-
-write.xlsx(list(
-    Sub_Saharan_Africa =
-        blankCells(subset(surf_periods_tbl_df, `Sub-Saharan Africa`, -`Sub-Saharan Africa`),
-                   cols = c("Region", "Subregion", "Country")),
-    Outside_Sub_Saharan_Africa =
-        blankCells(subset(surf_periods_tbl_df, !`Sub-Saharan Africa`,
-                          -c(`Sub-Saharan Africa`,
-                             `TFR Stalls (Schoumaker, 2019)`)),
-                   cols = c("Region", "Subregion", "Country"))),
-           file = file.path(dir_list[["tables_dir"]],
-                            "surf_periods_concise_prob-for-word.xlsx"),
-    asTable = TRUE, tableStyle = "TableStyleMedium2")
-
-### Medians
-
-surf_periods_tbl_medians_df <-
-    gdata::rename.vars(surfs_tbl_medians,
-                       from = c("area_name", "reg_name", "name",
-                                "sub_saharan_africa", "surf_period",
-                                "TFR", "Schoumaker_stall_period"),
-                       to = c("Region", "Subregion", "Country", "Sub-Saharan Africa",
-                              "SURF Period", "TFR Range",
-                              "TFR Stalls (Schoumaker, 2019)"),
+                       to = c("Region", "Subregion", cols_to)[cols_sub %in% colnames(surf_stats_subreg)],
                        info = FALSE)
 
 write.xlsx(list(
-    Sub_Saharan_Africa =
-        blankCells(subset(surf_periods_tbl_medians_df, `Sub-Saharan Africa`, -`Sub-Saharan Africa`),
-                   cols = c("Region", "Subregion", "Country")),
-    Outside_Sub_Saharan_Africa =
-        blankCells(subset(surf_periods_tbl_medians_df, !`Sub-Saharan Africa`,
-                          -c(`Sub-Saharan Africa`,
-                             `TFR Stalls (Schoumaker, 2019)`)),
-                   cols = c("Region", "Subregion", "Country"))),
-           file = file.path(dir_list[["tables_dir"]],
-                            "surf_periods_concise_medians-for-word.xlsx"),
-    asTable = TRUE, tableStyle = "TableStyleMedium2")
+    definitions =
+        data.frame(name = cols_to,
+                   type = "numeric",
+                   description =
+                       c("Number of SURFs (estimation period only)",
+                         "Average length of SURFs (years; estimation period only)",
+                         "Number of SURFs (projection period only)",
+                         "Average length of SURFs (years; projection period only)",
+                         "Number of SURFs (all years)",
+                         "Average length of SURFs (years; all years)")),
+    probabilistic = subset(surf_stats_subreg, SURF_type == "probabilistic",
+                           select = -SURF_type),
+    non_probabilistic = subset(surf_stats_subreg, SURF_type == "medians_only",
+                               select = -SURF_type)),
+    file = file.path(dir_list[["tables_dir"]], "Appendix_2_Table_A.xlsx"),
+    asTable = TRUE, tableStyle = "TableStyleMedium2",
+    keepNA = TRUE, na.string = "-")
 
 ###-----------------------------------------------------------------------------
 ### ** Plots
@@ -608,10 +627,10 @@ write.xlsx(list(
 ##     facet_wrap(~ reg_name)
 
 ###-----------------------------------------------------------------------------
-### *** Line Plots
+### *** Line Plots: Appendix 3, Supplementary Plots
 
 ### PDFs
-pdf(file = file.path(dir_list[["pdf_plots_dir"]], "probabilistic_surfs.pdf"),
+pdf(file = file.path(dir_list[["pdf_plots_dir"]], "Appendix_3_Supp_Plots_probabilistic_surfs.pdf"),
     height = 6, width = 14)
 plot_surfs_probs(tfr_surfs_lst, x_alt = tfr_surfs_median_lst,
                   incl_small_countries = FALSE, plot = TRUE,
@@ -619,19 +638,19 @@ plot_surfs_probs(tfr_surfs_lst, x_alt = tfr_surfs_median_lst,
                   datestamp = TRUE)
 dev.off()
 
-### SVGs
-for (cc in remove_small_countries(names(tfr_surfs_lst))) {
-    svg(file = file.path(dir_list[["svg_plots_dir"]],
-                         paste0("probabilistic_surfs_",
-                                tfr_surfs_lst[[cc]][1, "name"],
-                                "_", cc, ".svg")),
-        height = 6, width = 14)
-    print(plot_surfs_probs(x = tfr_surfs_lst[[cc]],
-                            x_alt = tfr_surfs_median_lst[[cc]],
-                            x_alt_label = "Median only",
-                            add_est_proj_ref_line = TRUE))
-    dev.off()
-}
+## ### SVGs (uncomment for separate SVG plots per country)
+## for (cc in remove_small_countries(names(tfr_surfs_lst))) {
+##     svg(file = file.path(dir_list[["svg_plots_dir"]],
+##                          paste0("probabilistic_surfs_",
+##                                 tfr_surfs_lst[[cc]][1, "name"],
+##                                 "_", cc, ".svg")),
+##         height = 6, width = 14)
+##     print(plot_surfs_probs(x = tfr_surfs_lst[[cc]],
+##                             x_alt = tfr_surfs_median_lst[[cc]],
+##                             x_alt_label = "Median only",
+##                             add_est_proj_ref_line = TRUE))
+##     dev.off()
+## }
 
 graphics.off()
 
