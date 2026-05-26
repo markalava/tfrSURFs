@@ -384,12 +384,7 @@ add_surf_periods_blocks <- function(x, table_type) {
         ## Create hash column
         if (identical(table_type, "surfs only")) {
             x <- x |>
-                dplyr::mutate(hash_1 = paste(name, surf_year,
-                                             transition_condition_met),
-                                # Need level condition ^here because
-                                # level condition could change part
-                                # way through intervals of
-                                # plateaus/surfs.
+                dplyr::mutate(hash_1 = paste(name, surf_year),
                               surf_tbl_block = 1)
 
         } else if (identical(table_type, "concise")) {
@@ -462,22 +457,13 @@ add_surf_periods_blocks <- function(x, table_type) {
             x[idx, "surf_tbl_block_type"] <- "Schoumaker - intersecting"
 
             x <- x |>
-                dplyr::mutate(hash_1 = paste(name, transition_condition_met, hash_1),
-                                # Need level condition ^here because
-                                # level condition could change part
-                                # way through intervals of
-                                # plateaus/stalls.
+                dplyr::mutate(hash_1 = paste(name, hash_1),
                               surf_tbl_block = 1)
 
         } else if (identical(table_type, "detailed")) {
 
             x <- x |>
-                dplyr::mutate(hash_1 = paste(name, surf_year, Schoumaker_stall_type,
-                                             transition_condition_met),
-                                # Need level condition ^here because
-                                # level condition could change part
-                                # way through intervals of
-                                # plateaus/surfs.
+                dplyr::mutate(hash_1 = paste(name, surf_year, Schoumaker_stall_type),
                               surf_tbl_block = 1)
         }
 
@@ -630,9 +616,6 @@ tabulate_surf_periods.data.frame <- function(tfr_surfs_df,
             x <- tfr_surfs_df[which(tfr_surfs_df[["surf_year"]]), ]
         }
 
-        ## ## Keep only years that satisfy transition condition
-        ## x <- x[x[["transition_condition_met"]], ]
-
         if (nrow(x)) {
 
             if (table_type %in% c("surfs only", "detailed")) {
@@ -740,11 +723,6 @@ tabulate_surf_periods.data.frame <- function(tfr_surfs_df,
                 row.names(x) <- NULL
             }
             out <- as.data.frame(x[, out_cols])
-
-            ## If the transition condition changed part-way through the
-            ## Schoumaker-only stall there might be multiple identical rows.
-            ## Keep only one:
-            out <- unique(out)
 
             ## Replace 'NA's with string
             col_idx <- which(colnames(out) %in% c("Schoumaker_stall_type", "Schoumaker_stall_period"))

@@ -208,3 +208,6 @@ surfs_df <- make_tfr_surfs(sim.dir = bayesTFR_output_dir,
 surfs_tbl <- tabulate_surf_periods(surfs_df,
                                    table_type = "concise", digits = 1)
 
+surfs_tbl <- tabulate_surf_periods(surfs_df,
+                                   table_type = "detailed", digits = 1)
+
