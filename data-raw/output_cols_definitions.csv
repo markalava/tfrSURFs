@@ -1,6 +1,6 @@
 group,name,type,description
-ID,country_code,numeric,M49 numeric country or territory code
-ID,name,character,M49 country or territory name
+ID,country_code,numeric,M49 numeric country or area code
+ID,name,character,M49 country or area name
 ID,year,numeric,Year (row-specific)
 SURF indicators,transition_condition_met,logical,"TRUE = transition condition is met for this year, otherwise FALSE"
 SURF indicators,surf_prob,numeric,SURF probability for this year; NA in years at the edges of the analysis period where probabilities cannot be calcuated (depends on the smoothing bandwidth)
@@ -24,17 +24,17 @@ Schoumaker stalls,Schoumaker_stall_weak,logical,"TRUE = Schoumaker stall with ""
 Schoumaker stalls,Schoumaker_stall_pretransitional,logical,"TRUE = Pretransitional Schoumaker stall, otherwise FALSE"
 Schoumaker stalls,Schoumaker_stall_none,logical,"TRUE = this is a year Schoumaker analyzed and found no evidence for a stall of any kind, otherwise FALSE; not the inverse of 'Schoumaker_stall_any' because some years were not analyzed"
 Schoumaker stalls,Schoumaker_stall_any,logical,"TRUE = a year with a Schoumaker stall of any kind, otherwise FALSE"
-Schoumaker stalls,Schoumaker_included,logical,TRUE = this country or territory included in Schoumaker's analysis
+Schoumaker stalls,Schoumaker_included,logical,TRUE = this country or area included in Schoumaker's analysis
 Indicator info,indicator,character,"The indicator used to find tfrSURFs, currently always ""TFR"""
 Indicator info,TFR.2.5pc,numeric,Posterior 2.5th percentile of TFR
 Indicator info,TFR.10pc,numeric,Posterior 10th percentile of TFR
 Indicator info,TFR_median,numeric,Posterior median of TFR
 Indicator info,TFR.90pc,numeric,Posterior 90th percentile of TFR
 Indicator info,TFR.97.5pc,numeric,Posterior 97.5th percentile of TFR
-Regions,reg_name,character,"Name of the subregion this country or territory belongs to (e.g., Eastern Asia, Middle Africa, etc.)"
-Regions,area_name,character,"Name of the region this country or territory belongs to (e.g., Europe, Oceania, etc.)"
-Regions,sub_saharan_africa,logical,"TRUE = this country or territory is in sub-Saharan Africa, otherwise FALSE"
-Condition settings,pop_lt_90k_2024,logical,TRUE = this country or territory had a population of less than 90 000 in mid-2024
+Regions,reg_name,character,"Name of the subregion this country or area belongs to (e.g., Eastern Asia, Middle Africa, etc.)"
+Regions,area_name,character,"Name of the region this country or area belongs to (e.g., Europe, Oceania, etc.)"
+Regions,sub_saharan_africa,logical,"TRUE = this country or area is in sub-Saharan Africa, otherwise FALSE"
+Condition settings,pop_lt_90k_2024,logical,TRUE = this country or area had a population of less than 90 000 in mid-2024
 Condition settings,smoothing_method,character,"The smoothing method used [one of c(""local_linear"", ""annual_difference"")]"
 Condition settings,transition_condition_type,character,"The transition condition used [one of c(""Phase II & >= 2.1 persistently"", ""Phase II & never < 2.1"", ""Phase II only"")]"
 Condition settings,bandwidth,numeric,The size of the smoothing bandwidth in years
