@@ -60,6 +60,3 @@ inst/doc
 *.tar.gz
 
 data/test_data*
-
-_no_install/dev/**/*.rda
-_no_install/dev/**/*.rds

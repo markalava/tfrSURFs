@@ -1,0 +1,7 @@
+
+# Saved data files in the 'dev' subdirectory.
+dev/**/*.rda
+dev/**/*.rds
+
+# Do keep .Rout files in the 'compare_results' directory.
+!compare_results/**/*.Rout

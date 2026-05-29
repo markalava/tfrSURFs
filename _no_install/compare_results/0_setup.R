@@ -128,12 +128,12 @@ make_surf_period_control_tbl <- function(x) {
 ##' @rdname control_tables
 ##' @keywords internal
 ##' @noRd
-make_surf_stat_control_tbl <- function(x, stat) {
+make_surf_stat_control_tbl <- function(x, stat, proj_split = "none") {
     tabulate_surf_stats(x = x, stat = stat,
-                        incl_small_countries = FALSE,
+                        incl_small_countries = TRUE,
                         filter_zero_rows = FALSE,
                         geographies = c("area_name", "reg_name", "name", "global"),
-                        proj_split = "by_year")
+                        proj_split = proj_split)
 }
 
 

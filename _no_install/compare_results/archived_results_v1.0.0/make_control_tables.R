@@ -70,6 +70,9 @@ saveRDS(surf_avg_len_country_tbl_medians, file =  archived_tab_surf_stats_avg_le
 ###-----------------------------------------------------------------------------
 ### *** Counts
 
+## NB: These were created with the argument `proj_split = "none"` because
+## proj_split = "by_year" was not possible with `stat = "count"` in v1.0.0.
+
 surf_count_country_tbl <- add_control_comment(make_surf_stat_control_tbl(tfr_surfs_lst, stat = "count"))
 saveRDS(surf_count_country_tbl, file = archived_tab_surf_stats_count_prob_filepath)
 
