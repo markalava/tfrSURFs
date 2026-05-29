@@ -6,8 +6,8 @@
 ###
 ### PROJECT: tfrSURFs
 ###
-### DESCRIPTION: Compare current results on full input dataset with existing
-### results.
+### DESCRIPTION: Compare current results on full input dataset with results
+### generated under version 1.0.0.
 ###
 ###-----------------------------------------------------------------------------
 ###
@@ -18,6 +18,8 @@
 
 library(testthat)
 library(tfrSURFs)
+
+archived_results_dirname <- "archived_results_v1.0.0"
 source(here::here("_no_install", "compare_results", "0_setup.R"))
 
 ###-----------------------------------------------------------------------------

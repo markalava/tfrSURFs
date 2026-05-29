@@ -34,34 +34,41 @@ bayesTFR_output_dir <-
 ###-----------------------------------------------------------------------------
 ### ** Archived Results
 
+### Directories
+
+## 'archived_results_dirname' must be defined in the global environment before
+## calling this script.
+stopifnot(!is.null(archived_results_dirname) &&
+    dir.exists(here::here("_no_install", "compare_results", archived_results_dirname)))
+
 ### SURF outputs
 
 archived_surfs_list_rda_filepath <-
-    here::here("_no_install", "compare_results", "archived_results", "tfr_surfs_lst.rda")
+    here::here("_no_install", "compare_results", archived_results_dirname, "tfr_surfs_lst.rda")
 archived_surfs_median_list_rda_filepath <-
-    here::here("_no_install", "compare_results", "archived_results", "tfr_surfs_median_lst.rda")
+    here::here("_no_install", "compare_results", archived_results_dirname, "tfr_surfs_median_lst.rda")
 
 ### Tabulations
 
 archived_tab_surf_periods_concise_prob_filepath <-
-    here::here("_no_install", "compare_results", "archived_results",
+    here::here("_no_install", "compare_results", archived_results_dirname,
                "tab_surf_periods_concise_prob.rds")
 archived_tab_surf_periods_concise_medians_filepath <-
-    here::here("_no_install", "compare_results", "archived_results",
+    here::here("_no_install", "compare_results", archived_results_dirname,
                "tab_surf_periods_concise_medians.rds")
 
 archived_tab_surf_stats_avg_len_prob_filepath <-
-    here::here("_no_install", "compare_results", "archived_results",
+    here::here("_no_install", "compare_results", archived_results_dirname,
                "tab_surf_avg_len_prob.rds")
 archived_tab_surf_stats_avg_len_medians_filepath <-
-    here::here("_no_install", "compare_results", "archived_results",
+    here::here("_no_install", "compare_results", archived_results_dirname,
                "tab_surf_avg_len_medians.rds")
 
 archived_tab_surf_stats_count_prob_filepath <-
-    here::here("_no_install", "compare_results", "archived_results",
+    here::here("_no_install", "compare_results", archived_results_dirname,
                "tab_surf_count_prob.rds")
-archived_tab_surf_count_medians_filepath <-
-    here::here("_no_install", "compare_results", "archived_results",
+archived_tab_surf_stats_count_medians_filepath <-
+    here::here("_no_install", "compare_results", archived_results_dirname,
                "tab_surf_count_medians.rds")
 
 ###-----------------------------------------------------------------------------
