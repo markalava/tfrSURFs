@@ -39,7 +39,3 @@ make_tabulate_surf_periods_param_df <- function() {
                     stringsAsFactors = FALSE)
     return(outdf)
 }
-
-
-
-

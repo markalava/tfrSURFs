@@ -68,27 +68,12 @@ surfs_median_list_rda_filename <-
 ###-----------------------------------------------------------------------------
 ### * TFR Trajectories
 
-### Generate probabilistic projections of TFR using 'bayesTFR' package, or
-### download from
+### Generate probabilistic projections of TFR using 'bayesTFR' package using
+### this script:
+### https://bayespop.csss.washington.edu/data/bayesTFR/TFRsimWPP2024/TFR1unc/README.r
+### or download from
 ### 'https://bayespop.csss.washington.edu/data/bayesTFR/TFR1simWPP2024.tgz' and
 ### set 'bayesTFR_output_dir' to the location of the results.
-
-## nr.chains <- 6
-## total.iter <- 5000
-## thin <- 10
-
-## mc <- run.tfr.mcmc(output.dir = bayesTFR_output_dir, iter = total.iter, thin = thin,
-##                    nr.chains = nr.chains, annual = TRUE, ar.phase2 = TRUE, uncertainty = TRUE,
-##                    ## present.year = 2023,
-##                    wpp.year = 2022,
-##                    parallel = TRUE,
-##                    replace.output = FALSE)
-
-## pred <- tfr.predict(sim.dir = bayesTFR_output_dir,
-##                     nr.traj = dim(get.tfr.estimation(sim.dir = bayesTFR_output_dir,
-##                                                  country = 4)$tfr_table)[1],
-##                     burnin = 0, burnin3 = 0,
-##                     uncertainty = TRUE, replace.output = TRUE)
 
 ###-----------------------------------------------------------------------------
 ### * Probabilistic SURFs
@@ -638,19 +623,19 @@ plot_surfs_probs(tfr_surfs_lst, x_alt = tfr_surfs_median_lst,
                   datestamp = TRUE)
 dev.off()
 
-## ### SVGs (uncomment for separate SVG plots per country)
-## for (cc in remove_small_countries(names(tfr_surfs_lst))) {
-##     svg(file = file.path(dir_list[["svg_plots_dir"]],
-##                          paste0("probabilistic_surfs_",
-##                                 tfr_surfs_lst[[cc]][1, "name"],
-##                                 "_", cc, ".svg")),
-##         height = 6, width = 14)
-##     print(plot_surfs_probs(x = tfr_surfs_lst[[cc]],
-##                             x_alt = tfr_surfs_median_lst[[cc]],
-##                             x_alt_label = "Median only",
-##                             add_est_proj_ref_line = TRUE))
-##     dev.off()
-## }
+### SVGs (separate SVG plots by country)
+for (cc in remove_small_countries(names(tfr_surfs_lst))) {
+    svg(file = file.path(dir_list[["svg_plots_dir"]],
+                         paste0("probabilistic_surfs_",
+                                tfr_surfs_lst[[cc]][1, "name"],
+                                "_", cc, ".svg")),
+        height = 6, width = 14)
+    print(plot_surfs_probs(x = tfr_surfs_lst[[cc]],
+                            x_alt = tfr_surfs_median_lst[[cc]],
+                            x_alt_label = "Median only",
+                            add_est_proj_ref_line = TRUE))
+    dev.off()
+}
 
 graphics.off()
 

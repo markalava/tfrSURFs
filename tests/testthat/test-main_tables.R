@@ -32,7 +32,7 @@ test_that("'tabulate_surf_periods()' works on a data frame, default arg values."
 ### * List Methods
 
 ###-----------------------------------------------------------------------------
-### ** `tabulate_tfr_stats()`
+### ** `tabulate_surf_stats()`
 
 test_that("'tabulate_surf_stats()` works on a list, all combos of arg values.", {
 
@@ -82,30 +82,6 @@ test_that("'tabulate_rfr_surfs()' fails properly when 'no small countries' resul
                  "no countries left")
 })
 
-
-## COMMENT OUT for now; the 'test_surfs_df' data is now obsolete so this test
-## fails. Need to regenerate with updated column names.
-##
-## test_that("'tabulate_tfr_surfs()' works as expected on a specially constructed results data frame.", {
-##     test_surfs_df <- readRDS(file = testthat::test_path("test_data", "test_surfs_df.rds"))
-
-##     tbl_surfs <- tabulate_surf_periods(test_surfs_df, table_type = "surfs only")
-##     expect_s3_class(tbl_surfs, "data.frame")
-##     expect_identical(nrow(tbl_surfs), 6L)
-##     expect_identical(ncol(tbl_surfs), 6L)
-
-##     tbl_surfs <- tabulate_surf_periods(test_surfs_df, table_type = "concise")
-##     expect_s3_class(tbl_surfs, "data.frame")
-##     expect_identical(nrow(tbl_surfs), 7L)
-##     expect_identical(ncol(tbl_surfs), 7L)
-
-##     tbl_surfs <- tabulate_surf_periods(test_surfs_df, table_type = "detailed")
-##     expect_s3_class(tbl_surfs, "data.frame")
-##     expect_identical(nrow(tbl_surfs), 16L)
-##     expect_identical(ncol(tbl_surfs), 8L)
-## })
-
-
 test_that("'tabulate_surf_periods()' works on a list, all combos of arguments.", {
 
     data(test_data_tfrSURFs_list)
@@ -124,3 +100,10 @@ test_that("'tabulate_surf_periods()' works on a list, all combos of arguments.",
 
     }
 })
+
+###-----------------------------------------------------------------------------
+### * Control Tables
+
+## Test whether tabulation functions produce output different from the most
+## recently generated controls.
+

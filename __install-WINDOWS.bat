@@ -38,8 +38,6 @@ ECHO. ==========================================================================
 ECHO. DOCUMENT
 ECHO. ================================================================================
 ECHO.
-Rscript --no-save --no-restore -e "desc::desc_set('Date', Sys.Date())"
-ECHO.
 Rscript --no-save --no-restore -e "suppressPackageStartupMessages(devtools::document())"
 if %ERRORLEVEL% GEQ 1 PAUSE
 ECHO.
@@ -68,27 +66,31 @@ ECHO.
 
 
 ECHO. ================================================================================
-ECHO. TIDY UP
-ECHO. ================================================================================
-ECHO.
-REM Remove 'Date' from DESCRIPTION 
-Rscript --no-save --no-restore -e "desc::desc_del('Date')"
-ECHO.
-ECHO.
-ECHO.
-ECHO.
-ECHO.
-ECHO.
-ECHO.
-
-
-ECHO. ================================================================================
 ECHO. TESTS - testthat
 ECHO. ================================================================================
 ECHO.
 
 Rscript --no-save --no-restore -e "testthat::test_package('%CurrDirName%')"
 if %ERRORLEVEL% GEQ 1 PAUSE
+
+ECHO.
+ECHO.
+ECHO.
+ECHO.
+ECHO.
+ECHO.
+ECHO.
+
+
+ECHO. ================================================================================
+ECHO. TESTS - Compare with archived results
+ECHO. ================================================================================
+ECHO.
+
+CD _no_install\compare_results
+Rscript "compare_results.R"
+if %ERRORLEVEL% GEQ 1 PAUSE
+CD ..\..
 
 ECHO.
 ECHO.
