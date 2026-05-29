@@ -137,7 +137,7 @@ make_surf_period_control_tbl <- function(x) {
 ##' @noRd
 make_surf_stat_control_tbl <- function(x, stat, proj_split = "none") {
     tabulate_surf_stats(x = x, stat = stat,
-                        incl_small_countries = TRUE,
+                        incl_small_countries = FALSE,
                         filter_zero_rows = FALSE,
                         geographies = c("area_name", "reg_name", "name", "global"),
                         proj_split = proj_split)
@@ -168,8 +168,10 @@ add_control_comment <- function(obj) {
 ##' @rdname add_control_comment
 ##' @keywords internal
 ##' @noRd
-remove_comment <- function(obj) {
-    comment(obj) <- NULL
+remove_attr <- function(obj) {
+    if (!is.null(comment(obj)))
+        comment(obj) <- NULL
+    if (!is.null(rownames(obj)))
+        rownames(obj) <- NULL
     return(obj)
 }
-

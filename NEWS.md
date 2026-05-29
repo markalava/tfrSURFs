@@ -14,7 +14,7 @@
 * The vignette has been merged into the README file. 
 * The package documentation has been updated.
 * Unused code and function options have been tidied up. 
-* Fixed various small bugs. 
+* Various small bugs have been fixed. 
 
 
 # tfrSURFs 1.0.0

@@ -301,6 +301,8 @@ plot_tfr_surfs.data.frame <- function(x,
 
     cname <- x[1, "name"]
     rname <- x[1, "reg_name"]
+    if (identical(rname, "") && identical(x[1, "area_name"], "Northern America"))
+        rname <- "Northern America"
 
     ## This is a bit of a hack to get the polygon data frames constructed properly
     jitt_1 <- 0
