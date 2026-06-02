@@ -25,8 +25,8 @@ Type 'q()' to quit R.
 > ###
 > ### PROJECT: tfrSURFs
 > ###
-> ### DESCRIPTION: Create control tables to use when testing main tabulation
-> ### functions.
+> ### DESCRIPTION: Create full results to act as controls to use when testing main
+> ### SURF identification function.
 > ###
 > ###-----------------------------------------------------------------------------
 > ###
@@ -42,9 +42,10 @@ Type 'q()' to quit R.
 Package: tfrSURFs
 Version: 1.0.0
 Packaged: NA
-Built: R 4.5.1; ; 2026-05-29 15:29:07 UTC; windows
+Built: R 4.5.1; ; 2026-05-29 17:26:12 UTC; windows
 > stopifnot(identical(packageVersion("tfrSURFs"), package_version("1.0.0")))
 > 
+> archived_results_dirname <- "archived_results_v1.0.0"
 > source(here::here("_no_install", "compare_results", "0_setup.R"))
 > 
 > ###-----------------------------------------------------------------------------
@@ -108,52 +109,26 @@ getOption("cl.cores", -2)
 > ###-----------------------------------------------------------------------------
 > ### ** Probabilistic
 > 
-> load(archived_surfs_list_rda_filepath)
+> ## RUN MAIN FUNCTION
+> tfr_surfs_lst <-
++     add_control_comment(make_tfr_surfs_control_output(sim.dir = bayesTFR_output_dir))
+> 
+> ## Save Results
+> save(tfr_surfs_lst, file = archived_surfs_list_rda_filepath)
 > 
 > ###-----------------------------------------------------------------------------
 > ### ** Medians
 > 
-> load(archived_surfs_median_list_rda_filepath)
+> ## RUN MAIN FUNCTION
+> tfr_surfs_median_lst <-
++     add_control_comment(make_tfr_surfs_control_output(sim.dir = bayesTFR_output_dir,
++                                                       median_only = TRUE) #<<<<<<< !!!
++                         )
 > 
-> ###-----------------------------------------------------------------------------
-> ### * Make Control Tables
+> ## Save Results
+> save(tfr_surfs_median_lst, file = archived_surfs_median_list_rda_filepath)
 > 
-> ###-----------------------------------------------------------------------------
-> ### ** SURF Periods
-> 
-> ###-----------------------------------------------------------------------------
-> ### *** Concise Format
-> 
-> surf_periods_tbl <- add_control_comment(make_surf_period_control_tbl(tfr_surfs_lst))
-> saveRDS(surf_periods_tbl, file = archived_tab_surf_periods_concise_prob_filepath)
-> 
-> surf_periods_tbl_medians <- add_control_comment(make_surf_period_control_tbl(tfr_surfs_median_lst))
-> saveRDS(surf_periods_tbl_medians, file = archived_tab_surf_periods_concise_medians_filepath)
-> 
-> ###-----------------------------------------------------------------------------
-> ### ** SURF Statistics
-> 
-> ###-----------------------------------------------------------------------------
-> ### *** Average Lengths
-> 
-> surf_avg_len_country_tbl <- add_control_comment(make_surf_stat_control_tbl(tfr_surfs_lst, stat = "avg_len"))
-> saveRDS(surf_avg_len_country_tbl, file = archived_tab_surf_stats_avg_len_prob_filepath)
-> 
-> surf_avg_len_country_tbl_medians <- add_control_comment(make_surf_stat_control_tbl(tfr_surfs_median_lst, stat = "avg_len"))
-> saveRDS(surf_avg_len_country_tbl_medians, file =  archived_tab_surf_stats_avg_len_medians_filepath)
-> 
-> ###-----------------------------------------------------------------------------
-> ### *** Counts
-> 
-> ## NB: These were created with the argument `proj_split = "none"` because
-> ## proj_split = "by_year" was not possible with `stat = "count"` in v1.0.0.
-> 
-> surf_count_country_tbl <- add_control_comment(make_surf_stat_control_tbl(tfr_surfs_lst, stat = "count"))
-> saveRDS(surf_count_country_tbl, file = archived_tab_surf_stats_count_prob_filepath)
-> 
-> surf_count_country_tbl_medians <- add_control_comment(make_surf_stat_control_tbl(tfr_surfs_median_lst, stat = "count"))
-> saveRDS(surf_count_country_tbl_medians, file =  archived_tab_surf_count_medians_filepath)
 > 
 > proc.time()
    user  system elapsed 
-   6.67    0.20    7.57 
+   4.42    0.43  662.26 

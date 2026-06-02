@@ -20,23 +20,26 @@
 ### * Set up
 
 library(tfrSURFs)
-source(here::here("_no_install", "compare_results", "0_setup.R"))
+stopifnot(identical(packageVersion("tfrSURFs"), package_version("1.1.0")))
+
+archived_results_dirname <- "archived_results_v1.1.0"
+source(here::here("_no_install", "compare_results", "0_setup.R"),
+       echo = TRUE, max.deparse.length = 9e6)
 
 ###-----------------------------------------------------------------------------
-### * Generate Main Results
-
-## Report argument values that will be used:
-get_arg_defs("make_tfr_surfs")
+### * Load Main Results
 
 ###-----------------------------------------------------------------------------
 ### ** Probabilistic
 
 load(archived_surfs_list_rda_filepath)
+comment(tfr_surfs_lst)
 
 ###-----------------------------------------------------------------------------
 ### ** Medians
 
 load(archived_surfs_median_list_rda_filepath)
+comment(tfr_surfs_median_lst)
 
 ###-----------------------------------------------------------------------------
 ### * Make Control Tables
@@ -68,8 +71,11 @@ saveRDS(surf_avg_len_country_tbl_medians, file =  archived_tab_surf_stats_avg_le
 ###-----------------------------------------------------------------------------
 ### *** Counts
 
+## NB: These were created with the argument `proj_split = "none"` because
+## proj_split = "by_year" was not possible with `stat = "count"` in v1.0.0.
+
 surf_count_country_tbl <- add_control_comment(make_surf_stat_control_tbl(tfr_surfs_lst, stat = "count"))
 saveRDS(surf_count_country_tbl, file = archived_tab_surf_stats_count_prob_filepath)
 
 surf_count_country_tbl_medians <- add_control_comment(make_surf_stat_control_tbl(tfr_surfs_median_lst, stat = "count"))
-saveRDS(surf_count_country_tbl_medians, file =  archived_tab_surf_count_medians_filepath)
+saveRDS(surf_count_country_tbl_medians, file =  archived_tab_surf_stats_count_medians_filepath)

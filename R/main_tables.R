@@ -187,29 +187,27 @@ tabulate_surf_stats.data.frame <- function(x, stat = c("count", "avg_len"),
     ## -------* Functions
 
     if (identical(stat, "count")) {
-        tbl_fn <- function(z, f) {
-            z[["surf_year_start"]] <- factor(z[["surf_year_start"]], levels = c(TRUE, FALSE))
-
-            z <- table(z[, c("surf_year_start", geographies), drop = FALSE])
-
-            z <- as.data.frame(z, responseName = "count", stringsAsFactors = FALSE)
-            z <- z[as.logical(z[["surf_year_start"]]), c(geographies, "count"), drop = FALSE]
+        tbl_fn <- function(z, geog) {
+            z <- stats::aggregate(tfr_surfs_df[, "surf_year_start"],
+                                  by = tfr_surfs_df[, geog],
+                                  FUN = "sum", drop = TRUE)
+            colnames(z)[colnames(z) == "x"] <- "count"
             return(z)
         }
 
     } else if (identical(stat, "avg_len")) {
 
         if (!identical(proj_split, "by_year")) {
-            tbl_fn <- function(z, f) {
+            tbl_fn <- function(z, geog) {
                 z <- stats::aggregate(z[z[["surf_year_start"]], "surf_year_len", drop = FALSE],
-                                      by = z[z[["surf_year_start"]], geographies, drop = FALSE],
+                                      by = z[z[["surf_year_start"]], geog, drop = FALSE],
                                       FUN = "mean", drop = TRUE)
                 colnames(z)[colnames(z) == "surf_year_len"] <- "avg_len"
                 return(z)
             }
 
         } else {
-            tbl_fn <- function(z, f) {
+            tbl_fn <- function(z, geog) {
                 ## If 'proj_split' is '"by_year"', the 'surf_year_start' and
                 ## 'surf_year_len' columns are no longer useable. The surf
                 ## lengths have to be recomputed by the new 'est/proj' grouping :(
@@ -217,25 +215,25 @@ tabulate_surf_stats.data.frame <- function(x, stat = c("count", "avg_len"),
                 z <- as.data.frame(table(z[idx, c("country_code", "surf_year_group")]),
                                    responseName = "avg_len", stringsAsFactors = FALSE)
                 z <- z[z[["avg_len"]] > 0, , drop = FALSE]
-                if (any(c("sub_saharan_africa", "global") %in% geographies)) {
+                if (any(c("sub_saharan_africa", "global") %in% geog)) {
                     nrz <- nrow(z)
                     z <- base::merge(x = z,
                                      y = unique(x[, c("country_code",
-                                                      c("sub_saharan_africa", "global")[c("sub_saharan_africa", "global") %in% geographies])]),
+                                                      c("sub_saharan_africa", "global")[c("sub_saharan_africa", "global") %in% geog])]),
                                      by = "country_code",
                                      all.x = TRUE, all.y = FALSE)
                     if (!identical(nrz, nrow(z))) stop("Something wrong with merge (1).")
                 }
-                if (length(geographies[!geographies %in% c("sub_saharan_africa", "global")])) {
+                if (length(geog[!geog %in% c("sub_saharan_africa", "global")])) {
                     nrz <- nrow(z)
                     z <- base::merge(x = z,
-                                     y = unique(x[, c("country_code", geographies[geographies %in% c("name", "area_name", "reg_name")])]),
+                                     y = unique(x[, c("country_code", geog[geog %in% c("name", "area_name", "reg_name")])]),
                                      by = "country_code",
                                      all.x = TRUE, all.y = FALSE)
                     if (!identical(nrz, nrow(z))) stop("Something wrong with merge (2).")
                 }
                 z <- stats::aggregate(z[, "avg_len", drop = FALSE],
-                                      by = z[, geographies, drop = FALSE],
+                                      by = z[, geog, drop = FALSE],
                                       FUN = "mean", drop = TRUE)
                 return(z)
             }

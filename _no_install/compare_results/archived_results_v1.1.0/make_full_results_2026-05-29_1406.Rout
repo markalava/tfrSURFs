@@ -1,0 +1,156 @@
+
+R version 4.5.1 (2025-06-13 ucrt) -- "Great Square Root"
+Copyright (C) 2025 The R Foundation for Statistical Computing
+Platform: x86_64-w64-mingw32/x64
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ################################################################################
+> ###
+> ### DATE CREATED: 2026-05-28
+> ###
+> ### AUTHOR: Mark Wheldon
+> ###
+> ### PROJECT: tfrSURFs
+> ###
+> ### DESCRIPTION: Create full results to act as controls to use when testing main
+> ### SURF identification function.
+> ###
+> ###-----------------------------------------------------------------------------
+> ###
+> ### INSTRUCTIONS: Only run this script manually and when necesssary. The control
+> ### tables are not expected to change frequently.
+> ###
+> ################################################################################
+> 
+> ###-----------------------------------------------------------------------------
+> ### * Set up
+> 
+> library(tfrSURFs)
+Package: tfrSURFs
+Version: 1.1.0
+Packaged: NA
+Built: R 4.5.1; ; 2026-05-29 18:05:37 UTC; windows
+> stopifnot(identical(packageVersion("tfrSURFs"), package_version("1.1.0")))
+> 
+> archived_results_dirname <- "archived_results_v1.1.0"
+> source(here::here("_no_install", "compare_results", "0_setup.R"),
++        echo = TRUE, max.deparse.length = 9e6)
+
+> bayesTFR_output_dir <- file.path(Sys.getenv("MY_LOCAL_MODEL_RUNS_DIR"), 
++     "bayesTFR_wpp2024/TFR1simWPP2024/TFR1unc/sim20241101")
+
+> stopifnot(!is.null(archived_results_dirname) && dir.exists(here::here("_no_install", 
++     "compare_results", archived_results_dirname)))
+
+> archived_surfs_list_rda_filepath <- here::here("_no_install", 
++     "compare_results", archived_results_dirname, "tfr_surfs_lst.rda")
+
+> archived_surfs_median_list_rda_filepath <- here::here("_no_install", 
++     "compare_results", archived_results_dirname, "tfr_surfs_median_lst.rda")
+
+> archived_tab_surf_periods_concise_prob_filepath <- here::here("_no_install", 
++     "compare_results", archived_results_dirname, "tab_surf_periods_concise_prob.rds")
+
+> archived_tab_surf_periods_concise_medians_filepath <- here::here("_no_install", 
++     "compare_results", archived_results_dirname, "tab_surf_periods_concise_medians.rds")
+
+> archived_tab_surf_stats_avg_len_prob_filepath <- here::here("_no_install", 
++     "compare_results", archived_results_dirname, "tab_surf_avg_len_prob.rds")
+
+> archived_tab_surf_stats_avg_len_medians_filepath <- here::here("_no_install", 
++     "compare_results", archived_results_dirname, "tab_surf_avg_len_medians.rds")
+
+> archived_tab_surf_stats_count_prob_filepath <- here::here("_no_install", 
++     "compare_results", archived_results_dirname, "tab_surf_count_prob.rds")
+
+> archived_tab_surf_stats_count_medians_filepath <- here::here("_no_install", 
++     "compare_results", archived_results_dirname, "tab_surf_count_medians.rds")
+
+> make_tfr_surfs_control_output <- function(sim.dir, 
++     median_only = FALSE) {
++     make_tfr_surfs(country_codes = NULL, sim.dir = sim.dir, median_only = median_only, 
++         transition_condition_type = c("Phase II & >= 2.1 persistently"), 
++         smoothing_method = c("local_linear", "annual_difference"), 
++         bandwidth = 3, rate_threshold = -0.01, rate_prob_threshold = 0.8, 
++         continuation_condition = c("Regain TFR, median, 2yr"), 
++         continuation_condition_prob_threshold = 0.8, exceedance_condition = c("Max TFR > 2.1, median"), 
++         exceedance_condition_prob_threshold = 0.8, min_surf_length = 2, 
++         min_inter_surf_length = 2, year_lim = c(1950, 2050), 
++         incl_small_countries = FALSE, ncores = getOption("cl.cores", 
++             -2))
++ }
+
+> make_surf_period_control_tbl <- function(x) {
++     tabulate_surf_periods(x = x, incl_small_countries = FALSE, 
++         table_type = "concise", digits = 1)
++ }
+
+> make_surf_stat_control_tbl <- function(x, stat, proj_split = "none") {
++     tabulate_surf_stats(x = x, stat = stat, incl_small_countries = FALSE, 
++         filter_zero_rows = FALSE, geographies = c("area_name", 
++             "reg_name", "name", "global"), proj_split = proj_split)
++ }
+
+> add_control_comment <- function(obj) {
++     if (requireNamespace("tfrSURFs", quietly = TRUE)) {
++         pv <- packageVersion("tfrSURFs")
++         pd <- packageDate("tfrSURFs", date.fields = "Built")
++     }
++     else {
++         pv <- pd <- "['tfrSURFs' Not installed!]"
++     }
++     comment(obj) <- paste0("Created: ", Sys.Date(), ".\n", "Package Version: ", 
++         pv, ".\n", "Package Build Date: ", pd, ".\n")
++     return(obj)
++ }
+
+> remove_attr <- function(obj) {
++     if (!is.null(comment(obj))) 
++         comment(obj) <- NULL
++     if (!is.null(rownames(obj))) 
++         rownames(obj) <- NULL
++     return(obj)
++ }
+> 
+> ###-----------------------------------------------------------------------------
+> ### * Generate Main Results
+> 
+> ###-----------------------------------------------------------------------------
+> ### ** Probabilistic
+> 
+> ## RUN MAIN FUNCTION
+> tfr_surfs_lst <-
++     add_control_comment(make_tfr_surfs_control_output(sim.dir = bayesTFR_output_dir))
+> 
+> ## Save Results
+> save(tfr_surfs_lst, file = archived_surfs_list_rda_filepath)
+> 
+> ###-----------------------------------------------------------------------------
+> ### ** Medians
+> 
+> ## RUN MAIN FUNCTION
+> tfr_surfs_median_lst <-
++     add_control_comment(make_tfr_surfs_control_output(sim.dir = bayesTFR_output_dir,
++                                                       median_only = TRUE) #<<<<<<< !!!
++                         )
+> 
+> ## Save Results
+> save(tfr_surfs_median_lst, file = archived_surfs_median_list_rda_filepath)
+> 
+> 
+> proc.time()
+   user  system elapsed 
+   4.60    0.32  294.70 

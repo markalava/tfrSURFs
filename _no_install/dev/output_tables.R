@@ -180,6 +180,25 @@ load(file.path(test_results_dir, "tfr_surfs_median_lst.rda"))
 ###-----------------------------------------------------------------------------
 ### * Make Tables
 
+###-----------------------------------------------------------------------------
+### ** Stats
+
+devtools::load_all()
+surf_counts <- tabulate_surf_stats(x = tfr_surfs_lst, stat = "count",
+                                   incl_small_countries = FALSE,
+                                   filter_zero_rows = FALSE,
+                                   geographies = c("area_name", "reg_name", "name", "global"),
+                                   proj_split = "none")
+
+surf_avg_len <- tabulate_surf_stats(x = tfr_surfs_lst, stat = "avg_len",
+                                   incl_small_countries = FALSE,
+                                   filter_zero_rows = FALSE,
+                                   geographies = c("area_name", "reg_name", "name", "global"),
+                                   proj_split = "none")
+
+###-----------------------------------------------------------------------------
+### ** Periods
+
 ## surfs_tbl_1 <- tabulate_surf_periods(test_surfs_df, table_type = "tfrSURFs only")
 ## surfs_tbl_2 <-
 ##     tabulate_surf_periods(test_surfs_df, table_type = "concise")

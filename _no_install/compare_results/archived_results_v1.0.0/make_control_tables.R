@@ -22,6 +22,7 @@
 library(tfrSURFs)
 stopifnot(identical(packageVersion("tfrSURFs"), package_version("1.0.0")))
 
+archived_results_dirname <- "archived_results_v1.0.0"
 source(here::here("_no_install", "compare_results", "0_setup.R"))
 
 ###-----------------------------------------------------------------------------
@@ -34,11 +35,13 @@ get_arg_defs("make_tfr_surfs")
 ### ** Probabilistic
 
 load(archived_surfs_list_rda_filepath)
+comment(tfr_surfs_lst)
 
 ###-----------------------------------------------------------------------------
 ### ** Medians
 
 load(archived_surfs_median_list_rda_filepath)
+comment(tfr_surfs_median_lst)
 
 ###-----------------------------------------------------------------------------
 ### * Make Control Tables
@@ -77,4 +80,4 @@ surf_count_country_tbl <- add_control_comment(make_surf_stat_control_tbl(tfr_sur
 saveRDS(surf_count_country_tbl, file = archived_tab_surf_stats_count_prob_filepath)
 
 surf_count_country_tbl_medians <- add_control_comment(make_surf_stat_control_tbl(tfr_surfs_median_lst, stat = "count"))
-saveRDS(surf_count_country_tbl_medians, file =  archived_tab_surf_count_medians_filepath)
+saveRDS(surf_count_country_tbl_medians, file =  archived_tab_surf_stats_count_medians_filepath)
