@@ -175,6 +175,7 @@ add_control_comment <- function(obj) {
     return(obj)
 }
 
+
 ##' @rdname add_control_comment
 ##' @keywords internal
 ##' @noRd
@@ -191,18 +192,46 @@ read_control_file <- function(file) {
     return(obj)
 }
 
+
 ##' @rdname add_control_comment
 ##' @keywords internal
 ##' @noRd
 remove_attr <- function(obj) {
     if (!is.null(comment(obj)))
         comment(obj) <- NULL
+
     if (is.data.frame(obj)) {
-        if (!is.null(rownames(obj)))
-            rownames(obj) <- NULL
         geogs <- c("global", "area_name", "reg_name", "name")
         geogs <- geogs[geogs %in% colnames(obj)]
         obj <- obj[do.call("order", unname(obj[, geogs, drop = FALSE])), , drop = FALSE]
+
+        if (!is.null(rownames(obj))) rownames(obj) <- NULL
+    }
+    return(obj)
+}
+
+
+##' @rdname add_control_comment
+##' @keywords internal
+##' @noRd
+filter_NAs <- function(obj) {
+    for (j in c("avg_len", "count")) {
+        if (j %in% colnames(obj)) {
+            obj <- obj[!is.na(obj[[j]]), ]
+        }
+    }
+    return(obj)
+}
+
+
+##' @rdname add_control_comment
+##' @keywords internal
+##' @noRd
+filter_zeros <- function(obj) {
+    for (j in c("avg_len", "count")) {
+        if (j %in% colnames(obj)) {
+            obj <- obj[!(as.double(obj[[j]]) == as.double(0)), ]
+        }
     }
     return(obj)
 }

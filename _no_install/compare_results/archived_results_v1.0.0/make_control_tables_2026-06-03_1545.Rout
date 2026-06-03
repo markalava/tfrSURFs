@@ -42,7 +42,7 @@ Type 'q()' to quit R.
 Package: tfrSURFs
 Version: 1.0.0
 Packaged: NA
-Built: R 4.5.1; ; 2026-05-29 17:26:12 UTC; windows
+Built: R 4.5.1; ; 2026-06-03 19:39:44 UTC; windows
 > stopifnot(identical(packageVersion("tfrSURFs"), package_version("1.0.0")))
 > 
 > archived_results_dirname <- "archived_results_v1.0.0"
@@ -141,10 +141,12 @@ getOption("cl.cores", -2)
 > ###-----------------------------------------------------------------------------
 > ### *** Average Lengths
 > 
-> surf_avg_len_country_tbl <- add_control_comment(make_surf_stat_control_tbl(tfr_surfs_lst, stat = "avg_len"))
+> surf_avg_len_country_tbl <-
++     add_control_comment(make_surf_stat_control_tbl(tfr_surfs_lst, stat = "avg_len"))
 > saveRDS(surf_avg_len_country_tbl, file = archived_tab_surf_stats_avg_len_prob_filepath)
 > 
-> surf_avg_len_country_tbl_medians <- add_control_comment(make_surf_stat_control_tbl(tfr_surfs_median_lst, stat = "avg_len"))
+> surf_avg_len_country_tbl_medians <-
++     add_control_comment(make_surf_stat_control_tbl(tfr_surfs_median_lst, stat = "avg_len"))
 > saveRDS(surf_avg_len_country_tbl_medians, file =  archived_tab_surf_stats_avg_len_medians_filepath)
 > 
 > ###-----------------------------------------------------------------------------
@@ -153,12 +155,14 @@ getOption("cl.cores", -2)
 > ## NB: These were created with the argument `proj_split = "none"` because
 > ## proj_split = "by_year" was not possible with `stat = "count"` in v1.0.0.
 > 
-> surf_count_country_tbl <- add_control_comment(make_surf_stat_control_tbl(tfr_surfs_lst, stat = "count"))
+> surf_count_country_tbl <-
++     add_control_comment(make_surf_stat_control_tbl(tfr_surfs_lst, stat = "count"))
 > saveRDS(surf_count_country_tbl, file = archived_tab_surf_stats_count_prob_filepath)
 > 
-> surf_count_country_tbl_medians <- add_control_comment(make_surf_stat_control_tbl(tfr_surfs_median_lst, stat = "count"))
+> surf_count_country_tbl_medians <-
++     add_control_comment(make_surf_stat_control_tbl(tfr_surfs_median_lst, stat = "count"))
 > saveRDS(surf_count_country_tbl_medians, file =  archived_tab_surf_stats_count_medians_filepath)
 > 
 > proc.time()
    user  system elapsed 
-   6.71    0.21    6.98 
+   9.98    0.25   10.54 

@@ -23,7 +23,7 @@ library(tfrSURFs)
 stopifnot(identical(packageVersion("tfrSURFs"), package_version("1.0.0")))
 
 archived_results_dirname <- "archived_results_v1.0.0"
-source(here::here("_no_install", "compare_results", "0_setup.R"))
+source(here::here("_no_install", "compare_results", "_0_setup.R"))
 
 ###-----------------------------------------------------------------------------
 ### * Generate Main Results
