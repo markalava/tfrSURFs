@@ -1,0 +1,3 @@
+# Keep .Rout as a record of running the data creating scripts
+
+!*.Rout

@@ -103,16 +103,12 @@ tabulate_loc_by_surf.data.frame <- function(x, ...,
 ##' Tables of SURF summary statistics
 ##'
 ##' Produces tables of SURF counts and average lengths by geographic regions and
-##' other geographies.
-##'
-##' Some tfrSURFs occur in the future (defined by \code{last_est_year}), and
-##' hence are based on projected fertility rates. Using \code{proj_split}, these
-##' can be separately tabulated as follows:
-##' \describe{
-##' \item{\code{"none"}}{No distinction is made based on projection or estimation years.}
-##' \item{\code{"by_surf"}}{A SURF is considered wholly within the projection period if more than half of it occurs after \code{last_est_year}. Counts and lengths are based on whole SURFs.}
-##' \item{\code{"by_year"}}{The average lengths are computed based on the actual number of years in each period (estimation or projection). The counts are based on the SURF start year. SURFs that start after \code{last_est_year} are counted in the projection period.}
-##' }
+##' other geographies. Some tfrSURFs occur in the future (defined by
+##' \code{last_est_year}), and hence are based on projected fertility rates. Use
+##' \code{time_range} to choose whether tabulation should be done for the
+##' \code{"estimation"}, \code{"projection"}, or \code{"all"} periods. If
+##' \code{time_range} is not \code{"all"}, \code{last_est_year} must be
+##' specified.
 ##'
 ##' @param x Output of \code{\link{make_tfr_surfs}}.
 ##' @param stat Character; the statistic to tabulate.
@@ -120,11 +116,11 @@ tabulate_loc_by_surf.data.frame <- function(x, ...,
 ##'     be columns in \code{x}.
 ##' @param filter_zero_rows Logical; remove rows for countries or regions with
 ##'     no tfrSURFs. Only applicable if \code{stat = "count"}.
-##' @param proj_split Character; determines how the tfrSURFs are split between
-##'     estimation and projection types. See \dQuote{Details}.
+##' @param time_range Character; which time range should be tabulated?
+##'     \code{"estimation"}, \code{"projection"}, or \code{"all"}?
 ##' @param last_est_year Numeric; the first year of the projection period, for
-##'     the purposes of \code{proj_split}. This is ignored if \code{proj_split}
-##'     \code{=} \code{"none"}.
+##'     the purposes of \code{time_range}. This is ignored if \code{time_range}
+##'     \code{=} \code{"all"}.
 ##' @param ... Passed to other methods.
 ##' @inheritParams tabulate_loc_by_surf
 ##' @return A data frame.
@@ -142,7 +138,7 @@ tabulate_surf_stats <- function(x, ...) {
 tabulate_surf_stats.list <- function(x, stat = c("count", "avg_len"), incl_small_countries = TRUE,
                                      geographies = c("area_name", "reg_name", "name", "sub_saharan_africa", "global"),
                                      filter_zero_rows = identical(stat, "count"),
-                                     proj_split = c("none", "by_surf", "by_year"),
+                                     time_range = c("estimation", "projection", "all"),
                                      last_est_year = x[[1]][1, "bayesTFR_present_year"]) {
     stopifnot(is.logical(incl_small_countries))
     if (!incl_small_countries) x <- remove_small_countries(x)
@@ -160,7 +156,7 @@ tabulate_surf_stats.list <- function(x, stat = c("count", "avg_len"), incl_small
 
     return(tabulate_surf_stats(do.call("rbind", c(x, list(make.row.names = TRUE))),
                                stat = stat, geographies = geographies, filter_zero_rows = filter_zero_rows,
-                               proj_split = proj_split,
+                               time_range = time_range,
                                 last_est_year = last_est_year))
 }
 
@@ -170,75 +166,22 @@ tabulate_surf_stats.list <- function(x, stat = c("count", "avg_len"), incl_small
 tabulate_surf_stats.data.frame <- function(x, stat = c("count", "avg_len"),
                                            geographies = c("area_name", "reg_name", "name", "sub_saharan_africa", "global"),
                                            filter_zero_rows = identical(stat, "count"),
-                                           proj_split = c("none", "by_surf", "by_year"),
+                                           time_range = c("estimation", "projection", "all"),
                                            last_est_year = x[1, "bayesTFR_present_year"]) {
 
     ## -------* Arg Checks
 
     stat <- match.arg(stat)
-    proj_split <- match.arg(proj_split)
     geographies <- match.arg(geographies, several.ok = TRUE)
     stopifnot(is.logical(filter_zero_rows))
     if (getOption("tfrSURFs.verbose")) {
         if (filter_zero_rows && !identical(stat, "count"))
             message("'filter_zero_rows' has no effect when 'stat' != '\"count\"'.")
     }
-
-    ## -------* Functions
-
-    if (identical(stat, "count")) {
-        tbl_fn <- function(z, geog) {
-            z <- stats::aggregate(tfr_surfs_df[, "surf_year_start"],
-                                  by = tfr_surfs_df[, geog],
-                                  FUN = "sum", drop = TRUE)
-            colnames(z)[colnames(z) == "x"] <- "count"
-            return(z)
-        }
-
-    } else if (identical(stat, "avg_len")) {
-
-        if (!identical(proj_split, "by_year")) {
-            tbl_fn <- function(z, geog) {
-                z <- stats::aggregate(z[z[["surf_year_start"]], "surf_year_len", drop = FALSE],
-                                      by = z[z[["surf_year_start"]], geog, drop = FALSE],
-                                      FUN = "mean", drop = TRUE)
-                colnames(z)[colnames(z) == "surf_year_len"] <- "avg_len"
-                return(z)
-            }
-
-        } else {
-            tbl_fn <- function(z, geog) {
-                ## If 'proj_split' is '"by_year"', the 'surf_year_start' and
-                ## 'surf_year_len' columns are no longer useable. The surf
-                ## lengths have to be recomputed by the new 'est/proj' grouping :(
-                idx <- z[["surf_year"]]
-                z <- as.data.frame(table(z[idx, c("country_code", "surf_year_group")]),
-                                   responseName = "avg_len", stringsAsFactors = FALSE)
-                z <- z[z[["avg_len"]] > 0, , drop = FALSE]
-                if (any(c("sub_saharan_africa", "global") %in% geog)) {
-                    nrz <- nrow(z)
-                    z <- base::merge(x = z,
-                                     y = unique(x[, c("country_code",
-                                                      c("sub_saharan_africa", "global")[c("sub_saharan_africa", "global") %in% geog])]),
-                                     by = "country_code",
-                                     all.x = TRUE, all.y = FALSE)
-                    if (!identical(nrz, nrow(z))) stop("Something wrong with merge (1).")
-                }
-                if (length(geog[!geog %in% c("sub_saharan_africa", "global")])) {
-                    nrz <- nrow(z)
-                    z <- base::merge(x = z,
-                                     y = unique(x[, c("country_code", geog[geog %in% c("name", "area_name", "reg_name")])]),
-                                     by = "country_code",
-                                     all.x = TRUE, all.y = FALSE)
-                    if (!identical(nrz, nrow(z))) stop("Something wrong with merge (2).")
-                }
-                z <- stats::aggregate(z[, "avg_len", drop = FALSE],
-                                      by = z[, geog, drop = FALSE],
-                                      FUN = "mean", drop = TRUE)
-                return(z)
-            }
-        }
-    }
+    time_range <- match.arg(time_range)
+    last_est_year <- as.numeric(last_est_year)
+    if (!identical(time_range, "all") && (is.null(last_est_year) || is.na(last_est_year)))
+        stop("'last_est_year' must be a valid year if 'time_range' is not \"all\".")
 
     ## -------* BODY
 
@@ -248,19 +191,26 @@ tabulate_surf_stats.data.frame <- function(x, stat = c("count", "avg_len"),
         if (length(geographies) > 1) {
             out <- tabulate_surf_stats(x = x, stat = stat,
                                        geographies = "global", filter_zero_rows = FALSE,
-                                       proj_split = proj_split, last_est_year = last_est_year)
-            out <- data.frame(as.data.frame(lapply(setNames(nm = geographies[!geographies == "global"]),
-                                                   function(z) "GLOBAL")),
-                              out)
-            out <- rbind(data.frame(tabulate_surf_stats(x = x, stat = stat,
-                                                        geographies = geographies[!geographies == "global"],
-                                                        filter_zero_rows = FALSE,
-                                                        proj_split = proj_split,
-                                                        last_est_year = last_est_year),
-                                    global = FALSE),
-                         out)
-            if (filter_zero_rows && identical(stat, "count"))
-                out <- out[out[["count"]] > 0, , drop = FALSE]
+                                       time_range = time_range, last_est_year = last_est_year)
+
+            if (nrow(out)) {
+                out <- data.frame(as.data.frame(lapply(setNames(nm = geographies[!geographies == "global"]),
+                                                       function(z) "GLOBAL")),
+                                  out)
+                out <- rbind(data.frame(tabulate_surf_stats(x = x, stat = stat,
+                                                            geographies = geographies[!geographies == "global"],
+                                                            filter_zero_rows = FALSE,
+                                                            time_range = time_range,
+                                                            last_est_year = last_est_year),
+                                        global = FALSE),
+                             out)
+                if (filter_zero_rows && identical(stat, "count"))
+                    out <- out[out[["count"]] > 0, , drop = FALSE]
+            } else {
+                out <- cbind(out,
+                             data.frame(
+                                 sapply(geographies[!geographies == "global"], function(z) list(character()))))
+            }
 
             ## vvv EARLY RETURN
             return(out)
@@ -273,45 +223,60 @@ tabulate_surf_stats.data.frame <- function(x, stat = c("count", "avg_len"),
 
     ## -------** Main Tabulation
 
-    out <- tbl_fn(x, geographies)
-
-    if (!identical(proj_split, "none")) {
-
-        if (identical(proj_split, "by_year")) {
-            ## Need to re-define the 'surf_in_proj' column.
-            x <- add_surf_in_proj(x, last_est_year = last_est_year, proj_split = proj_split)
-        }
-
-        no_proj_idx <- which(!x[["surf_in_proj"]])
-        if (length(no_proj_idx)) {
-            out <- base::merge(out,
-                               tbl_fn(x[no_proj_idx, , drop = FALSE], geographies),
-                               all = TRUE, by = geographies,
-                               suffixes = c("", "_estimates"))
-        }
-
-        has_proj_idx <- which(x[["surf_in_proj"]])
-        if (length(has_proj_idx)) {
-            out_proj <- tbl_fn(x[has_proj_idx, , drop = FALSE], geographies)
-            if (nrow(out_proj)) {
-                out <- base::merge(out,
-                                   out_proj,
-                                   all = TRUE, by = geographies,
-                                   suffixes = c("", "_projections"))
-            } else {
-                out[, paste0(stat, "_projections")] <- NA
-            }
+    ## Implement 'time_range'. Only keep the relevant part of the input data.
+    if (identical(time_range, "estimation")) {
+        x <- x[x[["year"]] <= last_est_year, ]
+    } else {
+        if (identical(time_range, "projection"))
+            x <- x[x[["year"]] > last_est_year, ]
+        if (nrow(x)) {
+            ## Need to re-creat surf_start_year because any SURFs stretching
+            ## from estimation to projection year will not have any 'TRUE'
+            ## surf_start_year.
+            x <- by(data = x, # 'replace_surf_lengths()' only works for one country at a time.
+                    INDICES = x[, "country_code"],
+                    FUN = function(z) replace_surf_lengths(z)
+                    )
+            x <- do.call("rbind", x)
         }
     }
 
-    ## Remove geographies with zero stats
-    if (filter_zero_rows && identical(stat, "count")) {
-        out <- out[out[["count"]] > 0, , drop = FALSE]
+    if (!nrow(x) || (identical(stat, "avg_len") && sum(x[["surf_year_start"]]) == 0)) {
+        ## Zero-row data frame
+        x <-  data.frame(
+            c(setNames(list(numeric()), stat), sapply(geographies, function(z) list(character()))))
+
+    } else {
+
+        ## Tabulate
+        if (identical(stat, "count")) {
+            x <- stats::aggregate(x[, "surf_year_start", drop = FALSE # << so it's a data frame
+                                    ],
+                                  by = x[, geographies, drop = FALSE],
+                                  FUN = "sum", drop = TRUE)
+            colnames(x)[colnames(x) == "surf_year_start"] <- "count"
+        } else {
+            if (identical(stat, "avg_len")) {
+                x <- stats::aggregate(x[x[["surf_year_start"]], "surf_year_len", drop = FALSE # << so it's a data frame
+                                        ],
+                                      by = x[x[["surf_year_start"]], geographies, drop = FALSE],
+                                      FUN = "mean", drop = TRUE)
+                colnames(x)[colnames(x) == "surf_year_len"] <- "avg_len"
+            }
+        }
+
+        ## Remove geographies with zero stats if requested
+        if (filter_zero_rows && identical(stat, "count")) {
+            x <- x[x[["count"]] > 0, , drop = FALSE]
+        }
+
+        ## Sort
+        x <- x[do.call("order", unname(x[, geographies, drop = FALSE])), , drop = FALSE]
     }
 
     ## -------* END
 
-    return(out[do.call("order", unname(out[, geographies, drop = FALSE])), , drop = FALSE])
+    return(x)
 }
 
 ###-----------------------------------------------------------------------------

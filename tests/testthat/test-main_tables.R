@@ -34,6 +34,14 @@ test_that("'tabulate_surf_periods()' works on a data frame, default arg values."
 ###-----------------------------------------------------------------------------
 ### ** `tabulate_surf_stats()`
 
+test_that("'tabulate_surf_stats()' fails properly when 'no small countries' results in no countries.", {
+    data(test_data_small_c_tfrSURFs_list)
+    expect_error(tabulate_surf_stats(test_data_small_c_tfrSURFs_list,
+                                       incl_small_countries = FALSE),
+                 "no countries left")
+})
+
+
 test_that("'tabulate_surf_stats()` works on a list, all combos of arg values.", {
 
     data(test_data_tfrSURFs_list)
@@ -63,7 +71,7 @@ test_that("'tabulate_surf_stats()` works on a list, all combos of arg values.", 
                             test_data_tfrSURFs_list,
                             stat = pars[["stat"]],
                             incl_small_countries = pars[["incl_small_countries"]],
-                            proj_split = pars[["proj_split"]],
+                            time_range = pars[["time_range"]],
                             last_est_year = pars[["last_est_year"]],
                             geographies = geographies_all[geog_combs[[fi_comb]][fi, ]]),
                         "data.frame")
@@ -75,7 +83,7 @@ test_that("'tabulate_surf_stats()` works on a list, all combos of arg values.", 
 ###-----------------------------------------------------------------------------
 ### ** `tabulate_surf_periods()`
 
-test_that("'tabulate_rfr_surfs()' fails properly when 'no small countries' results in no countries.", {
+test_that("'tabulate_surf_periods()' fails properly when 'no small countries' results in no countries.", {
     data(test_data_small_c_tfrSURFs_list)
     expect_error(tabulate_surf_periods(test_data_small_c_tfrSURFs_list,
                                      incl_small_countries = FALSE),
@@ -107,3 +115,20 @@ test_that("'tabulate_surf_periods()' works on a list, all combos of arguments.",
 ## Test whether tabulation functions produce output different from the most
 ## recently generated controls.
 
+test_that("'tabulate_surf_periods()' reproduces control table from 2026-06-02.", {
+    input_lst <- readRDS(test_path("fixtures", "control_table_input_data_2026-06-02.rds"))
+    ctrl_tbl <- readRDS(test_path("fixtures", "control_table_period_2026-06-02.rds"))
+    expect_equal(make_control_table_periods(input_lst), ctrl_tbl)
+})
+
+test_that("'tabulate_surf_stats()' reproduces control tables from 2026-06-02.", {
+    input_lst <- readRDS(test_path("fixtures", "control_table_input_data_2026-06-02.rds"))
+    for (st in c("count", "avg_len")) {
+        for (tr in c("estimation", "projection", "all")) {
+            message("stat = '", st, "'; time_range = '", tr, "'.")
+            ctrl_tbl <- readRDS(test_path("fixtures", paste0("control_table_stat_", st, "_", tr,
+                                                             "_", "2026-06-02", ".rds")))
+            expect_equal(make_control_table_stats(input_lst, stat = st, time_range = tr), ctrl_tbl)
+        }
+    }
+})

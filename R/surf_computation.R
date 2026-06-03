@@ -454,11 +454,11 @@ get_surf_lengths <- function(x, min_surf_length) {
 
     if ("country_code" %in% colnames(x)) {
         if (length(unique(x[["country_code"]])) > 1)
-            stop("'x' has column 'country_code' which has and more than one unique value; this function can only process one country at a time.")
+            stop("'x' has column 'country_code' which has more than one unique value; this function can only process one country at a time.")
     }
     if ("indicator" %in% colnames(x)) {
         if (length(unique(x[["indicator"]])) > 1)
-            stop("'x' has column 'indicator' which has and more than one unique value; this function can only process one indicator at a time.")
+            stop("'x' has column 'indicator' which has more than one unique value; this function can only process one indicator at a time.")
     }
 
     ## Keep only the required columns
@@ -588,7 +588,7 @@ remove_length_cols <- function(x) {
 ##' @author Mark C Wheldon
 ##' @keywords internal
 ##' @noRd
-replace_surf_lengths <- function(x, min_surf_length) {
+replace_surf_lengths <- function(x, min_surf_length = x[1, "min_surf_length"]) {
     return(add_surf_lengths(remove_length_cols(x),
                              min_surf_length = min_surf_length))
 }

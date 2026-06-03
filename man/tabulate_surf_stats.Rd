@@ -14,7 +14,7 @@ tabulate_surf_stats(x, ...)
   incl_small_countries = TRUE,
   geographies = c("area_name", "reg_name", "name", "sub_saharan_africa", "global"),
   filter_zero_rows = identical(stat, "count"),
-  proj_split = c("none", "by_surf", "by_year"),
+  time_range = c("estimation", "projection", "all"),
   last_est_year = x[[1]][1, "bayesTFR_present_year"]
 )
 
@@ -23,7 +23,7 @@ tabulate_surf_stats(x, ...)
   stat = c("count", "avg_len"),
   geographies = c("area_name", "reg_name", "name", "sub_saharan_africa", "global"),
   filter_zero_rows = identical(stat, "count"),
-  proj_split = c("none", "by_surf", "by_year"),
+  time_range = c("estimation", "projection", "all"),
   last_est_year = x[1, "bayesTFR_present_year"]
 )
 }
@@ -43,29 +43,24 @@ be columns in \code{x}.}
 \item{filter_zero_rows}{Logical; remove rows for countries or regions with
 no tfrSURFs. Only applicable if \code{stat = "count"}.}
 
-\item{proj_split}{Character; determines how the tfrSURFs are split between
-estimation and projection types. See \dQuote{Details}.}
+\item{time_range}{Character; which time range should be tabulated?
+\code{"estimation"}, \code{"projection"}, or \code{"all"}?}
 
 \item{last_est_year}{Numeric; the first year of the projection period, for
-the purposes of \code{proj_split}. This is ignored if \code{proj_split}
-\code{=} \code{"none"}.}
+the purposes of \code{time_range}. This is ignored if \code{time_range}
+\code{=} \code{"all"}.}
 }
 \value{
 A data frame.
 }
 \description{
 Produces tables of SURF counts and average lengths by geographic regions and
-other geographies.
-}
-\details{
-Some tfrSURFs occur in the future (defined by \code{last_est_year}), and
-hence are based on projected fertility rates. Using \code{proj_split}, these
-can be separately tabulated as follows:
-\describe{
-\item{\code{"none"}}{No distinction is made based on projection or estimation years.}
-\item{\code{"by_surf"}}{A SURF is considered wholly within the projection period if more than half of it occurs after \code{last_est_year}. Counts and lengths are based on whole SURFs.}
-\item{\code{"by_year"}}{The average lengths are computed based on the actual number of years in each period (estimation or projection). The counts are based on the SURF start year. SURFs that start after \code{last_est_year} are counted in the projection period.}
-}
+other geographies. Some tfrSURFs occur in the future (defined by
+\code{last_est_year}), and hence are based on projected fertility rates. Use
+\code{time_range} to choose whether tabulation should be done for the
+\code{"estimation"}, \code{"projection"}, or \code{"all"} periods. If
+\code{time_range} is not \code{"all"}, \code{last_est_year} must be
+specified.
 }
 \seealso{
 Other Tabulation: 
