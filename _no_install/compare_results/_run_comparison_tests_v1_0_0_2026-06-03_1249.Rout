@@ -1,0 +1,273 @@
+
+R version 4.5.1 (2025-06-13 ucrt) -- "Great Square Root"
+Copyright (C) 2025 The R Foundation for Statistical Computing
+Platform: x86_64-w64-mingw32/x64
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ################################################################################
+> ###
+> ### DATE CREATED: 2026-05-28
+> ###
+> ### AUTHOR: Mark Wheldon
+> ###
+> ### PROJECT: tfrSURFs
+> ###
+> ### DESCRIPTION: Run tests in this directory.
+> ###
+> ###-----------------------------------------------------------------------------
+> ###
+> ################################################################################
+> 
+> ###-----------------------------------------------------------------------------
+> ### * Set Up
+> 
+> library(testthat)
+> library(tfrSURFs)
+Package: tfrSURFs
+Version: 1.1.0
+Packaged: NA
+Built: R 4.5.1; ; 2026-06-03 16:27:16 UTC; windows
+> 
+> archived_results_dirname <- "archived_results_v1.0.0"
+> source(here::here("_no_install", "compare_results", "0_setup.R"))
+> 
+> test_file(here::here("_no_install", "compare_results", "compare_results_v1_0_0.R"))
+
+══ Testing compare_results_v1_0_0.R ════════════════════════════════════════════
+
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 0 ]Loaded 'I:/repos/markalava/tfrSURFs/_no_install/compare_results/archived_results_v1.0.0/tfr_surfs_lst.rda'.
+Comment:
+	Created: 2026-05-29.
+Package Version: 1.0.0.
+Package Build Date: 2026-05-29.
+
+
+[ FAIL 1 | WARN 0 | SKIP 0 | PASS 0 ]Loaded 'I:/repos/markalava/tfrSURFs/_no_install/compare_results/archived_results_v1.0.0/tfr_surfs_median_lst.rda'.
+Comment:
+	Created: 2026-05-29.
+Package Version: 1.0.0.
+Package Build Date: 2026-05-29.
+
+
+[ FAIL 2 | WARN 0 | SKIP 0 | PASS 0 ]Loaded 'I:/repos/markalava/tfrSURFs/_no_install/compare_results/archived_results_v1.0.0/tfr_surfs_lst.rda'.
+Comment:
+	Created: 2026-05-29.
+Package Version: 1.0.0.
+Package Build Date: 2026-05-29.
+
+
+[ FAIL 3 | WARN 0 | SKIP 0 | PASS 0 ]Loaded 'I:/repos/markalava/tfrSURFs/_no_install/compare_results/archived_results_v1.0.0/tfr_surfs_lst.rda'.
+Comment:
+	Created: 2026-05-29.
+Package Version: 1.0.0.
+Package Build Date: 2026-05-29.
+
+
+[ FAIL 4 | WARN 0 | SKIP 0 | PASS 0 ]
+
+── Failure ('compare_results_v1_0_0.R:45:5'): tabulate_surf_periods(..., table_type = 'concise') replicates archived results. ──
+remove_attr(make_surf_period_control_tbl(read_control_file(archived_surfs_list_rda_filepath))) (`actual`) not identical to remove_attr(readRDS(archived_tab_surf_periods_concise_prob_filepath)) (`expected`).
+
+actual vs expected
+                      TFR                                                Schoumaker_stall_period
+  actual[17, ]    2.0-2.4 (not included)                                                        
+  actual[18, ]    ---     (not included)                                                        
+  actual[19, ]    ---     (not included)                                                        
+- actual[20, ]    6.5-7.1 1986-2000 (Pretransitional); 2001-2005 (Weak or conflicting evidence) 
++ expected[20, ]  6.5-6.9 1997-2000 (Pretransitional); 2001-2005 (Weak or conflicting evidence) 
+  actual[21, ]    5.6-5.7 1999-2003 (Moderate evidence)                                         
+  actual[22, ]    6.2-6.3 1992-1995 (Weak or conflicting evidence)                              
+  actual[23, ]    5.7-5.8 2002-2006 (Strong+ evidence)                                          
+
+actual vs expected
+                      TFR                                                Schoumaker_stall_period
+  actual[27, ]    ---     (not included)                                                        
+  actual[28, ]    6.8-7.3 1997-2014 (Pretransitional)                                           
+  actual[29, ]    4.7-4.9 2005-2010 (Strong+ evidence)                                          
+- actual[30, ]    6.6-6.6 2007-2012 (Pretransitional)                                           
++ expected[30, ]  6.6-6.6 2009-2012 (Pretransitional)                                           
+  actual[31, ]    ---     (not included)                                                        
+  actual[32, ]    4.1-4.5 2000-2011 (Moderate evidence)                                         
+  actual[33, ]    ---     (not included)                                                        
+
+actual vs expected
+                      TFR                                                Schoumaker_stall_period
+  actual[53, ]    5.3-6.0 1999-2011 (Pretransitional)                                           
+  actual[54, ]    ---     (not included)                                                        
+  actual[55, ]    ---     ---                                                                   
+- actual[56, ]    6.7-7.3 1987-2005 (Pretransitional)                                           
++ expected[56, ]  6.7-7.3 1989-2005 (Pretransitional)                                           
+  actual[57, ]    ---     (not included)                                                        
+- actual[58, ]    7.6-7.8 1992-2011 (Pretransitional)                                           
++ expected[58, ]  7.6-7.8 1999-2011 (Pretransitional)                                           
+  actual[59, ]    6.0-6.5 1990-2007 (Moderate evidence)                                         
+  actual[60, ]    5.7-6.1 1993-1996 (Weak or conflicting evidence)                              
+  actual[61, ]    5.1-5.1 2005-2010 (Weak or conflicting evidence)                              
+
+     actual$TFR | expected$TFR     
+[17] "2.0-2.4"  | "2.0-2.4"    [17]
+[18] "---"      | "---"        [18]
+[19] "---"      | "---"        [19]
+[20] "6.5-7.1"  - "6.5-6.9"    [20]
+[21] "5.6-5.7"  | "5.6-5.7"    [21]
+[22] "6.2-6.3"  | "6.2-6.3"    [22]
+[23] "5.7-5.8"  | "5.7-5.8"    [23]
+
+actual$Schoumaker_stall_period[17:23] vs expected$Schoumaker_stall_period[17:23]
+  "(not included)"
+  "(not included)"
+  "(not included)"
+- "1986-2000 (Pretransitional); 2001-2005 (Weak or conflicting evidence)"
++ "1997-2000 (Pretransitional); 2001-2005 (Weak or conflicting evidence)"
+  "1999-2003 (Moderate evidence)"
+  "1992-1995 (Weak or conflicting evidence)"
+  "2002-2006 (Strong+ evidence)"
+
+     actual$Schoumaker_stall_period  | expected$Schoumaker_stall_period     
+[27] "(not included)"                | "(not included)"                 [27]
+[28] "1997-2014 (Pretransitional)"   | "1997-2014 (Pretransitional)"    [28]
+[29] "2005-2010 (Strong+ evidence)"  | "2005-2010 (Strong+ evidence)"   [29]
+[30] "2007-2012 (Pretransitional)"   - "2009-2012 (Pretransitional)"    [30]
+[31] "(not included)"                | "(not included)"                 [31]
+[32] "2000-2011 (Moderate evidence)" | "2000-2011 (Moderate evidence)"  [32]
+[33] "(not included)"                | "(not included)"                 [33]
+
+actual$Schoumaker_stall_period[53:61] vs expected$Schoumaker_stall_period[53:61]
+  "1999-2011 (Pretransitional)"
+  "(not included)"
+  "---"
+- "1987-2005 (Pretransitional)"
++ "1989-2005 (Pretransitional)"
+  "(not included)"
+- "1992-2011 (Pretransitional)"
++ "1999-2011 (Pretransitional)"
+  "1990-2007 (Moderate evidence)"
+  "1993-1996 (Weak or conflicting evidence)"
+  "2005-2010 (Weak or conflicting evidence)"
+
+── Failure ('compare_results_v1_0_0.R:50:5'): tabulate_surf_periods(..., table_type = 'concise') replicates archived results. ──
+remove_attr(make_surf_period_control_tbl(read_control_file(archived_surfs_median_list_rda_filepath))) (`actual`) not identical to remove_attr(readRDS(archived_tab_surf_periods_concise_medians_filepath)) (`expected`).
+
+actual vs expected
+                      TFR                                                Schoumaker_stall_period
+  actual[22, ]    2.0-2.4 (not included)                                                        
+  actual[23, ]    ---     (not included)                                                        
+  actual[24, ]    7.4-7.4 (not included)                                                        
+- actual[25, ]    6.5-7.1 1986-2000 (Pretransitional); 2001-2005 (Weak or conflicting evidence) 
++ expected[25, ]  6.5-6.9 1997-2000 (Pretransitional); 2001-2005 (Weak or conflicting evidence) 
+  actual[26, ]    5.8-5.8 ---                                                                   
+  actual[27, ]    5.6-5.6 1999-2003 (Moderate evidence)                                         
+  actual[28, ]    5.1-5.2 ---                                                                   
+
+actual vs expected
+                      TFR                                                Schoumaker_stall_period
+  actual[35, ]    7.3-7.3 1997-2014 (Pretransitional)                                           
+  actual[36, ]    4.7-4.7 ---                                                                   
+  actual[37, ]    4.6-4.9 2005-2010 (Strong+ evidence)                                          
+- actual[38, ]    6.6-6.6 2007-2012 (Pretransitional)                                           
++ expected[38, ]  6.6-6.6 2009-2012 (Pretransitional)                                           
+  actual[39, ]    6.0-6.0 (not included)                                                        
+  actual[40, ]    4.1-4.1 2000-2011 (Moderate evidence)                                         
+  actual[41, ]    3.9-3.9 ---                                                                   
+
+actual vs expected
+                      TFR                                                Schoumaker_stall_period
+  actual[72, ]    5.3-6.0 1999-2011 (Pretransitional)                                           
+  actual[73, ]    6.7-6.7 (not included)                                                        
+  actual[74, ]    ---     ---                                                                   
+- actual[75, ]    6.7-7.3 1987-2005 (Pretransitional)                                           
++ expected[75, ]  6.7-7.3 1989-2005 (Pretransitional)                                           
+  actual[76, ]    5.4-5.4 (not included)                                                        
+- actual[77, ]    7.8-7.8 1992-2011 (Pretransitional)                                           
++ expected[77, ]  7.8-7.8 1999-2011 (Pretransitional)                                           
+  actual[78, ]    6.1-6.1 1990-2007 (Moderate evidence)                                         
+  actual[79, ]    5.7-6.1 1993-1996 (Weak or conflicting evidence)                              
+  actual[80, ]    5.0-5.1 2005-2010 (Weak or conflicting evidence)                              
+
+     actual$TFR | expected$TFR     
+[22] "2.0-2.4"  | "2.0-2.4"    [22]
+[23] "---"      | "---"        [23]
+[24] "7.4-7.4"  | "7.4-7.4"    [24]
+[25] "6.5-7.1"  - "6.5-6.9"    [25]
+[26] "5.8-5.8"  | "5.8-5.8"    [26]
+[27] "5.6-5.6"  | "5.6-5.6"    [27]
+[28] "5.1-5.2"  | "5.1-5.2"    [28]
+
+actual$Schoumaker_stall_period[22:28] vs expected$Schoumaker_stall_period[22:28]
+  "(not included)"
+  "(not included)"
+  "(not included)"
+- "1986-2000 (Pretransitional); 2001-2005 (Weak or conflicting evidence)"
++ "1997-2000 (Pretransitional); 2001-2005 (Weak or conflicting evidence)"
+  "---"
+  "1999-2003 (Moderate evidence)"
+  "---"
+
+     actual$Schoumaker_stall_period  | expected$Schoumaker_stall_period     
+[35] "1997-2014 (Pretransitional)"   | "1997-2014 (Pretransitional)"    [35]
+[36] "---"                           | "---"                            [36]
+[37] "2005-2010 (Strong+ evidence)"  | "2005-2010 (Strong+ evidence)"   [37]
+[38] "2007-2012 (Pretransitional)"   - "2009-2012 (Pretransitional)"    [38]
+[39] "(not included)"                | "(not included)"                 [39]
+[40] "2000-2011 (Moderate evidence)" | "2000-2011 (Moderate evidence)"  [40]
+[41] "---"                           | "---"                            [41]
+
+actual$Schoumaker_stall_period[72:80] vs expected$Schoumaker_stall_period[72:80]
+  "1999-2011 (Pretransitional)"
+  "(not included)"
+  "---"
+- "1987-2005 (Pretransitional)"
++ "1989-2005 (Pretransitional)"
+  "(not included)"
+- "1992-2011 (Pretransitional)"
++ "1999-2011 (Pretransitional)"
+  "1990-2007 (Moderate evidence)"
+  "1993-1996 (Weak or conflicting evidence)"
+  "2005-2010 (Weak or conflicting evidence)"
+
+── Error ('compare_results_v1_0_0.R:59:5'): tabulate_surf_stats(..., stat = 'avg_len') replicates archived results. ──
+Error in `tabulate_surf_stats.list(x = x, stat = stat, incl_small_countries = FALSE, 
+    filter_zero_rows = FALSE, geographies = c("area_name", "reg_name", 
+        "name", "global"), proj_split = proj_split)`: unused argument (proj_split = proj_split)
+Backtrace:
+    ▆
+ 1. ├─testthat::expect_identical(...) at compare_results_v1_0_0.R:59:5
+ 2. │ └─testthat::quasi_label(enquo(object), label, arg = "object")
+ 3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+ 4. ├─global remove_attr(...)
+ 5. │ └─base::comment(obj)
+ 6. └─global make_surf_stat_control_tbl(...)
+ 7.   └─tfrSURFs::tabulate_surf_stats(...)
+
+── Error ('compare_results_v1_0_0.R:73:5'): tabulate_surf_stats(..., stat = 'count') replicates archived results. ──
+Error in `tabulate_surf_stats.list(x = x, stat = stat, incl_small_countries = FALSE, 
+    filter_zero_rows = FALSE, geographies = c("area_name", "reg_name", 
+        "name", "global"), proj_split = proj_split)`: unused argument (proj_split = proj_split)
+Backtrace:
+    ▆
+ 1. ├─testthat::expect_identical(...) at compare_results_v1_0_0.R:73:5
+ 2. │ └─testthat::quasi_label(enquo(object), label, arg = "object")
+ 3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+ 4. ├─global remove_attr(...)
+ 5. │ └─base::comment(obj)
+ 6. └─global make_surf_stat_control_tbl(...)
+ 7.   └─tfrSURFs::tabulate_surf_stats(...)
+
+[ FAIL 4 | WARN 0 | SKIP 0 | PASS 0 ]
+> 
+> proc.time()
+   user  system elapsed 
+  10.29    0.37   14.42 

@@ -135,12 +135,22 @@ make_surf_period_control_tbl <- function(x) {
 ##' @rdname control_tables
 ##' @keywords internal
 ##' @noRd
-make_surf_stat_control_tbl <- function(x, stat, proj_split = "none") {
-    tabulate_surf_stats(x = x, stat = stat,
-                        incl_small_countries = FALSE,
-                        filter_zero_rows = FALSE,
-                        geographies = c("area_name", "reg_name", "name", "global"),
-                        proj_split = proj_split)
+make_surf_stat_control_tbl <- function(x, stat) {
+    if ("proj_split" %in% names(tfrSURFs::get_arg_defs(getS3method(
+                                              "tabulate_surf_stats", class = "data.frame")))) {
+        return(tabulate_surf_stats(x = x, stat = stat,
+                                   incl_small_countries = FALSE,
+                                   filter_zero_rows = FALSE,
+                                   geographies = c("area_name", "reg_name", "name", "global"),
+                                   proj_split = "none"))
+    } else if ("time_range" %in% names(tfrSURFs::get_arg_defs(getS3method(
+                                                     "tabulate_surf_stats", class = "data.frame")))) {
+        return(tabulate_surf_stats(x = x, stat = stat,
+                                   incl_small_countries = FALSE,
+                                   filter_zero_rows = FALSE,
+                                   geographies = c("area_name", "reg_name", "name", "global"),
+                                   time_range = "all"))
+    }
 }
 
 
@@ -168,10 +178,31 @@ add_control_comment <- function(obj) {
 ##' @rdname add_control_comment
 ##' @keywords internal
 ##' @noRd
+read_control_file <- function(file) {
+    ext <- tools::file_ext(file)
+    if (ext %in% c("rda", "Rda", "RDA", "Rdata", "RData")) {
+        obj <- get(load(file))
+    } else if (ext %in% c("rds", "Rds", "RDS")) {
+            obj <- readRDS(file)
+    } else {
+        stop("Filetype not supported ('", file, "'); only 'rda' and 'rds' supported.")
+    }
+    message("Loaded '", file, "'.\nComment:\n\t", comment(obj))
+    return(obj)
+}
+
+##' @rdname add_control_comment
+##' @keywords internal
+##' @noRd
 remove_attr <- function(obj) {
     if (!is.null(comment(obj)))
         comment(obj) <- NULL
-    if (!is.null(rownames(obj)))
-        rownames(obj) <- NULL
+    if (is.data.frame(obj)) {
+        if (!is.null(rownames(obj)))
+            rownames(obj) <- NULL
+        geogs <- c("global", "area_name", "reg_name", "name")
+        geogs <- geogs[geogs %in% colnames(obj)]
+        obj <- obj[do.call("order", unname(obj[, geogs, drop = FALSE])), , drop = FALSE]
+    }
     return(obj)
 }
