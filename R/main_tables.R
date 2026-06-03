@@ -61,7 +61,7 @@ tabulate_loc_by_surf.data.frame <- function(x, ...,
         if (length(geographies) > 1) {
             out <- tabulate_loc_by_surf(x = x, stat = stat,
                                         geographies = "global", by_surf = by_surf,
-                                       ...)
+                                        ...)
             out <- data.frame(as.data.frame(lapply(setNames(nm = geographies[!geographies == "global"]),
                                                    function(z) "GLOBAL")),
                               out)
@@ -69,7 +69,7 @@ tabulate_loc_by_surf.data.frame <- function(x, ...,
             return(rbind(data.frame(tabulate_loc_by_surf(x = x, stat = stat,
                                                          geographies = geographies[!geographies == "global"],
                                                          by_surf = by_surf,
-                                                        ...),
+                                                         ...),
                                     global = FALSE),
                          out))
             ## ^^^ EARLY RETURN
@@ -84,7 +84,7 @@ tabulate_loc_by_surf.data.frame <- function(x, ...,
     if (by_surf) geographies <- c(geographies, "surf_year_group")
 
     out <- stats::aggregate(x[, x_stat_cols, drop = FALSE],
-                                by = x[, geographies, drop = FALSE],
+                            by = x[, geographies, drop = FALSE],
                             FUN = "sum", na.rm = TRUE)
 
     ## Rename columns to 'stat'
@@ -157,7 +157,7 @@ tabulate_surf_stats.list <- function(x, stat = c("count", "avg_len"), incl_small
     return(tabulate_surf_stats(do.call("rbind", c(x, list(make.row.names = TRUE))),
                                stat = stat, geographies = geographies, filter_zero_rows = filter_zero_rows,
                                time_range = time_range,
-                                last_est_year = last_est_year))
+                               last_est_year = last_est_year))
 }
 
 
@@ -356,7 +356,7 @@ add_surf_periods_blocks <- function(x, table_type) {
 
             ## Get stall groupings for Schoumaker stalls. Don't distinguish
             ## between evidence type, but do "no stalls" separately.
-                tmp_ <- tbl_Schoumaker_any_blocks_fn(x)
+            tmp_ <- tbl_Schoumaker_any_blocks_fn(x)
 
             ## Merge on to main data frame
             x <-
@@ -369,7 +369,7 @@ add_surf_periods_blocks <- function(x, table_type) {
                 tmp_$surf_year_group <- c(tmp_$surf_year_group, i)
                 schoumaker_stall_year_groups <-
                     x[x$surf_year_group == i,
-                                  "Schoumaker_stall_year_group"]
+                      "Schoumaker_stall_year_group"]
                 if (all(is.na(schoumaker_stall_year_groups))) {
                     tmp_$intersecting_Schoumaker_stall_groups <-
                         c(tmp_$intersecting_Schoumaker_stall_groups, list(NA))
@@ -455,6 +455,14 @@ add_surf_periods_blocks <- function(x, table_type) {
 ##' \code{c("area_name", "reg_name", "sub_saharan_africa", "name",
 ##' "surf_period", "TFR", "surf_year")}.
 ##'
+##' @details
+##'
+##' \subsection{Table type}{
+##'
+##' Three types of output table are supported, controlled by the argument
+##' \code{table_type}. The simplest is \code{table_type = "surfs only"}, in
+##' which case only SURFs are included.
+##'
 ##' If \code{table_type} is \code{"concise"}, the column "Schoumaker_stall_type"
 ##' is added to the output. Any Schoumaker (2019) stalls that intersect a SURF,
 ##' regardless of strength of evidence, are noted in this column for the
@@ -467,13 +475,20 @@ add_surf_periods_blocks <- function(x, table_type) {
 ##' but not exactly, with a Schoumaker stall. Moreover, Schoumaker stalls are
 ##' split by strength of evidence.
 ##'
+##' }
+##'
 ##' @param x A list of data frames as output by \code{\link{make_tfr_surfs}} or
 ##'     a data frame as output by \code{\link{make_tfr_surfs}}.
-##' @param table_type Logical; cross-classify SURF periods by the TFR surf
-##'     periods identified by \cite{Schoumaker (2019)}. This will add both
-##'     columns and rows; see \dQuote{Details} for information.
+##' @param table_type Character; see \dQuote{Details}.
+##' @param incl_no_surfs Logical; include countries that had no SURFs?
+##' @param flag_schoumaker_excl Logical; flag rows referring to a country that
+##'     was not in Schoumaker's (2019) analysis? Only relevant if
+##'     \code{table_type} is \code{"concise"} or \code{"detailed"}. The string
+##'     \code{"(not included)"} will be added to the
+##'     \code{"Schoumaker_stall_type"} column.
 ##' @param digits Number of digits to round numeric columns to (e.g., applies to
-##'     the TFR column). This is passed directly to \code{formatC(..., format = "f")}.
+##'     the TFR column). This is passed directly to \code{formatC(..., format =
+##'     "f")}.
 ##' @inheritParams tabulate_surf_stats
 ##' @return A data frame.
 ##' @author Mark Wheldon
@@ -632,7 +647,7 @@ tabulate_surf_periods.data.frame <- function(tfr_surfs_df,
                     blk_idx <- which(tfr_surfs_df[, "surf_tbl_block"] == blk)
                     for (j in unique(na.omit(unlist(tfr_surfs_df[blk_idx, "intersecting_Schoumaker_stall_groups"])))) {
                         tmp_ <- tfr_surfs_df[!is.na(tfr_surfs_df[, "Schoumaker_stall_year_group"]) &
-                                              tfr_surfs_df[, "Schoumaker_stall_year_group"] == j, ]
+                                             tfr_surfs_df[, "Schoumaker_stall_year_group"] == j, ]
                         if (nrow(tmp_)) {
                             for (k in unique(tmp_[, "Schoumaker_stall_type"])) {
                                 tmp2_ <- tmp_[tmp_[, "Schoumaker_stall_type"] == k, ]
@@ -658,7 +673,7 @@ tabulate_surf_periods.data.frame <- function(tfr_surfs_df,
                     evidence <- character()
                     tmp_ <-
                         tfr_surfs_df[!is.na(tfr_surfs_df[, "Schoumaker_stall_year_group"]) &
-                                      tfr_surfs_df[, "Schoumaker_stall_year_group"] == x[i, "Schoumaker_stall_year_group"], ]
+                                     tfr_surfs_df[, "Schoumaker_stall_year_group"] == x[i, "Schoumaker_stall_year_group"], ]
                     if (nrow(tmp_)) {
                         for (k in unique(tmp_[, "Schoumaker_stall_type"])) {
                             tmp2_ <- tmp_[tmp_[, "Schoumaker_stall_type"] == k, ]
@@ -719,4 +734,3 @@ tabulate_surf_periods.data.frame <- function(tfr_surfs_df,
 
     return(out)
 }
-
