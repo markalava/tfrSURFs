@@ -2,6 +2,20 @@
 ### * Data Frame Methods
 
 ###-----------------------------------------------------------------------------
+### ** `tabulate_loc_by_surf()`
+
+test_that("'tabulate_loc_by_surf()` works on a data frame with default arg values.", {
+    data(test_data_tfrSURFs_list)
+    for (k in names(test_data_tfrSURFs_list)[1:3]) {
+        message("Country code = '", k, "'")
+        expect_s3_class(
+            tabulate_loc_by_surf(
+                test_data_tfrSURFs_list[[k]]),
+            "data.frame")
+    }
+})
+
+###-----------------------------------------------------------------------------
 ### ** `tabulate_tfr_stats()`
 
 test_that("'tabulate_surf_stats()` works on a data frame with default arg values.", {
@@ -30,6 +44,58 @@ test_that("'tabulate_surf_periods()' works on a data frame, default arg values."
 
 ###-----------------------------------------------------------------------------
 ### * List Methods
+
+###-----------------------------------------------------------------------------
+### ** `tabulate_loc_by_surf()`
+
+test_that("'tabulate_loc_by_surf()' fails properly when 'no small countries' results in no countries.", {
+    data(test_data_small_c_tfrSURFs_list)
+    expect_error(tabulate_loc_by_surf(test_data_small_c_tfrSURFs_list,
+                                     incl_small_countries = FALSE),
+                 "no countries left")
+})
+
+
+test_that("'tabulate_loc_by_surf()` works on a list, all combos of arg values.", {
+
+    data(test_data_tfrSURFs_list)
+
+    param_df <- make_tabulate_loc_by_surf_param_df()
+
+    geographies_all <- get_arg_defs("tabulate_loc_by_surf.list", arg = "geographies")
+
+    if (requireNamespace("gtools", quietly = TRUE)) {
+        geog_combs <-
+            lapply(seq_along(geographies_all),
+                   function(z) gtools::combinations(n = length(geographies_all), r = z)
+                   )
+    } else {
+        geog_combs <-
+            lapply(seq_along(geographies_all), function(z) matrix(1:z, nrow = 1))
+    }
+
+    for (fi_comb in seq_along(geog_combs)) {
+        for (fi in nrow(geog_combs[[fi_comb]])) {
+            for (param_i in seq_len(nrow(param_df))) {
+                pars <- param_df[param_i, , drop = FALSE]
+            message("[", param_i, " of ", nrow(param_df), "]: ",
+                    paste(colnames(param_df), paste0(pars, "; "), sep = " = "))
+                    expect_s3_class(
+                        tabulate_loc_by_surf(
+                            test_data_tfrSURFs_list,
+                            count_what = pars[["count_what"]],
+                            incl_small_countries = pars[["incl_small_countries"]],
+                            time_range = pars[["time_range"]],
+                            last_est_year = pars[["last_est_year"]],
+                            geographies = geographies_all[geog_combs[[fi_comb]][fi, ]],
+                            by_surf = pars[["by_surf"]]
+                        ),
+                        "data.frame")
+            }
+        }
+    }
+})
+
 
 ###-----------------------------------------------------------------------------
 ### ** `tabulate_surf_stats()`

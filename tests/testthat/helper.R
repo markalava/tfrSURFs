@@ -4,6 +4,25 @@
 ### * Functions
 
 
+##' Create all combinations of arguments for `tabulate_loc_by_surf()`.
+##'
+##' @return A data frame
+##' @author Mark C Wheldon
+##' @keywords internal
+##' @noRd
+make_tabulate_loc_by_surf_param_df <- function() {
+    outdf <-
+        expand.grid(count_what = get_arg_defs("tabulate_loc_by_surf.list", arg = "count_what"),
+                    incl_small_countries = c(TRUE, FALSE),
+                    time_range = get_arg_defs("tabulate_loc_by_surf.list",
+                                              arg = "time_range"),
+                    last_est_year = c(2000, 1950, 2100),
+                    by_surf = c(TRUE, FALSE),
+                    stringsAsFactors = FALSE)
+    return(outdf)
+}
+
+
 ##' Create all combinations of arguments for `tabulate_tfr_stats()`.
 ##'
 ##' @return A data frame

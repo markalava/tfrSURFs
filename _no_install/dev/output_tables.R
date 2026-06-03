@@ -181,9 +181,16 @@ load(file.path(test_results_dir, "tfr_surfs_median_lst.rda"))
 ### * Make Tables
 
 ###-----------------------------------------------------------------------------
-### ** Stats
+### ** Locations
 
 devtools::load_all()
+surf_loc <- tabulate_loc_by_surf(x = tfr_surfs_lst,
+                                 time_range = "all",
+                                 by_surf = FALSE)
+
+###-----------------------------------------------------------------------------
+### ** Stats
+
 surf_counts <- tabulate_surf_stats(x = tfr_surfs_lst, stat = "count",
                                    incl_small_countries = FALSE,
                                    filter_zero_rows = TRUE,

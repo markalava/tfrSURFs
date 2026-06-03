@@ -5,225 +5,30 @@
 ################################################################################
 
 ###-----------------------------------------------------------------------------
-### * Counts of Locations by SURF Status
+### * Helpers
 
-##' Tables of Locations by tfrSURFs
+##' Filter a data frame of SURFs according to analytical time range.
 ##'
-##' Produces tables of counts of countries and geographic regions by
-##' presence/absence of tfrSURFs.
+##' Distinguishes \dQuote{estimation} from \dQuote{projection} time ranges. Only
+##' keeps the relevant part of the input data.
 ##'
-##' @param x Output of \code{\link{make_tfr_surfs}}.
-##' @param incl_small_countries Logical; exclude countries with populations less
-##'     than 90000 in mid 2024?
-##' @param ... Passed to other methods.
-##' @return A data frame.
+##' @inheritParams tabulate_surf_stats
+##' @return \code{x}, filtered.
+##'
 ##' @author Mark C Wheldon
 ##'
 ##' @family Tabulation
 ##'
-##' @export
-tabulate_loc_by_surf <- function(...) {
-    UseMethod("tabulate_loc_by_surf")
-}
+##' @noRd
+filter_time_range <- function(x, time_range = c("estimation", "projection", "all"),
+                              last_est_year = x[1, "bayesTFR_present_year"]) {
 
-##' @rdname tabulate_loc_by_surf
-##' @export
-tabulate_loc_by_surf.list <- function(x, incl_small_countries = TRUE, ...,
-                                      geographies = c("area_name", "reg_name", "name", "sub_saharan_africa", "global"),
-                                      stat = c("years", "surfs"), by_surf = FALSE) {
-    stopifnot(is.logical(incl_small_countries))
-    if (!incl_small_countries) x <- remove_small_countries(x)
-
-    out <- tabulate_loc_by_surf(do.call("rbind", x),
-                                geographies = geographies, stat = stat,
-                                by_surf = by_surf, ...)
-    row.names(out) <- NULL
-    return(out)
-}
-
-##' @rdname tabulate_loc_by_surf
-##' @export
-tabulate_loc_by_surf.data.frame <- function(x, ...,
-                                            geographies = c("area_name", "reg_name", "name", "sub_saharan_africa", "global"),
-                                            stat = c("years", "surfs"), by_surf = FALSE) {
-
-    ## -------* Arg Checks
-
-    geographies <- match.arg(geographies, several.ok = TRUE)
-    stat <- match.arg(stat, several.ok = TRUE)
-    stopifnot(is.logical(by_surf))
-
-    ## -------* BODY
-
-    ## -------** Handle `"global"` in `geographies`
-
-    if ("global" %in% geographies) {
-        if (length(geographies) > 1) {
-            out <- tabulate_loc_by_surf(x = x, stat = stat,
-                                        geographies = "global", by_surf = by_surf,
-                                        ...)
-            out <- data.frame(as.data.frame(lapply(setNames(nm = geographies[!geographies == "global"]),
-                                                   function(z) "GLOBAL")),
-                              out)
-            ## vvv EARLY RETURN
-            return(rbind(data.frame(tabulate_loc_by_surf(x = x, stat = stat,
-                                                         geographies = geographies[!geographies == "global"],
-                                                         by_surf = by_surf,
-                                                         ...),
-                                    global = FALSE),
-                         out))
-            ## ^^^ EARLY RETURN
-        } else {
-            x$global <- TRUE
-        }
-    }
-
-    ## -------** Main Tabulation
-
-    x_stat_cols <- c(surfs = "surf_year_start", years = "surf_year")[stat]
-    if (by_surf) geographies <- c(geographies, "surf_year_group")
-
-    out <- stats::aggregate(x[, x_stat_cols, drop = FALSE],
-                            by = x[, geographies, drop = FALSE],
-                            FUN = "sum", na.rm = TRUE)
-
-    ## Rename columns to 'stat'
-    for (j in seq_along(x_stat_cols)) {
-        colnames(out)[which(colnames(out) == x_stat_cols[j])] <- names(x_stat_cols)[j]
-    }
-
-    ## -------* END
-
-    return(out[do.call("order", unname(out[, geographies, drop = FALSE])), , drop = FALSE])
-}
-
-###-----------------------------------------------------------------------------
-### * SURF Frequencies and Lengths
-
-##' Tables of SURF summary statistics
-##'
-##' Produces tables of SURF counts and average lengths by geographic regions and
-##' other geographies. Some tfrSURFs occur in the future (defined by
-##' \code{last_est_year}), and hence are based on projected fertility rates. Use
-##' \code{time_range} to choose whether tabulation should be done for the
-##' \code{"estimation"}, \code{"projection"}, or \code{"all"} periods. If
-##' \code{time_range} is not \code{"all"}, \code{last_est_year} must be
-##' specified.
-##'
-##' @param x Output of \code{\link{make_tfr_surfs}}.
-##' @param stat Character; the statistic to tabulate.
-##' @param geographies Cross-classifying geographies for the table. These must
-##'     be columns in \code{x}.
-##' @param filter_zero_rows Logical; remove rows for countries or regions with
-##'     no tfrSURFs. Only applicable if \code{stat = "count"}.
-##' @param time_range Character; which time range should be tabulated?
-##'     \code{"estimation"}, \code{"projection"}, or \code{"all"}?
-##' @param last_est_year Numeric; the first year of the projection period, for
-##'     the purposes of \code{time_range}. This is ignored if \code{time_range}
-##'     \code{=} \code{"all"}.
-##' @param ... Passed to other methods.
-##' @inheritParams tabulate_loc_by_surf
-##' @return A data frame.
-##' @author Mark C Wheldon
-##'
-##' @family Tabulation
-##'
-##' @export
-tabulate_surf_stats <- function(x, ...) {
-    UseMethod("tabulate_surf_stats")
-}
-
-##' @rdname tabulate_surf_stats
-##' @export
-tabulate_surf_stats.list <- function(x, stat = c("count", "avg_len"), incl_small_countries = TRUE,
-                                     geographies = c("area_name", "reg_name", "name", "sub_saharan_africa", "global"),
-                                     filter_zero_rows = identical(stat, "count"),
-                                     time_range = c("estimation", "projection", "all"),
-                                     last_est_year = x[[1]][1, "bayesTFR_present_year"]) {
-    stopifnot(is.logical(incl_small_countries))
-    if (!incl_small_countries) x <- remove_small_countries(x)
-
-    stat <- match.arg(stat)
-    stopifnot(is.logical(filter_zero_rows))
-    if (filter_zero_rows && !identical(stat, "count")) {
-        if (getOption("tfrSURFs.verbose")) {
-            message("'filter_zero_rows' has no effect when 'stat' != '\"count\"'; resetting to it to 'FALSE'.")
-        }
-        ## Reset to 'FALSE' to prevent lots of messages from the 'data.frame'
-        ## method.
-        filter_zero_rows <- FALSE
-    }
-
-    return(tabulate_surf_stats(do.call("rbind", c(x, list(make.row.names = TRUE))),
-                               stat = stat, geographies = geographies, filter_zero_rows = filter_zero_rows,
-                               time_range = time_range,
-                               last_est_year = last_est_year))
-}
-
-
-##' @rdname tabulate_surf_stats
-##' @export
-tabulate_surf_stats.data.frame <- function(x, stat = c("count", "avg_len"),
-                                           geographies = c("area_name", "reg_name", "name", "sub_saharan_africa", "global"),
-                                           filter_zero_rows = identical(stat, "count"),
-                                           time_range = c("estimation", "projection", "all"),
-                                           last_est_year = x[1, "bayesTFR_present_year"]) {
-
-    ## -------* Arg Checks
-
-    stat <- match.arg(stat)
-    geographies <- match.arg(geographies, several.ok = TRUE)
-    stopifnot(is.logical(filter_zero_rows))
-    if (getOption("tfrSURFs.verbose")) {
-        if (filter_zero_rows && !identical(stat, "count"))
-            message("'filter_zero_rows' has no effect when 'stat' != '\"count\"'.")
-    }
     time_range <- match.arg(time_range)
     last_est_year <- as.numeric(last_est_year)
+    if (is.na(last_est_year)) stop("'last_est_year' must be numeric or coercible to such.")
     if (!identical(time_range, "all") && (is.null(last_est_year) || is.na(last_est_year)))
         stop("'last_est_year' must be a valid year if 'time_range' is not \"all\".")
 
-    ## -------* BODY
-
-    ## -------** Handle `"global"` in `geographies`
-
-    if ("global" %in% geographies) {
-        if (length(geographies) > 1) {
-            out <- tabulate_surf_stats(x = x, stat = stat,
-                                       geographies = "global", filter_zero_rows = FALSE,
-                                       time_range = time_range, last_est_year = last_est_year)
-
-            if (nrow(out)) {
-                out <- data.frame(as.data.frame(lapply(setNames(nm = geographies[!geographies == "global"]),
-                                                       function(z) "GLOBAL")),
-                                  out)
-                out <- rbind(data.frame(tabulate_surf_stats(x = x, stat = stat,
-                                                            geographies = geographies[!geographies == "global"],
-                                                            filter_zero_rows = FALSE,
-                                                            time_range = time_range,
-                                                            last_est_year = last_est_year),
-                                        global = FALSE),
-                             out)
-                if (filter_zero_rows && identical(stat, "count"))
-                    out <- out[out[["count"]] > 0, , drop = FALSE]
-            } else {
-                out <- cbind(out,
-                             data.frame(
-                                 sapply(geographies[!geographies == "global"], function(z) list(character()))))
-            }
-
-            ## vvv EARLY RETURN
-            return(out)
-            ## ^^^ EARLY RETURN
-
-        } else {
-            x$global <- TRUE
-        }
-    }
-
-    ## -------** Main Tabulation
-
-    ## Implement 'time_range'. Only keep the relevant part of the input data.
     if (identical(time_range, "estimation")) {
         x <- x[x[["year"]] <= last_est_year, ]
     } else {
@@ -240,47 +45,9 @@ tabulate_surf_stats.data.frame <- function(x, stat = c("count", "avg_len"),
             x <- do.call("rbind", x)
         }
     }
-
-    if (!nrow(x) || (identical(stat, "avg_len") && sum(x[["surf_year_start"]]) == 0)) {
-        ## Zero-row data frame
-        x <-  data.frame(
-            c(setNames(list(numeric()), stat), sapply(geographies, function(z) list(character()))))
-
-    } else {
-
-        ## Tabulate
-        if (identical(stat, "count")) {
-            x <- stats::aggregate(x[, "surf_year_start", drop = FALSE # << so it's a data frame
-                                    ],
-                                  by = x[, geographies, drop = FALSE],
-                                  FUN = "sum", drop = TRUE)
-            colnames(x)[colnames(x) == "surf_year_start"] <- "count"
-        } else {
-            if (identical(stat, "avg_len")) {
-                x <- stats::aggregate(x[x[["surf_year_start"]], "surf_year_len", drop = FALSE # << so it's a data frame
-                                        ],
-                                      by = x[x[["surf_year_start"]], geographies, drop = FALSE],
-                                      FUN = "mean", drop = TRUE)
-                colnames(x)[colnames(x) == "surf_year_len"] <- "avg_len"
-            }
-        }
-
-        ## Remove geographies with zero stats if requested
-        if (filter_zero_rows && identical(stat, "count")) {
-            x <- x[x[["count"]] > 0, , drop = FALSE]
-        }
-
-        ## Sort
-        x <- x[do.call("order", unname(x[, geographies, drop = FALSE])), , drop = FALSE]
-    }
-
-    ## -------* END
-
     return(x)
 }
 
-###-----------------------------------------------------------------------------
-### * Tabulate SURF Periods
 
 ##' Mark blocks of surfs
 ##'
@@ -447,6 +214,278 @@ add_surf_periods_blocks <- function(x, table_type) {
     return(x)
 }
 
+###-----------------------------------------------------------------------------
+### * Counts of Locations by SURF Status
+
+##' Tables of Locations by tfrSURFs
+##'
+##' Produces tables of counts of countries and geographic regions by
+##' presence/absence of tfrSURFs.
+##'
+##' @param x Output of \code{\link{make_tfr_surfs}}.
+##' @inheritParams tabulate_surf_stats
+##' @return A data frame.
+##' @author Mark C Wheldon
+##'
+##' @family Tabulation
+##'
+##' @export
+tabulate_loc_by_surf <- function(...) {
+    UseMethod("tabulate_loc_by_surf")
+}
+
+##' @rdname tabulate_loc_by_surf
+##' @export
+tabulate_loc_by_surf.list <- function(x, incl_small_countries = TRUE, ...,
+                                      geographies = c("area_name", "reg_name", "name", "sub_saharan_africa", "global"),
+                                      count_what = c("surf_years", "surfs"),
+                                      time_range = c("estimation", "projection", "all"),
+                                      last_est_year = x[[1]][1, "bayesTFR_present_year"],
+                                      by_surf = FALSE) {
+    stopifnot(is.logical(incl_small_countries))
+    if (!incl_small_countries) x <- remove_small_countries(x)
+
+    out <- tabulate_loc_by_surf(do.call("rbind", x),
+                                geographies = geographies, count_what = count_what,
+                                time_range = time_range,
+                                last_est_year = last_est_year,
+                                by_surf = by_surf, ...)
+    row.names(out) <- NULL
+    return(out)
+}
+
+##' @rdname tabulate_loc_by_surf
+##' @export
+tabulate_loc_by_surf.data.frame <- function(x, ...,
+                                            geographies = c("area_name", "reg_name", "name", "sub_saharan_africa", "global"),
+                                            count_what = c("surf_years", "surfs"),
+                                            time_range = c("estimation", "projection", "all"),
+                                            last_est_year = x[1, "bayesTFR_present_year"],
+                                            by_surf = FALSE) {
+
+    ## -------* Arg Checks
+
+    geographies <- match.arg(geographies, several.ok = TRUE)
+    count_what <- match.arg(count_what, several.ok = TRUE)
+    time_range <- match.arg(time_range)
+    stopifnot(is.logical(by_surf))
+
+    ## -------* BODY
+
+    ## -------** Handle `"global"` in `geographies`
+
+    if ("global" %in% geographies) {
+        if (length(geographies) > 1) {
+            out <- tabulate_loc_by_surf(x = x, count_what = count_what, time_range = time_range,
+                                        last_est_year = last_est_year,
+                                        geographies = "global", by_surf = by_surf,
+                                        ...)
+            out <- data.frame(as.data.frame(lapply(setNames(nm = geographies[!geographies == "global"]),
+                                                   function(z) "GLOBAL")),
+                              out)
+            ## vvv EARLY RETURN
+            return(rbind(data.frame(tabulate_loc_by_surf(x = x, count_what = count_what, time_range = time_range,
+                                                         last_est_year = last_est_year,
+                                                         geographies = geographies[!geographies == "global"],
+                                                         by_surf = by_surf,
+                                                         ...),
+                                    global = FALSE),
+                         out))
+            ## ^^^ EARLY RETURN
+        } else {
+            x$global <- TRUE
+        }
+    }
+
+    ## -------** Main Tabulation
+
+    x <- filter_time_range(x, time_range = time_range, last_est_year = last_est_year)
+
+    x_count_what_cols <- c(surfs = "surf_year_start", surf_years = "surf_year")[count_what]
+    if (by_surf) geographies <- c(geographies, "surf_year_group")
+
+    out <- stats::aggregate(x[, x_count_what_cols, drop = FALSE],
+                            by = x[, geographies, drop = FALSE],
+                            FUN = "sum", na.rm = TRUE)
+
+    ## Rename columns to 'count_what'
+    for (j in seq_along(x_count_what_cols)) {
+        colnames(out)[which(colnames(out) == x_count_what_cols[j])] <- names(x_count_what_cols)[j]
+    }
+
+    ## -------* END
+
+    return(out[do.call("order", unname(out[, geographies, drop = FALSE])), , drop = FALSE])
+}
+
+###-----------------------------------------------------------------------------
+### * SURF Frequencies and Lengths
+
+##' Tables of SURF summary statistics
+##'
+##' Produces tables of SURF counts and average lengths by geographic regions and
+##' other geographies. Some tfrSURFs occur in the future (defined by
+##' \code{last_est_year}), and hence are based on projected fertility rates. Use
+##' \code{time_range} to choose whether tabulation should be done for the
+##' \code{"estimation"}, \code{"projection"}, or \code{"all"} periods. If
+##' \code{time_range} is not \code{"all"}, \code{last_est_year} must be
+##' specified.
+##'
+##' @param x Output of \code{\link{make_tfr_surfs}}.
+##' @param stat Character; the statistic to tabulate.
+##' @param incl_small_countries Logical; exclude countries with populations less
+##'     than 90000 in mid 2024?
+##' @param geographies Cross-classifying geographies for the table. These must
+##'     be columns in \code{x}.
+##' @param filter_zero_rows Logical; remove rows for countries or regions with
+##'     no tfrSURFs. Only applicable if \code{stat = "count"}.
+##' @param time_range Character; which time range should be tabulated?
+##'     \code{"estimation"}, \code{"projection"}, or \code{"all"}?
+##' @param last_est_year Numeric; the first year of the projection period, for
+##'     the purposes of \code{time_range}. This is ignored if \code{time_range}
+##'     \code{=} \code{"all"}.
+##' @param ... Passed to other methods.
+##' @inheritParams tabulate_loc_by_surf
+##' @return A data frame.
+##' @author Mark C Wheldon
+##'
+##' @family Tabulation
+##'
+##' @export
+tabulate_surf_stats <- function(x, ...) {
+    UseMethod("tabulate_surf_stats")
+}
+
+##' @rdname tabulate_surf_stats
+##' @export
+tabulate_surf_stats.list <- function(x, stat = c("count", "avg_len"), incl_small_countries = TRUE,
+                                     geographies = c("area_name", "reg_name", "name", "sub_saharan_africa", "global"),
+                                     filter_zero_rows = identical(stat, "count"),
+                                     time_range = c("estimation", "projection", "all"),
+                                     last_est_year = x[[1]][1, "bayesTFR_present_year"]) {
+    stopifnot(is.logical(incl_small_countries))
+    if (!incl_small_countries) x <- remove_small_countries(x)
+
+    stat <- match.arg(stat)
+    stopifnot(is.logical(filter_zero_rows))
+    if (filter_zero_rows && !identical(stat, "count")) {
+        if (getOption("tfrSURFs.verbose")) {
+            message("'filter_zero_rows' has no effect when 'stat' != '\"count\"'; resetting to it to 'FALSE'.")
+        }
+        ## Reset to 'FALSE' to prevent lots of messages from the 'data.frame'
+        ## method.
+        filter_zero_rows <- FALSE
+    }
+
+    return(tabulate_surf_stats(do.call("rbind", c(x, list(make.row.names = TRUE))),
+                               stat = stat, geographies = geographies, filter_zero_rows = filter_zero_rows,
+                               time_range = time_range,
+                               last_est_year = last_est_year))
+}
+
+
+##' @rdname tabulate_surf_stats
+##' @export
+tabulate_surf_stats.data.frame <- function(x, stat = c("count", "avg_len"),
+                                           geographies = c("area_name", "reg_name", "name", "sub_saharan_africa", "global"),
+                                           filter_zero_rows = identical(stat, "count"),
+                                           time_range = c("estimation", "projection", "all"),
+                                           last_est_year = x[1, "bayesTFR_present_year"]) {
+
+    ## -------* Arg Checks
+
+    stat <- match.arg(stat)
+    geographies <- match.arg(geographies, several.ok = TRUE)
+    stopifnot(is.logical(filter_zero_rows))
+    if (getOption("tfrSURFs.verbose")) {
+        if (filter_zero_rows && !identical(stat, "count"))
+            message("'filter_zero_rows' has no effect when 'stat' != '\"count\"'.")
+    }
+    time_range <- match.arg(time_range)
+    last_est_year <- as.numeric(last_est_year)
+
+    ## -------* BODY
+
+    ## -------** Handle `"global"` in `geographies`
+
+    if ("global" %in% geographies) {
+        if (length(geographies) > 1) {
+            out <- tabulate_surf_stats(x = x, stat = stat,
+                                       geographies = "global", filter_zero_rows = FALSE,
+                                       time_range = time_range, last_est_year = last_est_year)
+
+            if (nrow(out)) {
+                out <- data.frame(as.data.frame(lapply(setNames(nm = geographies[!geographies == "global"]),
+                                                       function(z) "GLOBAL")),
+                                  out)
+                out <- rbind(data.frame(tabulate_surf_stats(x = x, stat = stat,
+                                                            geographies = geographies[!geographies == "global"],
+                                                            filter_zero_rows = FALSE,
+                                                            time_range = time_range,
+                                                            last_est_year = last_est_year),
+                                        global = FALSE),
+                             out)
+                if (filter_zero_rows && identical(stat, "count"))
+                    out <- out[out[["count"]] > 0, , drop = FALSE]
+            } else {
+                out <- cbind(out,
+                             data.frame(
+                                 sapply(geographies[!geographies == "global"], function(z) list(character()))))
+            }
+
+            ## vvv EARLY RETURN
+            return(out)
+            ## ^^^ EARLY RETURN
+
+        } else {
+            x$global <- TRUE
+        }
+    }
+
+    ## -------** Main Tabulation
+
+    x <- filter_time_range(x, time_range = time_range)
+
+    if (!nrow(x) || (identical(stat, "avg_len") && sum(x[["surf_year_start"]]) == 0)) {
+        ## Zero-row data frame
+        x <-  data.frame(
+            c(setNames(list(numeric()), stat), sapply(geographies, function(z) list(character()))))
+
+    } else {
+
+        ## Tabulate
+        if (identical(stat, "count")) {
+            x <- stats::aggregate(x[, "surf_year_start", drop = FALSE # << so it's a data frame
+                                    ],
+                                  by = x[, geographies, drop = FALSE],
+                                  FUN = "sum", drop = TRUE)
+            colnames(x)[colnames(x) == "surf_year_start"] <- "count"
+        } else {
+            if (identical(stat, "avg_len")) {
+                x <- stats::aggregate(x[x[["surf_year_start"]], "surf_year_len", drop = FALSE # << so it's a data frame
+                                        ],
+                                      by = x[x[["surf_year_start"]], geographies, drop = FALSE],
+                                      FUN = "mean", drop = TRUE)
+                colnames(x)[colnames(x) == "surf_year_len"] <- "avg_len"
+            }
+        }
+
+        ## Remove geographies with zero stats if requested
+        if (filter_zero_rows && identical(stat, "count")) {
+            x <- x[x[["count"]] > 0, , drop = FALSE]
+        }
+
+        ## Sort
+        x <- x[do.call("order", unname(x[, geographies, drop = FALSE])), , drop = FALSE]
+    }
+
+    ## -------* END
+
+    return(x)
+}
+
+###-----------------------------------------------------------------------------
+### * Tabulate SURF Periods
 
 ##' Create main summary output table.
 ##'
