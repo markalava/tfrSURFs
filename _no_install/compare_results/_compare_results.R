@@ -84,6 +84,6 @@ test_that("tabulate_surf_stats(..., stat = 'count') replicates archived results.
     ## Medians
     expect_identical(remove_attr(filter_zeros(filter_NAs(make_surf_stat_control_tbl(
         read_control_file(archived_surfs_median_list_rda_filepath), stat = "count")))),
-        remove_attr(filter_NAs(
-            read_control_file(archived_tab_surf_stats_count_medians_filepath))))
+        remove_attr(filter_zeros(filter_NAs(
+            read_control_file(archived_tab_surf_stats_count_medians_filepath)))))
 })

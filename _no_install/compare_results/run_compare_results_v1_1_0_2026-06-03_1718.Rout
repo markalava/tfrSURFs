@@ -25,25 +25,21 @@ Type 'q()' to quit R.
 > ###
 > ### PROJECT: tfrSURFs
 > ###
-> ### DESCRIPTION: Create full results to act as controls to use when testing main
-> ### SURF identification function.
+> ### DESCRIPTION: Run tests in this directory.
 > ###
 > ###-----------------------------------------------------------------------------
-> ###
-> ### INSTRUCTIONS: Only run this script manually and when necesssary. The control
-> ### tables are not expected to change frequently.
 > ###
 > ################################################################################
 > 
 > ###-----------------------------------------------------------------------------
-> ### * Set up
+> ### * Set Up
 > 
+> library(testthat)
 > library(tfrSURFs)
 Package: tfrSURFs
 Version: 1.1.0
 Packaged: NA
 Built: R 4.5.1; ; 2026-06-03 19:46:29 UTC; windows
-> stopifnot(identical(packageVersion("tfrSURFs"), package_version("1.1.0")))
 > 
 > archived_results_dirname <- "archived_results_v1.1.0"
 > source(here::here("_no_install", "compare_results", "_0_setup.R"),
@@ -174,34 +170,90 @@ Built: R 4.5.1; ; 2026-06-03 19:46:29 UTC; windows
 +     return(obj)
 + }
 > 
-> ###-----------------------------------------------------------------------------
-> ### * Generate Main Results
-> 
-> ###-----------------------------------------------------------------------------
-> ### ** Probabilistic
-> 
-> ## RUN MAIN FUNCTION
-> tfr_surfs_lst <-
-+     add_control_comment(make_tfr_surfs_control_output(sim.dir = bayesTFR_output_dir))
-> 
-> ## Save Results
-> save(tfr_surfs_lst, file = archived_surfs_list_rda_filepath)
-> 
-> ###-----------------------------------------------------------------------------
-> ### ** Medians
-> 
-> ## RUN MAIN FUNCTION
-> tfr_surfs_median_lst <-
-+     add_control_comment(make_tfr_surfs_control_output(sim.dir = bayesTFR_output_dir,
-+                                                       median_only = TRUE) #<<<<<<< !!!
-+                         )
-> 
-> ## Save Results
-> save(tfr_surfs_median_lst, file = archived_surfs_median_list_rda_filepath)
-> 
-> 
-> 
+> test_file(here::here("_no_install", "compare_results", "_compare_results.R"))
+
+══ Testing _compare_results.R ══════════════════════════════════════════════════
+
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 0 ]Loaded 'I:/repos/markalava/tfrSURFs/_no_install/compare_results/archived_results_v1.1.0/tfr_surfs_lst.rda'.
+Comment:
+	Created: 2026-06-03.
+Package Version: 1.1.0.
+Package Build Date: 2026-06-03.
+
+Loaded 'I:/repos/markalava/tfrSURFs/_no_install/compare_results/archived_results_v1.1.0/tab_surf_periods_concise_prob.rds'.
+Comment:
+	Created: 2026-06-03.
+Package Version: 1.1.0.
+Package Build Date: 2026-06-03.
+
+
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 1 ]Loaded 'I:/repos/markalava/tfrSURFs/_no_install/compare_results/archived_results_v1.1.0/tfr_surfs_median_lst.rda'.
+Comment:
+	Created: 2026-06-03.
+Package Version: 1.1.0.
+Package Build Date: 2026-06-03.
+
+Loaded 'I:/repos/markalava/tfrSURFs/_no_install/compare_results/archived_results_v1.1.0/tab_surf_periods_concise_medians.rds'.
+Comment:
+	Created: 2026-06-03.
+Package Version: 1.1.0.
+Package Build Date: 2026-06-03.
+
+
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 2 ]Loaded 'I:/repos/markalava/tfrSURFs/_no_install/compare_results/archived_results_v1.1.0/tfr_surfs_lst.rda'.
+Comment:
+	Created: 2026-06-03.
+Package Version: 1.1.0.
+Package Build Date: 2026-06-03.
+
+Loaded 'I:/repos/markalava/tfrSURFs/_no_install/compare_results/archived_results_v1.1.0/tab_surf_avg_len_prob.rds'.
+Comment:
+	Created: 2026-06-03.
+Package Version: 1.1.0.
+Package Build Date: 2026-06-03.
+
+
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 3 ]Loaded 'I:/repos/markalava/tfrSURFs/_no_install/compare_results/archived_results_v1.1.0/tfr_surfs_median_lst.rda'.
+Comment:
+	Created: 2026-06-03.
+Package Version: 1.1.0.
+Package Build Date: 2026-06-03.
+
+Loaded 'I:/repos/markalava/tfrSURFs/_no_install/compare_results/archived_results_v1.1.0/tab_surf_avg_len_medians.rds'.
+Comment:
+	Created: 2026-06-03.
+Package Version: 1.1.0.
+Package Build Date: 2026-06-03.
+
+
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 4 ]Loaded 'I:/repos/markalava/tfrSURFs/_no_install/compare_results/archived_results_v1.1.0/tfr_surfs_lst.rda'.
+Comment:
+	Created: 2026-06-03.
+Package Version: 1.1.0.
+Package Build Date: 2026-06-03.
+
+Loaded 'I:/repos/markalava/tfrSURFs/_no_install/compare_results/archived_results_v1.1.0/tab_surf_count_prob.rds'.
+Comment:
+	Created: 2026-06-03.
+Package Version: 1.1.0.
+Package Build Date: 2026-06-03.
+
+
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 5 ]Loaded 'I:/repos/markalava/tfrSURFs/_no_install/compare_results/archived_results_v1.1.0/tfr_surfs_median_lst.rda'.
+Comment:
+	Created: 2026-06-03.
+Package Version: 1.1.0.
+Package Build Date: 2026-06-03.
+
+Loaded 'I:/repos/markalava/tfrSURFs/_no_install/compare_results/archived_results_v1.1.0/tab_surf_count_medians.rds'.
+Comment:
+	Created: 2026-06-03.
+Package Version: 1.1.0.
+Package Build Date: 2026-06-03.
+
+
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 6 ] Done!
 > 
 > proc.time()
    user  system elapsed 
-   5.57    0.51  708.31 
+  12.21    0.31   12.90 
