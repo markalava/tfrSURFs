@@ -193,9 +193,9 @@ expect_tabulate_S3_df_all_comb <- function(make_param_df_fn, tabulate_fn) {
         for (fi_comb in seq_along(geog_combs)) {
             for (fi in seq_len(nrow(geog_combs[[fi_comb]]))) {
                 geogs <- geographies_all[geog_combs[[fi_comb]][fi, ]]
-                message("\nOther pars: [", param_i, " of ", nrow(param_df), "]: ",
+                message("\n\nArguments: [", param_i, " of ", nrow(param_df), "]: ",
                         paste(colnames(param_df), paste0(pars, "; "), sep = " = "),
-                        "\nGeographies: '", toString(geogs), "'",
+                        "\n\tgeographies: '", toString(geogs), "'",
                         "\n\t|\n\t↓")
                 arg_list <- c(list(x = test_data_tfrSURFs_list),
                               lapply(setNames(nm = colnames(pars)), function(z) pars[[z]]))

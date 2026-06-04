@@ -42,7 +42,7 @@ Type 'q()' to quit R.
 Package: tfrSURFs
 Version: 1.1.0
 Packaged: NA
-Built: R 4.5.1; ; 2026-06-03 16:27:16 UTC; windows
+Built: R 4.5.1; ; 2026-06-04 19:50:36 UTC; windows
 > 
 > source(here::here("tests", "testthat", "helper.R"))
 > 
@@ -60,11 +60,29 @@ Built: R 4.5.1; ; 2026-06-03 16:27:16 UTC; windows
 > ### * Make Tables
 > 
 > ###-----------------------------------------------------------------------------
+> ### ** Locations
+> 
+> for (bs in c(TRUE, FALSE)) {
++     for (tr in c("estimation", "projection", "all")) {
++         saveRDS(make_control_table_loc_by_surf(test_data_tfrSURFs_list, by_surf = bs,
++                                                time_range = tr),
++                 file = here::here("tests", "testthat", "fixtures",
++                                   paste0("control_table_loc_by_surf_",
++                                          "by_surf-", bs,
++                                          "_", tr,
++                                          "_", date_string, ".rds")))
++     }
++ }
+> 
+> ###-----------------------------------------------------------------------------
 > ### ** Periods
 > 
-> saveRDS(make_control_table_periods(test_data_tfrSURFs_list),
+> for (tt in c("concise", "surfs_only", "detailed")) {
++     saveRDS(make_control_table_periods(test_data_tfrSURFs_list, table_type = tt),
 +         file = here::here("tests", "testthat", "fixtures",
-+                           paste0("control_table_period_", date_string, ".rds")))
++                           paste0("control_table_period_", tt, "_",
++                                  date_string, ".rds")))
++ }
 > 
 > ###-----------------------------------------------------------------------------
 > ### ** Stats
@@ -81,4 +99,4 @@ Built: R 4.5.1; ; 2026-06-03 16:27:16 UTC; windows
 > 
 > proc.time()
    user  system elapsed 
-   0.79    0.10    0.89 
+   1.78    0.20    3.92 

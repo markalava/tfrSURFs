@@ -306,7 +306,7 @@ tabulate_loc_by_surf.data.frame <- function(x, ...,
 
     x <- filter_time_range(x, time_range = time_range, last_est_year = last_est_year)
 
-    x_count_what_cols <- c(surfs = "surf_year_start", surf_years = "surf_year")
+    x_count_what_cols <- c(surf_count = "surf_year_start", surf_years = "surf_year")
     if (by_surf) geographies <- c(geographies, "surf_year_group")
 
     if (!nrow(x)) {
