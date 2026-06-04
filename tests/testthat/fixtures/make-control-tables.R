@@ -37,11 +37,29 @@ saveRDS(test_data_tfrSURFs_list,
 ### * Make Tables
 
 ###-----------------------------------------------------------------------------
+### ** Locations
+
+for (bs in c(TRUE, FALSE)) {
+    for (tr in c("estimation", "projection", "all")) {
+        saveRDS(make_control_table_loc_by_surf(test_data_tfrSURFs_list, by_surf = bs,
+                                               time_range = tr),
+                file = here::here("tests", "testthat", "fixtures",
+                                  paste0("control_table_loc_by_surf_",
+                                         "by_surf-", bs,
+                                         "_", tr,
+                                         "_", date_string, ".rds")))
+    }
+}
+
+###-----------------------------------------------------------------------------
 ### ** Periods
 
-saveRDS(make_control_table_periods(test_data_tfrSURFs_list),
+for (tt in c("concise", "surfs_only", "detailed")) {
+    saveRDS(make_control_table_periods(test_data_tfrSURFs_list, table_type = tt),
         file = here::here("tests", "testthat", "fixtures",
-                          paste0("control_table_period_", date_string, ".rds")))
+                          paste0("control_table_period_", tt, "_",
+                                 date_string, ".rds")))
+}
 
 ###-----------------------------------------------------------------------------
 ### ** Stats

@@ -11,7 +11,7 @@ tabulate_surf_periods(x, ...)
 \method{tabulate_surf_periods}{list}(
   x,
   incl_small_countries = TRUE,
-  table_type = c("concise", "surfs only", "detailed"),
+  table_type = c("concise", "surfs_only", "detailed"),
   incl_no_surfs = TRUE,
   flag_schoumaker_excl = TRUE,
   digits = 1
@@ -19,7 +19,7 @@ tabulate_surf_periods(x, ...)
 
 \method{tabulate_surf_periods}{data.frame}(
   tfr_surfs_df,
-  table_type = c("concise", "surfs only", "detailed"),
+  table_type = c("concise", "surfs_only", "detailed"),
   incl_no_surfs = TRUE,
   flag_schoumaker_excl = TRUE,
   digits = 1
@@ -34,12 +34,19 @@ a data frame as output by \code{\link{make_tfr_surfs}}.}
 \item{incl_small_countries}{Logical; exclude countries with populations less
 than 90000 in mid 2024?}
 
-\item{table_type}{Logical; cross-classify SURF periods by the TFR surf
-periods identified by \cite{Schoumaker (2019)}. This will add both
-columns and rows; see \dQuote{Details} for information.}
+\item{table_type}{Character; see \dQuote{Details}.}
+
+\item{incl_no_surfs}{Logical; include countries that had no SURFs?}
+
+\item{flag_schoumaker_excl}{Logical; flag rows referring to a country that
+was not in Schoumaker's (2019) analysis? Only relevant if
+\code{table_type} is \code{"concise"} or \code{"detailed"}. The string
+\code{"(not included)"} will be added to the
+\code{"Schoumaker_stall_type"} column.}
 
 \item{digits}{Number of digits to round numeric columns to (e.g., applies to
-the TFR column). This is passed directly to \code{formatC(..., format = "f")}.}
+the TFR column). This is passed directly to \code{formatC(..., format =
+    "f")}.}
 }
 \value{
 A data frame.
@@ -51,6 +58,12 @@ single table. The following columns are always present:
 "surf_period", "TFR", "surf_year")}.
 }
 \details{
+\subsection{Table type}{
+
+Three types of output table are supported, controlled by the argument
+\code{table_type}. The simplest is \code{table_type = "surfs_only"}, in
+which case only SURFs are included.
+
 If \code{table_type} is \code{"concise"}, the column "Schoumaker_stall_type"
 is added to the output. Any Schoumaker (2019) stalls that intersect a SURF,
 regardless of strength of evidence, are noted in this column for the
@@ -62,6 +75,8 @@ If \code{table_type} is \code{"detailed"}, the column
 potentially be broken across multiple lines of the table if they intersect,
 but not exactly, with a Schoumaker stall. Moreover, Schoumaker stalls are
 split by strength of evidence.
+
+}
 }
 \references{
 Schoumaker, B. (2019),

@@ -13,7 +13,8 @@ tabulate_loc_by_surf(...)
   incl_small_countries = TRUE,
   ...,
   geographies = c("area_name", "reg_name", "name", "sub_saharan_africa", "global"),
-  stat = c("years", "surfs"),
+  time_range = c("estimation", "projection", "all"),
+  last_est_year = x[[1]][1, "bayesTFR_present_year"],
   by_surf = FALSE
 )
 
@@ -21,7 +22,8 @@ tabulate_loc_by_surf(...)
   x,
   ...,
   geographies = c("area_name", "reg_name", "name", "sub_saharan_africa", "global"),
-  stat = c("years", "surfs"),
+  time_range = c("estimation", "projection", "all"),
+  last_est_year = x[1, "bayesTFR_present_year"],
   by_surf = FALSE
 )
 }
@@ -32,6 +34,16 @@ tabulate_loc_by_surf(...)
 
 \item{incl_small_countries}{Logical; exclude countries with populations less
 than 90000 in mid 2024?}
+
+\item{geographies}{Cross-classifying geographies for the table. These must
+be columns in \code{x}.}
+
+\item{time_range}{Character; which time range should be tabulated?
+\code{"estimation"}, \code{"projection"}, or \code{"all"}?}
+
+\item{last_est_year}{Numeric; the first year of the projection period, for
+the purposes of \code{time_range}. This is ignored if \code{time_range}
+\code{=} \code{"all"}.}
 }
 \value{
 A data frame.

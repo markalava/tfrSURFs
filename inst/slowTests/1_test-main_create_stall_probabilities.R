@@ -69,7 +69,8 @@ test_that("main function works with default arguments -- ALL countries", {
     withr::defer(pbapply::pboptions(pbop))
 
     test <- expect_error(
-        make_tfr_surfs(sim.dir = bayesTFR_test_output_dir))
+        make_tfr_surfs(sim.dir = bayesTFR_test_output_dir),
+        NA)
 })
 
 

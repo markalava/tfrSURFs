@@ -756,7 +756,7 @@ make_alt_surfs_periods_tables.list <- function(x, ...,
                                              median_only = FALSE,
                                              incl_small_countries = FALSE,
                                              overwrite = getOption("tfrSURFs.sensitivity_analysis_overwrite"),
-                                             table_type = c("concise", "surfs only", "detailed"),
+                                             table_type = c("concise", "surfs_only", "detailed"),
                                              output_dir_name = getOption("tfrSURFs.sensitivity_analysis_output_dir_name")) {
     if (is.null(names(x))) names(x) <- sapply(x, "[[", "id")
     table_type <- match.arg(table_type)
@@ -780,7 +780,7 @@ make_alt_surfs_periods_tables.character <- function(x,
                                                   median_only = FALSE,
                                                   incl_small_countries = FALSE,
                                                   overwrite = getOption("tfrSURFs.sensitivity_analysis_overwrite"),
-                                                  table_type = c("concise", "surfs only", "detailed"),
+                                                  table_type = c("concise", "surfs_only", "detailed"),
                                                   output_dir_name = getOption("tfrSURFs.sensitivity_analysis_output_dir_name")) {
 
     if (length(x) > 1) stop("'x' can only be of length 1.")

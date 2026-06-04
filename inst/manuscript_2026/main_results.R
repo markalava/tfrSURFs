@@ -137,7 +137,7 @@ write.xlsx(list(definitions = output_column_definitions,
 
 surfs_tbl <- tabulate_surf_periods(tfr_surfs_lst,
                                  incl_small_countries = FALSE,
-                                 table_type = "surfs only")
+                                 table_type = "surfs_only")
 
 ## write.xlsx(surfs_tbl,
 ##           file = file.path(dir_list[["tables_dir"]], "surf_periods_surfs_only.xlsx"),

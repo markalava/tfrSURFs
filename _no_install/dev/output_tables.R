@@ -213,7 +213,7 @@ test <- tabulate_surf_stats(x = tfr_surfs_lst, stat = "avg_len", incl_small_coun
 ##     tabulate_surf_periods(test_surfs_df, table_type = "concise")
 ## surfs_tbl_3 <- tabulate_surf_periods(test_surfs_df, table_type = "detailed")
 
-surfs_tbl_1 <- tabulate_surf_periods(tfr_surfs_lst, table_type = "surfs only")
+surfs_tbl_1 <- tabulate_surf_periods(tfr_surfs_lst, table_type = "surfs_only")
 
 surfs_tbl_2 <- tabulate_surf_periods(tfr_surfs_lst, table_type = "concise",
                                      incl_no_surfs = TRUE,

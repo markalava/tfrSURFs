@@ -99,7 +99,7 @@ add_surf_periods_blocks <- function(x, table_type) {
         stop("'indicator' must have exactly one unique value.")
 
     ## Any surfs?
-    if (identical(table_type, "surfs only")) {
+    if (identical(table_type, "surfs_only")) {
         tfr_surfs <- any(na.omit(x[["surf_year"]]))
     } else {
         tfr_surfs <- any(x[["surf_year"]] | x[["Schoumaker_stall_any"]])
@@ -112,7 +112,7 @@ add_surf_periods_blocks <- function(x, table_type) {
             dplyr::arrange(reg_name, name, year)
 
         ## Create hash column
-        if (identical(table_type, "surfs only")) {
+        if (identical(table_type, "surfs_only")) {
             x <- x |>
                 dplyr::mutate(hash_1 = paste(name, surf_year),
                               surf_tbl_block = 1)
@@ -238,7 +238,6 @@ tabulate_loc_by_surf <- function(...) {
 ##' @export
 tabulate_loc_by_surf.list <- function(x, incl_small_countries = TRUE, ...,
                                       geographies = c("area_name", "reg_name", "name", "sub_saharan_africa", "global"),
-                                      count_what = c("surf_years", "surfs"),
                                       time_range = c("estimation", "projection", "all"),
                                       last_est_year = x[[1]][1, "bayesTFR_present_year"],
                                       by_surf = FALSE) {
@@ -246,7 +245,7 @@ tabulate_loc_by_surf.list <- function(x, incl_small_countries = TRUE, ...,
     if (!incl_small_countries) x <- remove_small_countries(x)
 
     out <- tabulate_loc_by_surf(do.call("rbind", x),
-                                geographies = geographies, count_what = count_what,
+                                geographies = geographies,
                                 time_range = time_range,
                                 last_est_year = last_est_year,
                                 by_surf = by_surf, ...)
@@ -258,7 +257,6 @@ tabulate_loc_by_surf.list <- function(x, incl_small_countries = TRUE, ...,
 ##' @export
 tabulate_loc_by_surf.data.frame <- function(x, ...,
                                             geographies = c("area_name", "reg_name", "name", "sub_saharan_africa", "global"),
-                                            count_what = c("surf_years", "surfs"),
                                             time_range = c("estimation", "projection", "all"),
                                             last_est_year = x[1, "bayesTFR_present_year"],
                                             by_surf = FALSE) {
@@ -266,7 +264,6 @@ tabulate_loc_by_surf.data.frame <- function(x, ...,
     ## -------* Arg Checks
 
     geographies <- match.arg(geographies, several.ok = TRUE)
-    count_what <- match.arg(count_what, several.ok = TRUE)
     time_range <- match.arg(time_range)
     stopifnot(is.logical(by_surf))
 
@@ -276,21 +273,29 @@ tabulate_loc_by_surf.data.frame <- function(x, ...,
 
     if ("global" %in% geographies) {
         if (length(geographies) > 1) {
-            out <- tabulate_loc_by_surf(x = x, count_what = count_what, time_range = time_range,
+            out <- tabulate_loc_by_surf(x = x, time_range = time_range,
                                         last_est_year = last_est_year,
                                         geographies = "global", by_surf = by_surf,
                                         ...)
-            out <- data.frame(as.data.frame(lapply(setNames(nm = geographies[!geographies == "global"]),
-                                                   function(z) "GLOBAL")),
-                              out)
+            if (nrow(out)) {
+                out <- data.frame(as.data.frame(lapply(setNames(nm = geographies[!geographies == "global"]),
+                                                       function(z) "GLOBAL")),
+                                  out)
+                out <- rbind(data.frame(tabulate_loc_by_surf(x = x, time_range = time_range,
+                                                             last_est_year = last_est_year,
+                                                             geographies = geographies[!geographies == "global"],
+                                                             by_surf = by_surf,
+                                                             ...),
+                                        global = FALSE),
+                             out)
+            } else {
+                out <- cbind(out,
+                             data.frame(
+                                 sapply(geographies[!geographies == "global"], function(z) list(character()))))
+            }
+
             ## vvv EARLY RETURN
-            return(rbind(data.frame(tabulate_loc_by_surf(x = x, count_what = count_what, time_range = time_range,
-                                                         last_est_year = last_est_year,
-                                                         geographies = geographies[!geographies == "global"],
-                                                         by_surf = by_surf,
-                                                         ...),
-                                    global = FALSE),
-                         out))
+            return(out)
             ## ^^^ EARLY RETURN
         } else {
             x$global <- TRUE
@@ -301,21 +306,33 @@ tabulate_loc_by_surf.data.frame <- function(x, ...,
 
     x <- filter_time_range(x, time_range = time_range, last_est_year = last_est_year)
 
-    x_count_what_cols <- c(surfs = "surf_year_start", surf_years = "surf_year")[count_what]
+    x_count_what_cols <- c(surfs = "surf_year_start", surf_years = "surf_year")
     if (by_surf) geographies <- c(geographies, "surf_year_group")
 
-    out <- stats::aggregate(x[, x_count_what_cols, drop = FALSE],
-                            by = x[, geographies, drop = FALSE],
-                            FUN = "sum", na.rm = TRUE)
+    if (!nrow(x)) {
+        ## Zero-row data frame
+        out <-  data.frame(
+            c(sapply(geographies, function(z) list(character())),
+              sapply(names(x_count_what_cols), function(z) list(numeric()))))
 
-    ## Rename columns to 'count_what'
-    for (j in seq_along(x_count_what_cols)) {
-        colnames(out)[which(colnames(out) == x_count_what_cols[j])] <- names(x_count_what_cols)[j]
+    } else {
+
+        out <- stats::aggregate(x[, x_count_what_cols, drop = FALSE],
+                                by = x[, geographies, drop = FALSE],
+                                FUN = "sum", na.rm = TRUE)
+
+        ## Rename columns to 'count_what'
+        for (j in seq_along(x_count_what_cols)) {
+            colnames(out)[which(colnames(out) == x_count_what_cols[j])] <- names(x_count_what_cols)[j]
+        }
+
+        out <- out[do.call("order", unname(out[, geographies, drop = FALSE])), , drop = FALSE]
+
     }
 
     ## -------* END
 
-    return(out[do.call("order", unname(out[, geographies, drop = FALSE])), , drop = FALSE])
+    return(out)
 }
 
 ###-----------------------------------------------------------------------------
@@ -499,7 +516,7 @@ tabulate_surf_stats.data.frame <- function(x, stat = c("count", "avg_len"),
 ##' \subsection{Table type}{
 ##'
 ##' Three types of output table are supported, controlled by the argument
-##' \code{table_type}. The simplest is \code{table_type = "surfs only"}, in
+##' \code{table_type}. The simplest is \code{table_type = "surfs_only"}, in
 ##' which case only SURFs are included.
 ##'
 ##' If \code{table_type} is \code{"concise"}, the column "Schoumaker_stall_type"
@@ -548,7 +565,7 @@ tabulate_surf_periods <- function(x, ...) {
 ##' @rdname tabulate_surf_periods
 ##' @export
 tabulate_surf_periods.list <- function(x, incl_small_countries = TRUE,
-                                       table_type = c("concise", "surfs only", "detailed"),
+                                       table_type = c("concise", "surfs_only", "detailed"),
                                        incl_no_surfs = TRUE,
                                        flag_schoumaker_excl = TRUE,
                                        digits = 1) {
@@ -575,7 +592,7 @@ tabulate_surf_periods.list <- function(x, incl_small_countries = TRUE,
 ##' @rdname tabulate_surf_periods
 ##' @export
 tabulate_surf_periods.data.frame <- function(tfr_surfs_df,
-                                             table_type = c("concise", "surfs only", "detailed"),
+                                             table_type = c("concise", "surfs_only", "detailed"),
                                              incl_no_surfs = TRUE,
                                              flag_schoumaker_excl = TRUE,
                                              digits = 1) {
@@ -601,7 +618,7 @@ tabulate_surf_periods.data.frame <- function(tfr_surfs_df,
     if (incl_no_surfs) loc_info <- tfr_surfs_df[1, loc_cols]
 
     out_cols <- character()
-    if (identical(table_type, "surfs only")) {
+    if (identical(table_type, "surfs_only")) {
         out_cols <- c(loc_cols, "surf_period", "TFR")
     } else {
         if (identical(table_type, "detailed")) {
@@ -626,7 +643,7 @@ tabulate_surf_periods.data.frame <- function(tfr_surfs_df,
         tfr_surfs_df <- add_surf_periods_blocks(tfr_surfs_df, table_type = table_type)
 
         ## Subset, keeping only periods with a stall of either type.
-        if (!identical(table_type, "surfs only")) {
+        if (!identical(table_type, "surfs_only")) {
             idx <- which(tfr_surfs_df[["surf_year"]] | tfr_surfs_df[["Schoumaker_stall_any"]])
             x <- tfr_surfs_df[idx, ]
         } else {
@@ -635,7 +652,7 @@ tabulate_surf_periods.data.frame <- function(tfr_surfs_df,
 
         if (nrow(x)) {
 
-            if (table_type %in% c("surfs only", "detailed")) {
+            if (table_type %in% c("surfs_only", "detailed")) {
 
                 x <- x |>
                     dplyr::group_by(surf_tbl_block) |>
@@ -652,7 +669,7 @@ tabulate_surf_periods.data.frame <- function(tfr_surfs_df,
                     dplyr::slice(1) |>
                     dplyr::ungroup()
 
-                if (identical(table_type, "surfs only")) {
+                if (identical(table_type, "surfs_only")) {
                     out <- as.data.frame(dplyr::select(x, c("area_name", "reg_name", "sub_saharan_africa", "name", "surf_period", "TFR")))
 
                 } else if (identical(table_type, "detailed")) {

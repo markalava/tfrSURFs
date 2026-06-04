@@ -22,7 +22,7 @@ ECHO. ==========================================================================
 ECHO. DATA
 ECHO. ================================================================================
 ECHO.
-Rscript --no-save --no-restore -e "setwd('data-raw'); sink(tempfile()); example(source, echo = FALSE, verbose = FALSE); sink(); sourceDir('.')"
+Rscript --verbose --no-save --no-restore -e "setwd('data-raw'); sink(tempfile()); example(source, echo = FALSE, verbose = FALSE); sink(); sourceDir('.')"
 if %ERRORLEVEL% GEQ 1 PAUSE
 
 ECHO.
@@ -38,7 +38,7 @@ ECHO. ==========================================================================
 ECHO. DOCUMENT
 ECHO. ================================================================================
 ECHO.
-Rscript --no-save --no-restore -e "suppressPackageStartupMessages(devtools::document())"
+Rscript --verbose --no-save --no-restore -e "suppressPackageStartupMessages(devtools::document())"
 if %ERRORLEVEL% GEQ 1 PAUSE
 ECHO.
 ECHO.
@@ -70,7 +70,7 @@ ECHO. TESTS - testthat
 ECHO. ================================================================================
 ECHO.
 
-Rscript --no-save --no-restore -e "testthat::test_package('%CurrDirName%')"
+Rscript --verbose --no-save --no-restore -e "testthat::test_package('%CurrDirName%')"
 if %ERRORLEVEL% GEQ 1 PAUSE
 
 ECHO.
@@ -88,7 +88,7 @@ ECHO. ==========================================================================
 ECHO.
 
 CD _no_install\compare_results
-Rscript "compare_results.R"
+Rscript --verbose "compare_results.R"
 if %ERRORLEVEL% GEQ 1 PAUSE
 CD ..\..
 
@@ -106,13 +106,13 @@ ECHO. TESTS - slowTests
 ECHO. ================================================================================
 ECHO.
 
-rem Rscript --no-save --no-restore -e "setwd('inst/slowTests'); for (nm in sort(list.files('.', pattern = '[.][RrSsQq]$'))) { source('0_setup.R'); if (!identical(nm, '0_setup.R')) source(file.path('.', nm)) }"
+rem Rscript --verbose --no-save --no-restore -e "setwd('inst/slowTests'); for (nm in sort(list.files('.', pattern = '[.][RrSsQq]$'))) { source('0_setup.R'); if (!identical(nm, '0_setup.R')) source(file.path('.', nm)) }"
 rem if %ERRORLEVEL% GEQ 1 PAUSE
 
 CD inst\slowTests
 FOR %%F IN (*.R) DO (
 ECHO Running %%F
-Rscript "%%F"
+Rscript --verbose "%%F"
 IF %ERRORLEVEL% GEQ 1 (
 ECHO Error running %%F
 PAUSE 

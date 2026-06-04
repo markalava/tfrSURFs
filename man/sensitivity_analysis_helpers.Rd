@@ -149,7 +149,7 @@ make_alt_surfs_periods_tables(x, ...)
   median_only = FALSE,
   incl_small_countries = FALSE,
   overwrite = getOption("tfrSURFs.sensitivity_analysis_overwrite"),
-  table_type = c("concise", "surfs only", "detailed"),
+  table_type = c("concise", "surfs_only", "detailed"),
   output_dir_name = getOption("tfrSURFs.sensitivity_analysis_output_dir_name")
 )
 
@@ -158,7 +158,7 @@ make_alt_surfs_periods_tables(x, ...)
   median_only = FALSE,
   incl_small_countries = FALSE,
   overwrite = getOption("tfrSURFs.sensitivity_analysis_overwrite"),
-  table_type = c("concise", "surfs only", "detailed"),
+  table_type = c("concise", "surfs_only", "detailed"),
   output_dir_name = getOption("tfrSURFs.sensitivity_analysis_output_dir_name")
 )
 
