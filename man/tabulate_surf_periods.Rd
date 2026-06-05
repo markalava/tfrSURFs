@@ -77,16 +77,16 @@ but not exactly, with a Schoumaker stall. Moreover, Schoumaker stalls are
 split by strength of evidence.
 
 }
-}
-\section{Note}{
 
+\subsection{Note}{
 
 Unlike \code{\link{tabulate_loc_by_surf}} and
 \code{\link{tabulate_surf_stats}}, this function does not have a
 \code{time_range} argument. SURF periods will be calculated using the whole
 time range in \code{x}.
-}
 
+}
+}
 \references{
 Schoumaker, B. (2019),
 \dQuote{Stalls in Fertility Transitions in sub-Saharan Africa: Revisiting the Evidence},

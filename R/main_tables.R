@@ -31,19 +31,16 @@ filter_time_range <- function(x, time_range = c("estimation", "projection", "all
 
     if (identical(time_range, "estimation")) {
         x <- x[x[["year"]] <= last_est_year, ]
-    } else {
-        if (identical(time_range, "projection"))
-            x <- x[x[["year"]] > last_est_year, ]
-        if (nrow(x)) {
-            ## Need to re-creat surf_start_year because any SURFs stretching
-            ## from estimation to projection year will not have any 'TRUE'
-            ## surf_start_year.
-            x <- by(data = x, # 'replace_surf_lengths()' only works for one country at a time.
-                    INDICES = x[, "country_code"],
-                    FUN = function(z) replace_surf_lengths(z)
-                    )
-            x <- do.call("rbind", x)
-        }
+    } else if (identical(time_range, "projection")) {
+        x <- x[x[["year"]] > last_est_year, ]
+    }
+    if (nrow(x)) {
+        ## Need to re-create length and start year columns.
+        x <- do.call("rbind",
+                     by(data = x, # 'replace_surf_lengths()' only works for one country at a time.
+                        INDICES = x[, "country_code"],
+                        FUN = function(z) replace_surf_lengths(z)
+                        ))
     }
     return(x)
 }
@@ -420,6 +417,15 @@ tabulate_surf_stats.data.frame <- function(x, stat = c("count", "avg_len"),
     time_range <- match.arg(time_range)
     last_est_year <- as.numeric(last_est_year)
 
+    ## -------* Functions
+
+    fzr <- function(x, filter_zero_rows, stat) {
+        if (filter_zero_rows && identical(stat, "count")) {
+            return(x[x[["count"]] > 0, , drop = FALSE])
+        }
+        else return(x)
+    }
+
     ## -------* BODY
 
     ## -------** Handle `"global"` in `geographies`
@@ -441,8 +447,8 @@ tabulate_surf_stats.data.frame <- function(x, stat = c("count", "avg_len"),
                                                             last_est_year = last_est_year),
                                         global = FALSE),
                              out)
-                if (filter_zero_rows && identical(stat, "count"))
-                    out <- out[out[["count"]] > 0, , drop = FALSE]
+                ## Remove geographies with zero stats if requested
+                out <- fzr(out, filter_zero_rows = filter_zero_rows, stat = stat)
             } else {
                 out <- cbind(out,
                              data.frame(
@@ -487,9 +493,7 @@ tabulate_surf_stats.data.frame <- function(x, stat = c("count", "avg_len"),
         }
 
         ## Remove geographies with zero stats if requested
-        if (filter_zero_rows && identical(stat, "count")) {
-            x <- x[x[["count"]] > 0, , drop = FALSE]
-        }
+        x <- fzr(x, filter_zero_rows = filter_zero_rows, stat = stat)
 
         ## Sort
         x <- x[do.call("order", unname(x[, geographies, drop = FALSE])), , drop = FALSE]
@@ -532,12 +536,14 @@ tabulate_surf_stats.data.frame <- function(x, stat = c("count", "avg_len"),
 ##'
 ##' }
 ##'
-##' @section Note:
+##' \subsection{Note}{
 ##'
 ##' Unlike \code{\link{tabulate_loc_by_surf}} and
 ##' \code{\link{tabulate_surf_stats}}, this function does not have a
 ##' \code{time_range} argument. SURF periods will be calculated using the whole
 ##' time range in \code{x}.
+##'
+##' }
 ##'
 ##' @param x A list of data frames as output by \code{\link{make_tfr_surfs}} or
 ##'     a data frame as output by \code{\link{make_tfr_surfs}}.

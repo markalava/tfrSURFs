@@ -199,11 +199,21 @@ surf_counts <- tabulate_surf_stats(x = tfr_surfs_lst, stat = "count",
 
 surf_avg_len <- tabulate_surf_stats(x = tfr_surfs_lst, stat = "avg_len",
                                    incl_small_countries = FALSE,
-                                   filter_zero_rows = FALSE,
+                                   filter_zero_rows = TRUE,
                                    geographies = c("area_name", "reg_name", "name", "global"),
                                    time_range = "estimation")
 
 test <- tabulate_surf_stats(x = tfr_surfs_lst, stat = "avg_len", incl_small_countries = TRUE, time_range = "estimation", last_est_year = 1950)
+
+
+## Subregions
+surf_avg_len_subreg <-
+    tabulate_surf_stats(x = tfr_surfs_lst, stat = "avg_len",
+                        incl_small_countries = FALSE,
+                        filter_zero_rows = TRUE,
+                        geographies = c("area_name", "reg_name", "global"),
+                        time_range = "estimation")
+
 
 ###-----------------------------------------------------------------------------
 ### ** Periods
