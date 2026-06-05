@@ -25,11 +25,11 @@ Checks that numeric country codes are:
 }
 }
 \seealso{
-Other Countries and areas: 
+Other countries and areas functions: 
 \code{\link{get_country_names}()},
 \code{\link{remove_small_countries}()}
 }
 \author{
 Mark C Wheldon
 }
-\concept{Countries and areas}
+\concept{countries and areas functions}

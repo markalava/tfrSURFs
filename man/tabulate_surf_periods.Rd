@@ -78,17 +78,26 @@ split by strength of evidence.
 
 }
 }
+\section{Note}{
+
+
+Unlike \code{\link{tabulate_loc_by_surf}} and
+\code{\link{tabulate_surf_stats}}, this function does not have a
+\code{time_range} argument. SURF periods will be calculated using the whole
+time range in \code{x}.
+}
+
 \references{
 Schoumaker, B. (2019),
 \dQuote{Stalls in Fertility Transitions in sub-Saharan Africa: Revisiting the Evidence},
 Studies in Family Planning, 50, 257–278. \url{https://doi.org/10/gf5zpt}
 }
 \seealso{
-Other Tabulation: 
+Other tabulation functions: 
 \code{\link{tabulate_loc_by_surf}()},
 \code{\link{tabulate_surf_stats}()}
 }
 \author{
 Mark Wheldon
 }
-\concept{Tabulation}
+\concept{tabulation functions}

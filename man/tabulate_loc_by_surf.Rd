@@ -53,11 +53,11 @@ Produces tables of counts of countries and geographic regions by
 presence/absence of tfrSURFs.
 }
 \seealso{
-Other Tabulation: 
+Other tabulation functions: 
 \code{\link{tabulate_surf_periods}()},
 \code{\link{tabulate_surf_stats}()}
 }
 \author{
 Mark C Wheldon
 }
-\concept{Tabulation}
+\concept{tabulation functions}

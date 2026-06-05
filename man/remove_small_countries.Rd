@@ -53,11 +53,11 @@ get_small_countries()
 \seealso{
 UNlocations_countries
 
-Other Countries and areas: 
+Other countries and areas functions: 
 \code{\link{get_country_names}()},
 \code{\link{validate_country_codes}()}
 }
 \author{
 Mark C Wheldon
 }
-\concept{Countries and areas}
+\concept{countries and areas functions}

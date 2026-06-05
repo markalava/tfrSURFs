@@ -27,7 +27,7 @@
 ##' @return \code{x} with small countries removed.
 ##' @author Mark C Wheldon
 ##'
-##' @family Countries and areas
+##' @family countries and areas functions
 ##'
 ##' @seealso UNlocations_countries
 ##'
@@ -102,7 +102,7 @@ is_small_country <- function(code) {
 ##'
 ##' @seealso UNlocations_countries
 ##'
-##' @family Countries and areas
+##' @family countries and areas functions
 ##'
 ##' @references
 ##' United Nations (2018) "Standard Country or Area Codes for Statistical Use (M49)", New York, N.Y.:
@@ -147,7 +147,7 @@ get_country_codes <- function(names = NULL) {
 ##' @return If valid, \code{country_codes} is returned; otherwise an error is signalled.
 ##' @author Mark C Wheldon
 ##'
-##' @family Countries and areas
+##' @family countries and areas functions
 ##'
 ##' @export
 validate_country_codes <- function(country_codes, sim.dir) {

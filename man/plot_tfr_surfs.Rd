@@ -99,10 +99,10 @@ sub-Saharan Africa: Revisiting the Evidence}, \emph{Studies in Family Planning},
 \seealso{
 The \pkg{FPPlateaus} package (https://github.com/markalava/FPPlateaus).
 
-Other Plotting functions: 
+Other plotting functions: 
 \code{\link{plot_surfs_probs}()}
 }
 \author{
 Mark Wheldon
 }
-\concept{Plotting functions}
+\concept{plotting functions}

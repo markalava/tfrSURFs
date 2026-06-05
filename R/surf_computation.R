@@ -793,8 +793,6 @@ apply_min_surf_lengths <- function(x, min_surf_length) {
 ##'     \code{surf_year_start} is a vector this will be logical, otherwise
 ##'     numeric. See \dQuote{Details}.
 ##' @author Mark C Wheldon
-##' @family TFR regain functions
-##' @family Stall exit criteria functions
 ##' @keywords internal
 ##' @noRd
 get_tfr_regain_surf_year <- function(surf_year_start, tfr, continuation_condition,

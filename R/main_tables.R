@@ -17,7 +17,7 @@
 ##'
 ##' @author Mark C Wheldon
 ##'
-##' @family Tabulation
+##' @family tabulation functions
 ##'
 ##' @noRd
 filter_time_range <- function(x, time_range = c("estimation", "projection", "all"),
@@ -59,7 +59,7 @@ filter_time_range <- function(x, time_range = c("estimation", "projection", "all
 ##' @return \code{x} with extra columns.
 ##' @author Mark Wheldon
 ##'
-##' @family Tabulation
+##' @family tabulation functions
 ##'
 ##' @noRd
 add_surf_periods_blocks <- function(x, table_type) {
@@ -227,7 +227,7 @@ add_surf_periods_blocks <- function(x, table_type) {
 ##' @return A data frame.
 ##' @author Mark C Wheldon
 ##'
-##' @family Tabulation
+##' @family tabulation functions
 ##'
 ##' @export
 tabulate_loc_by_surf <- function(...) {
@@ -362,11 +362,10 @@ tabulate_loc_by_surf.data.frame <- function(x, ...,
 ##'     the purposes of \code{time_range}. This is ignored if \code{time_range}
 ##'     \code{=} \code{"all"}.
 ##' @param ... Passed to other methods.
-##' @inheritParams tabulate_loc_by_surf
 ##' @return A data frame.
 ##' @author Mark C Wheldon
 ##'
-##' @family Tabulation
+##' @family tabulation functions
 ##'
 ##' @export
 tabulate_surf_stats <- function(x, ...) {
@@ -533,6 +532,13 @@ tabulate_surf_stats.data.frame <- function(x, stat = c("count", "avg_len"),
 ##'
 ##' }
 ##'
+##' @section Note:
+##'
+##' Unlike \code{\link{tabulate_loc_by_surf}} and
+##' \code{\link{tabulate_surf_stats}}, this function does not have a
+##' \code{time_range} argument. SURF periods will be calculated using the whole
+##' time range in \code{x}.
+##'
 ##' @param x A list of data frames as output by \code{\link{make_tfr_surfs}} or
 ##'     a data frame as output by \code{\link{make_tfr_surfs}}.
 ##' @param table_type Character; see \dQuote{Details}.
@@ -549,7 +555,7 @@ tabulate_surf_stats.data.frame <- function(x, stat = c("count", "avg_len"),
 ##' @return A data frame.
 ##' @author Mark Wheldon
 ##'
-##' @family Tabulation
+##' @family tabulation functions
 ##'
 ##' @references
 ##'

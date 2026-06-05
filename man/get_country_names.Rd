@@ -43,11 +43,11 @@ Division. \url{https://unstats.un.org/unsd/methodology/m49/} (accessed
 \seealso{
 UNlocations_countries
 
-Other Countries and areas: 
+Other countries and areas functions: 
 \code{\link{remove_small_countries}()},
 \code{\link{validate_country_codes}()}
 }
 \author{
 Mark C Wheldon
 }
-\concept{Countries and areas}
+\concept{countries and areas functions}

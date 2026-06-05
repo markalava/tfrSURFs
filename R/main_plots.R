@@ -90,7 +90,7 @@ add_plot_datestamp <- function(gp) {
 ##' @return A \pkg{ggplot2} object, which will be displayed by default.
 ##' @author Mark Wheldon
 ##'
-##' @family Plotting functions
+##' @family plotting functions
 ##'
 ##' @seealso The \pkg{FPPlateaus} package (https://github.com/markalava/FPPlateaus).
 ##'
@@ -640,7 +640,7 @@ plot_tfr_surfs.data.frame <- function(x,
 ##' @return A \pkg{ggplot2} object.
 ##' @author Mark Wheldon
 ##'
-##' @family Plotting functions
+##' @family plotting functions
 ##'
 ##' @seealso The \pkg{FPPlateaus} package (https://github.com/markalava/FPPlateaus).
 ##'

@@ -41,10 +41,10 @@ showing time periods where TFR surfs were detected.
 \seealso{
 The \pkg{FPPlateaus} package (https://github.com/markalava/FPPlateaus).
 
-Other Plotting functions: 
+Other plotting functions: 
 \code{\link{plot_tfr_surfs}()}
 }
 \author{
 Mark Wheldon
 }
-\concept{Plotting functions}
+\concept{plotting functions}

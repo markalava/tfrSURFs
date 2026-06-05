@@ -63,11 +63,11 @@ other geographies. Some tfrSURFs occur in the future (defined by
 specified.
 }
 \seealso{
-Other Tabulation: 
+Other tabulation functions: 
 \code{\link{tabulate_loc_by_surf}()},
 \code{\link{tabulate_surf_periods}()}
 }
 \author{
 Mark C Wheldon
 }
-\concept{Tabulation}
+\concept{tabulation functions}
