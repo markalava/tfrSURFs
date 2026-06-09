@@ -76,10 +76,7 @@ surfs_median_list_rda_filename <-
 ### set 'bayesTFR_output_dir' to the location of the results.
 
 ###-----------------------------------------------------------------------------
-### * Probabilistic SURFs
-
-###-----------------------------------------------------------------------------
-### ** Main Results
+### * Get SURFs Results
 
 ## Report argument values that will be used:
 get_arg_defs("make_tfr_surfs")
@@ -89,6 +86,7 @@ get_arg_defs("make_tfr_surfs")
 
 if (file.exists(surfs_list_rda_filename)) {
     ## Load (if re-analyzing)
+    message("Re-loading '", surfs_list_rda_filename, "'.")
     load(surfs_list_rda_filename)
 } else {
     ## RUN MAIN FUNCTION
@@ -99,10 +97,11 @@ if (file.exists(surfs_list_rda_filename)) {
 }
 
 ###-----------------------------------------------------------------------------
-### *** Medians
+### *** Non-Probabilistic
 
 if (file.exists(surfs_median_list_rda_filename)) {
     ## Load (if re-analyzing)
+    message("Re-loading '", surfs_median_list_rda_filename, "'.")
     load(surfs_median_list_rda_filename)
 } else {
     ## RUN MAIN FUNCTION
@@ -114,34 +113,187 @@ if (file.exists(surfs_median_list_rda_filename)) {
 }
 
 ###-----------------------------------------------------------------------------
-### ** Export 'Database' of SURFs: Appendix 2, Table C
-
-## This is the main output object. Probabilistic and medians runs in one
-## workbook.
-
-data(output_column_definitions)
-
-write.xlsx(list(definitions = output_column_definitions,
-                probabilistic = do.call("rbind", tfr_surfs_lst),
-                non_probabilistic = do.call("rbind", tfr_surfs_median_lst)),
-           file = file.path(dir_list[["tables_dir"]], "Appendix_2_Table_C_surfs_database.xlsx"),
-           asTable = TRUE, tableStyle = "TableStyleMedium3")
+### * Results in Text
 
 ###-----------------------------------------------------------------------------
-### ** Tables
+### ** Table 1. Counts and Average Lenghts
+
+### This is the same as Appendix 2, Table A.
 
 ###-----------------------------------------------------------------------------
-### *** SURF Periods: Appendix 2, Table B
+### ** SURF and Location Counts
 
-### SURFs Only
+###-----------------------------------------------------------------------------
+### *** By Country
 
-surfs_tbl <- tabulate_surf_periods(tfr_surfs_lst,
-                                 incl_small_countries = FALSE,
-                                 table_type = "surfs_only")
+surf_loc_country <-
+    rbind(
+        data.frame(SURF_type = "probabilistic",
+                   tabulate_loc_by_surf(tfr_surfs_lst,
+                                       incl_small_countries = FALSE,
+                                       geographies = c("area_name", "reg_name", "name",
+                                                       "sub_saharan_africa"),
+                                       time_range = "estimation")), # << estimation period
+        data.frame(SURF_type = "medians_only",
+                   tabulate_loc_by_surf(tfr_surfs_median_lst,
+                                       incl_small_countries = FALSE,
+                                       geographies = c("area_name", "reg_name", "name",
+                                                       "sub_saharan_africa"),
+                                       time_range = "estimation"))) # << estimation period
 
-## write.xlsx(surfs_tbl,
-##           file = file.path(dir_list[["tables_dir"]], "surf_periods_surfs_only.xlsx"),
-##           asTable = TRUE, tableStyle = "TableStyleMedium2")
+### How Many Countries With SURFs?
+
+## All countries (Not Small)
+(countries_w_surfs <-
+    addmargins(xtabs(~ has_surf + SURF_type,
+                     data = transform(surf_loc_country, has_surf = surf_count > 0)),
+               margin = 1))
+
+## Among those countries with SURFs, how many are in SSA?
+(ssa_countries_w_surfs <-
+    addmargins(xtabs(~ SURF_type + sub_saharan_africa,
+                     data = subset(surf_loc_country, surf_count > 0)), margin = 2))
+
+## Among all SURFs, how many are in SSA?
+(ssa_surfs <-
+    addmargins(xtabs(surf_count ~ sub_saharan_africa + SURF_type,
+                     data =
+                         stats::aggregate(surf_count ~ sub_saharan_africa + SURF_type,
+                                          FUN = "sum",
+                                          data = surf_loc_country)), margin = 1))
+
+## SSA countries with and without SURFs
+(ssa_surf_count_country_tbl <-
+    subset(surf_loc_country,
+           SURF_type == "probabilistic" & sub_saharan_africa & surf_count > 0,
+           select = c("reg_name", "name", "surf_count", "surf_years")))
+
+dim(ssa_surf_count_country_tbl)
+
+(ssa_no_surfs_country_tbl <-
+    subset(surf_loc_country,
+           SURF_type == "probabilistic" & sub_saharan_africa & surf_count < 1,
+           select = c("reg_name", "name", "surf_count", "surf_years")))
+
+dim(ssa_no_surfs_country_tbl)
+
+## Neither a SURF nor a stall
+cc_SURF <- unique(subset(do.call("rbind", tfr_surfs_lst),
+                         surf_year & sub_saharan_africa)[["country_code"]])
+cc_Schoumaker <- unique(subset(do.call("rbind", tfr_surfs_lst),
+                         Schoumaker_stall_any & sub_saharan_africa)[["country_code"]])
+
+(ssa_no_either_country_tbl <-
+    subset(tfrSURFs::UNlocations_countries,
+           sub_saharan_africa & !pop_lt_90k_2024 &
+           !(country_code %in% cc_SURF) & !(country_code %in% cc_Schoumaker),
+           select = c("reg_name", "country_code", "name")))
+
+dim(ssa_no_either_country_tbl)
+
+###-----------------------------------------------------------------------------
+### *** By Subregion
+
+surf_loc_subregion <-
+    rbind(
+        data.frame(SURF_type = "probabilistic",
+                   tabulate_loc_by_surf(tfr_surfs_lst,
+                                       incl_small_countries = FALSE,
+                                       geographies = c("area_name", "reg_name"),
+                                       time_range = "estimation")),
+        data.frame(SURF_type = "medians_only",
+                   tabulate_loc_by_surf(tfr_surfs_median_lst,
+                                       incl_small_countries = FALSE,
+                                       geographies = c("area_name", "reg_name"),
+                                       time_range = "estimation")))
+
+### How Many Subregions With SURFs?
+
+(subreg_w_surfs <-
+    by(surf_loc_subregion, INDICES = surf_loc_subregion["SURF_type"],
+       FUN = function(z) {
+           z$has_surf <- "No SURFs"
+           z[z["surf_count"] > 0, "has_surf"] <- "SURFs"
+           addmargins(table(z["has_surf"]))
+       }))
+
+###-----------------------------------------------------------------------------
+### ** Timing
+
+## When did SURFs start?
+summary(subset(do.call("rbind", tfr_surfs_lst), surf_year_start)[["year"]])
+
+###-----------------------------------------------------------------------------
+### * Appendix Tables
+
+###-----------------------------------------------------------------------------
+### ** SURF Statistics: Appendix 2, Table A
+
+surf_count_subregion <-
+    rbind(
+        data.frame(SURF_type = "probabilistic",
+                   tabulate_surf_stats(tfr_surfs_lst, stat = "count",
+                                       incl_small_countries = FALSE,
+                                       filter_zero_rows = FALSE,
+                                       geographies = c("area_name", "reg_name", "global"),
+                                       time_range = "estimation")),
+        data.frame(SURF_type = "medians_only",
+                   tabulate_surf_stats(tfr_surfs_median_lst, stat = "count",
+                                       incl_small_countries = FALSE,
+                                       filter_zero_rows = FALSE,
+                                       geographies = c("area_name", "reg_name", "global"),
+                                       time_range = "estimation")))
+
+surf_len_subregion <-
+    rbind(
+        data.frame(SURF_type = "probabilistic",
+                   tabulate_surf_stats(tfr_surfs_lst, stat = "avg_len",
+                                       incl_small_countries = FALSE,
+                                       filter_zero_rows = FALSE,
+                                       geographies = c("area_name", "reg_name", "global"),
+                                       time_range = "estimation")),
+        data.frame(SURF_type = "medians_only",
+                   tabulate_surf_stats(tfr_surfs_median_lst, stat = "avg_len",
+                                       incl_small_countries = FALSE,
+                                       filter_zero_rows = FALSE,
+                                       geographies = c("area_name", "reg_name", "global"),
+                                       time_range = "estimation")))
+
+surf_stats_subreg <-
+    base::merge(surf_count_subregion, surf_len_subregion, sort = FALSE)
+
+cols_sub <- c("SURF_type", "area_name", "reg_name", "count", "avg_len")
+surf_stats_subreg <-
+    surf_stats_subreg[, cols_sub[cols_sub %in% colnames(surf_stats_subreg)]]
+
+first_est_year <- min(tfr_surfs_lst[[1]][["year"]])
+last_est_year <- tfr_surfs_lst[[1]][1, "bayesTFR_present_year"]
+
+cols_from <- c("area_name", "reg_name", "count", "avg_len")
+cols_to <- c(paste0("Count (", first_est_year, "-", last_est_year, ")"),
+             paste0("Avg. Length (", first_est_year, "-", last_est_year, ")"))
+
+surf_stats_subreg <-
+    gdata::rename.vars(surf_stats_subreg, from = cols_from, to = c("Region", "Subregion", cols_to),
+                       info = FALSE)
+
+write.xlsx(list(
+    definitions =
+        data.frame(name = cols_to,
+                   type = "numeric",
+                   description =
+                       c("Number of SURFs (estimation period only)",
+                         "Average length of SURFs (years; estimation period only)")),
+    probabilistic = subset(surf_stats_subreg, SURF_type == "probabilistic",
+                           select = -SURF_type),
+    non_probabilistic = subset(surf_stats_subreg, SURF_type == "medians_only",
+                               select = -SURF_type)),
+    file = file.path(dir_list[["tables_dir"]], "Appendix_2_Table_A.xlsx"),
+    asTable = TRUE, tableStyle = "TableStyleMedium2",
+    keepNA = TRUE, na.string = "-")
+
+###-----------------------------------------------------------------------------
+### ** SURF Periods: Appendix 2, Table B
 
 ### Concise Format
 
@@ -171,24 +323,13 @@ write.xlsx(list(
            file = file.path(dir_list[["tables_dir"]], "Appendix_2_Table_B.xlsx"),
            asTable = TRUE, tableStyle = "TableStyleMedium2")
 
-### Full Detail: SURF Periods Intersected with Schoumaker Stalls
-
-surfs_and_schoumaker_stalls <-
-    tabulate_surf_periods(tfr_surfs_lst,
-                        incl_small_countries = FALSE,
-                        table_type = "detailed")
-
-## write.xlsx(surfs_and_schoumaker_stalls,
-##           file = file.path(dir_list[["tables_dir"]], "surf_periods_detailed.xlsx"),
-##           asTable = TRUE, tableStyle = "TableStyleMedium2")
-
 ### TFRs
 
 summary(subset(do.call("rbind", tfr_surfs_lst),
                sub_saharan_africa & surf_year)$TFR_median)
 
 ###-----------------------------------------------------------------------------
-### **** Formatted for Manuscript
+### *** Formatted for Manuscript
 
 ### Probabilistic
 
@@ -215,7 +356,7 @@ write.xlsx(list(
                             "Appendix_2_Table_B_probabilistic-for-word.xlsx"),
     asTable = TRUE, tableStyle = "TableStyleMedium2")
 
-### Medians
+### Non-probabilistic
 
 surf_periods_tbl_medians_df <-
     gdata::rename.vars(surfs_tbl_medians,
@@ -237,382 +378,28 @@ write.xlsx(list(
                              `TFR Stalls (Schoumaker, 2019)`)),
                    cols = c("Region", "Subregion", "Country"))),
            file = file.path(dir_list[["tables_dir"]],
-                            "Appendix_2_Table_B_medians-for-word.xlsx"),
+                            "Appendix_2_Table_B_non-probabilistic-for-word.xlsx"),
     asTable = TRUE, tableStyle = "TableStyleMedium2")
 
 ###-----------------------------------------------------------------------------
-### *** Location Counts
+### ** Export 'Database' of SURFs: Appendix 2, Table C
+
+## This is the main output object. Probabilistic and non-probabilistic runs in one
+## workbook.
+
+data(output_column_definitions)
+
+write.xlsx(list(definitions = output_column_definitions,
+                probabilistic = do.call("rbind", tfr_surfs_lst),
+                non_probabilistic = do.call("rbind", tfr_surfs_median_lst)),
+           file = file.path(dir_list[["tables_dir"]], "Appendix_2_Table_C_surfs_database.xlsx"),
+           asTable = TRUE, tableStyle = "TableStyleMedium3")
 
 ###-----------------------------------------------------------------------------
-### **** By Country
-
-surf_loc_country <-
-    rbind(
-        data.frame(SURF_type = "probabilistic",
-                   tabulate_loc_by_surf(tfr_surfs_lst, stat = c("surfs", "years"),
-                                       incl_small_countries = FALSE,
-                                       geographies = c("area_name", "reg_name", "name",
-                                                       "sub_saharan_africa"),
-                                       proj_split = "none")),
-        data.frame(SURF_type = "medians_only",
-                   tabulate_loc_by_surf(tfr_surfs_median_lst, stat = c("surfs", "years"),
-                                       incl_small_countries = FALSE,
-                                       geographies = c("area_name", "reg_name", "name",
-                                                       "sub_saharan_africa"),
-                                       proj_split = "none")))
-
-## write.xlsx(surf_loc_country,
-##            file = file.path(dir_list[["tables_dir"]], "surf_loc_by_country.xlsx"),
-##            asTable = TRUE, tableStyle = "TableStyleMedium2")
-
-### How Many Countries With SURFs?
-
-## All countries (Not Small)
-(countries_w_surfs <-
-    addmargins(xtabs(~ has_surf + SURF_type,
-                     data = transform(surf_loc_country, has_surf = surfs > 0)),
-               margin = 1))
-
-## Among those with SURFs, how many in SSA?
-(ssa_countries_w_surfs <-
-    addmargins(xtabs(~ SURF_type + sub_saharan_africa,
-                     data = subset(surf_loc_country, surfs > 0)), margin = 2))
-
-(ssa_surfs <-
-    addmargins(xtabs(surfs ~ sub_saharan_africa + SURF_type,
-                     data =
-                         stats::aggregate(surfs ~ sub_saharan_africa + SURF_type,
-                                          FUN = "sum",
-                                          data = surf_loc_country)), margin = 1))
-
-## SSA countries with and without SURFs
-(ssa_surfs_country_tbl <-
-    subset(surf_loc_country,
-           SURF_type == "probabilistic" & sub_saharan_africa & surfs > 0,
-           select = c("reg_name", "name", "surfs", "years")))
-
-dim(ssa_surfs_country_tbl)
-
-(ssa_no_surfs_country_tbl <-
-    subset(surf_loc_country,
-           SURF_type == "probabilistic" & sub_saharan_africa & surfs < 1,
-           select = c("reg_name", "name", "surfs", "years")))
-
-dim(ssa_no_surfs_country_tbl)
-
-## Neither a SURF nor a stall
-cc_SURF <- unique(subset(do.call("rbind", tfr_surfs_lst),
-                         surf_year & sub_saharan_africa)[["country_code"]])
-cc_Schoumaker <- unique(subset(do.call("rbind", tfr_surfs_lst),
-                         Schoumaker_stall_any & sub_saharan_africa)[["country_code"]])
-
-(ssa_no_either_country_tbl <-
-    subset(tfrSURFs::UNlocations_countries,
-           sub_saharan_africa & !pop_lt_90k_2024 &
-           !(country_code %in% cc_SURF) & !(country_code %in% cc_Schoumaker),
-           select = c("reg_name", "country_code", "name")))
-
-dim(ssa_no_either_country_tbl)
-
-## Output
-openxlsx::write.xlsx(lapply(setNames(list(countries_w_surfs, ssa_countries_w_surfs, ssa_surfs,
-                              ssa_surfs_country_tbl, ssa_no_either_country_tbl),
-                              nm = c("countries_w_surfs", "ssa_countries_w_surfs", "ssa_surfs",
-                              "ssa_surfs_country_tbl", "ssa_no_either_country_tbl")),
-                            FUN = as.data.frame),
-                     file = file.path(dir_list[["tables_dir"]], "surf_counts_countries.xlsx"),
-                     asTable = TRUE, tableStyle = "TableStyleMedium2")
+### * Plots
 
 ###-----------------------------------------------------------------------------
-### **** By Subregion
-
-surf_loc_subregion <-
-    rbind(
-        data.frame(SURF_type = "probabilistic",
-                   tabulate_loc_by_surf(tfr_surfs_lst, stat = c("surfs", "years"),
-                                       incl_small_countries = FALSE,
-                                       geographies = c("area_name", "reg_name"),
-                                       proj_split = "none")),
-        data.frame(SURF_type = "medians_only",
-                   tabulate_loc_by_surf(tfr_surfs_median_lst, stat = c("surfs", "years"),
-                                       incl_small_countries = FALSE,
-                                       geographies = c("area_name", "reg_name"),
-                                       proj_split = "none")))
-
-## write.xlsx(surf_loc_subregion,
-##            file = file.path(dir_list[["tables_dir"]], "surf_loc_by_subregion.xlsx"),
-##            asTable = TRUE, tableStyle = "TableStyleMedium2")
-
-### How Many Subregions With SURFs?
-
-countries_w_surfs <-
-    by(surf_loc_subregion, INDICES = surf_loc_subregion["SURF_type"],
-       FUN = function(z) {
-           z$has_surf <- "No SURFs"
-           z[z["surfs"] > 0, "has_surf"] <- "SURFs"
-           addmargins(table(z["has_surf"]))
-       })
-
-###-----------------------------------------------------------------------------
-### *** SURF Counts
-
-###-----------------------------------------------------------------------------
-### **** By Country
-
-surf_count_country <-
-    rbind(
-        data.frame(SURF_type = "probabilistic",
-                   tabulate_surf_stats(tfr_surfs_lst, stat = "count",
-                                       incl_small_countries = FALSE,
-                                       filter_zero_rows = FALSE,
-                                        geographies = c("area_name", "reg_name", "name"),
-                                        proj_split = "by_year")),
-        data.frame(SURF_type = "medians_only",
-                   tabulate_surf_stats(tfr_surfs_median_lst, stat = "count",
-                                       incl_small_countries = FALSE,
-                                       filter_zero_rows = FALSE,
-                                       geographies = c("area_name", "reg_name", "name"),
-                                       proj_split = "by_year")))
-
-## write.xlsx(surf_count_country,
-##           file = file.path(dir_list[["tables_dir"]], "surf_count_by_country.xlsx"),
-##           asTable = TRUE, tableStyle = "TableStyleMedium2")
-
-###-----------------------------------------------------------------------------
-### **** By Subregion
-
-surf_count_subregion <-
-    rbind(
-        data.frame(SURF_type = "probabilistic",
-                   tabulate_surf_stats(tfr_surfs_lst, stat = "count",
-                                       incl_small_countries = FALSE,
-                                       filter_zero_rows = FALSE,
-                                       geographies = c("area_name", "reg_name", "global"),
-                                        proj_split = "by_year")),
-        data.frame(SURF_type = "medians_only",
-                   tabulate_surf_stats(tfr_surfs_median_lst, stat = "count",
-                                       incl_small_countries = FALSE,
-                                       filter_zero_rows = FALSE,
-                                       geographies = c("area_name", "reg_name", "global"),
-                                        proj_split = "by_year")))
-
-## write.xlsx(surf_count_subregion,
-##           file = file.path(dir_list[["tables_dir"]], "surf_count_by_subregion.xlsx"),
-##           asTable = TRUE, tableStyle = "TableStyleMedium2")
-
-###-----------------------------------------------------------------------------
-### **** Sub-Saharan Africa
-
-surf_count_sub_sah_afr <-
-    rbind(
-        data.frame(SURF_type = "probabilistic",
-                   tabulate_surf_stats(tfr_surfs_lst, stat = "count",
-                                       incl_small_countries = FALSE,
-                                       filter_zero_rows = FALSE,
-                                       geographies = c("sub_saharan_africa", "global"),
-                                        proj_split = "by_year")),
-        data.frame(SURF_type = "medians_only",
-                   tabulate_surf_stats(tfr_surfs_median_lst, stat = "count",
-                                       incl_small_countries = FALSE,
-                                       filter_zero_rows = FALSE,
-                                       geographies = c("sub_saharan_africa", "global"),
-                                        proj_split = "by_year")))
-
-## write.xlsx(surf_count_sub_sah_afr,
-##           file = file.path(dir_list[["tables_dir"]], "surf_count_by_sub_sah_afr.xlsx"),
-##           asTable = TRUE, tableStyle = "TableStyleMedium2")
-
-###-----------------------------------------------------------------------------
-### **** Region
-
-surf_count_region <-
-    rbind(
-        data.frame(SURF_type = "probabilistic",
-                   tabulate_surf_stats(tfr_surfs_lst, stat = "count",
-                                       incl_small_countries = FALSE,
-                                       filter_zero_rows = FALSE,
-                                       geographies = c("area_name", "reg_name", "global"),
-                                        proj_split = "by_year")),
-        data.frame(SURF_type = "medians_only",
-                   tabulate_surf_stats(tfr_surfs_median_lst, stat = "count",
-                                       incl_small_countries = FALSE,
-                                       filter_zero_rows = FALSE,
-                                       geographies = c("area_name", "reg_name", "global"),
-                                        proj_split = "by_year")))
-
-## write.xlsx(surf_count_region,
-##            file = file.path(dir_list[["tables_dir"]], "surf_count_by_region.xlsx"),
-##            asTable = TRUE, tableStyle = "TableStyleMedium2")
-
-###-----------------------------------------------------------------------------
-### *** SURF Lengths
-
-###-----------------------------------------------------------------------------
-### **** By Country
-
-surf_len_country <-
-    rbind(
-        data.frame(SURF_type = "probabilistic",
-                   tabulate_surf_stats(tfr_surfs_lst, stat = "avg_len",
-                                       incl_small_countries = FALSE,
-                                       filter_zero_rows = FALSE,
-                                       geographies = c("area_name", "reg_name", "name", "global"),
-                                       proj_split = "by_year")),
-        data.frame(SURF_type = "medians_only",
-                   tabulate_surf_stats(tfr_surfs_median_lst, stat = "avg_len",
-                                       incl_small_countries = FALSE,
-                                       filter_zero_rows = FALSE,
-                                       geographies = c("area_name", "reg_name", "name", "global"),
-                                       proj_split = "by_year")))
-
-## write.xlsx(surf_len_country,
-##            file = file.path(dir_list[["tables_dir"]], "surf_lengths_by_country.xlsx"),
-##            asTable = TRUE, tableStyle = "TableStyleMedium2")
-
-###-----------------------------------------------------------------------------
-### **** By Subregion
-
-surf_len_subregion <-
-    rbind(
-        data.frame(SURF_type = "probabilistic",
-                   tabulate_surf_stats(tfr_surfs_lst, stat = "avg_len",
-                                       incl_small_countries = FALSE,
-                                       filter_zero_rows = FALSE,
-                                       geographies = c("area_name", "reg_name", "global"),
-                                         proj_split = "by_year")),
-        data.frame(SURF_type = "medians_only",
-                   tabulate_surf_stats(tfr_surfs_median_lst, stat = "avg_len",
-                                       incl_small_countries = FALSE,
-                                       filter_zero_rows = FALSE,
-                                       geographies = c("area_name", "reg_name", "global"),
-                                         proj_split = "by_year")))
-
-## write.xlsx(surf_len_subregion,
-##            file = file.path(dir_list[["tables_dir"]], "surf_lengths_by_subregion.xlsx"),
-##            asTable = TRUE, tableStyle = "TableStyleMedium2")
-
-
-### Using 'by_year'
-
-surf_len_subregion_by_year <-
-    tabulate_surf_stats(tfr_surfs_lst, stat = "avg_len",
-                    incl_small_countries = FALSE,
-                                       filter_zero_rows = FALSE,
-                    geographies = c("area_name", "reg_name", "global"),
-                    proj_split = "by_year")
-
-###-----------------------------------------------------------------------------
-### **** Sub-Saharan Africa
-
-surf_len_sub_sah_afr <-
-    rbind(
-        data.frame(SURF_type = "probabilistic",
-                   tabulate_surf_stats(tfr_surfs_lst, stat = "avg_len",
-                                       incl_small_countries = FALSE,
-                                       filter_zero_rows = FALSE,
-                                       geographies = c("sub_saharan_africa", "global"),
-                                         proj_split = "by_year")),
-        data.frame(SURF_type = "medians_only",
-                   tabulate_surf_stats(tfr_surfs_median_lst, stat = "avg_len",
-                                       incl_small_countries = FALSE,
-                                       filter_zero_rows = FALSE,
-                                       geographies = c("sub_saharan_africa", "global"),
-                                         proj_split = "by_year")))
-
-## write.xlsx(surf_len_sub_sah_afr,
-##            file = file.path(dir_list[["tables_dir"]], "surf_lengths_by_sub_sah_afr.xlsx"),
-##            asTable = TRUE, tableStyle = "TableStyleMedium2")
-
-###-----------------------------------------------------------------------------
-### **** By Region
-
-surf_len_region <-
-    rbind(
-        data.frame(SURF_type = "probabilistic",
-                   tabulate_surf_stats(tfr_surfs_lst, stat = "avg_len",
-                                       incl_small_countries = FALSE,
-                                       filter_zero_rows = FALSE,
-                                       geographies = c("area_name", "global"),
-                                         proj_split = "by_year")),
-        data.frame(SURF_type = "medians_only",
-                   tabulate_surf_stats(tfr_surfs_median_lst, stat = "avg_len",
-                                       incl_small_countries = FALSE,
-                                       filter_zero_rows = FALSE,
-                                       geographies = c("area_name", "global"),
-                                         proj_split = "by_year")))
-
-## write.xlsx(surf_len_region,
-##            file = file.path(dir_list[["tables_dir"]], "surf_lengths_by_region.xlsx"),
-##            asTable = TRUE, tableStyle = "TableStyleMedium2")
-
-###-----------------------------------------------------------------------------
-### *** SURF Statistics: Appendix 2, Table A
-
-surf_stats_subreg <-
-    base::merge(surf_count_subregion, surf_len_subregion, sort = FALSE)
-
-cols_sub <- c("SURF_type",
-              "area_name", "reg_name", "count_estimates", "avg_len_estimates",
-              "count_projections", "avg_len_projections",
-              "count", "avg_len")
-surf_stats_subreg <-
-    surf_stats_subreg[, cols_sub[cols_sub %in% colnames(surf_stats_subreg)]]
-
-## surf_stats_subreg <-
-##     rbind(subset(surf_stats_subreg, area_name != "GLOBAL"),
-##           subset(surf_stats_subreg, area_name == "GLOBAL"))
-
-## format_cols <- grep("avg_len", colnames(surf_stats_subreg))
-## for (j in format_cols) {
-##     surf_stats_subreg[, j] <- formatC(surf_stats_subreg[, j], format = "f", digits = 1)
-## }
-
-cols_sub <- c("area_name", "reg_name", "count_estimates", "avg_len_estimates",
-              "count_projections", "avg_len_projections", "count", "avg_len")
-cols_to <- c("Count (estimates)", "Avg. Length (estimates)",
-             "Count (projections)", "Avg. Length (projections)",
-             "Count (total)", "Avg. Length (total)")
-
-surf_stats_subreg <-
-    gdata::rename.vars(surf_stats_subreg,
-                       from = cols_sub[cols_sub %in% colnames(surf_stats_subreg)],
-                       to = c("Region", "Subregion", cols_to)[cols_sub %in% colnames(surf_stats_subreg)],
-                       info = FALSE)
-
-write.xlsx(list(
-    definitions =
-        data.frame(name = cols_to,
-                   type = "numeric",
-                   description =
-                       c("Number of SURFs (estimation period only)",
-                         "Average length of SURFs (years; estimation period only)",
-                         "Number of SURFs (projection period only)",
-                         "Average length of SURFs (years; projection period only)",
-                         "Number of SURFs (all years)",
-                         "Average length of SURFs (years; all years)")),
-    probabilistic = subset(surf_stats_subreg, SURF_type == "probabilistic",
-                           select = -SURF_type),
-    non_probabilistic = subset(surf_stats_subreg, SURF_type == "medians_only",
-                               select = -SURF_type)),
-    file = file.path(dir_list[["tables_dir"]], "Appendix_2_Table_A.xlsx"),
-    asTable = TRUE, tableStyle = "TableStyleMedium2",
-    keepNA = TRUE, na.string = "-")
-
-###-----------------------------------------------------------------------------
-### ** Plots
-
-## ###-----------------------------------------------------------------------------
-## ### *** Frequency Plots
-
-## plot_df <- do.call("rbind", tfr_surfs_lst)
-
-## ggplot(data = subset(plot_df, surf_year_start),
-##        aes(x = year, fill = area_name)) +
-##     geom_histogram() +
-##     facet_wrap(~ reg_name)
-
-###-----------------------------------------------------------------------------
-### *** Line Plots: Appendix 3, Supplementary Plots
+### ** Line Plots: Appendix 3, Supplementary Plots
 
 ### PDFs
 pdf(file = file.path(dir_list[["pdf_plots_dir"]], "Appendix_3_Supp_Plots_probabilistic_surfs.pdf"),
